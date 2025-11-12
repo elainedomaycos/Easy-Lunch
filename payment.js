@@ -1,8 +1,9 @@
-// ========== COMPLETE CART & PAYMENT SYSTEM ==========
-// Combines localStorage cart management with multi-payment support
+// ========== COMPLETE CART & PAYMENT SYSTEM WITH FIREBASE ==========
+// Combines localStorage cart management with multi-payment support and Firebase real-time sync
 
 (function() {
   const CART_KEY = 'easy_lunch_cart_v1';
+  const ORDERS_KEY = 'easy_lunch_orders_v1';
 
   // ========== CART MANAGEMENT ==========
   function loadCart() {
@@ -25,9 +26,9 @@
     const cart = loadCart();
     const found = cart.find(i => i.name === item.name);
     if(found) {
-      found.qty += 1;
+      found.quantity = (found.quantity || 1) + (item.quantity || 1);
     } else {
-      cart.push(item);
+      cart.push({...item, quantity: item.quantity || 1});
     }
     saveCart(cart);
     renderCart();
@@ -35,7 +36,6 @@
   }
 
   function showCartNotification(itemName) {
-    // Create a simple notification
     const notification = document.createElement('div');
     notification.style.cssText = `
       position: fixed;
@@ -75,7 +75,7 @@
     
     let subtotal = 0;
     cart.forEach((item, idx) => {
-      subtotal += item.price * item.qty;
+      subtotal += item.price * (item.quantity || 1);
       const row = document.createElement('div');
       row.className = 'cart-item';
       row.innerHTML = `
@@ -84,11 +84,11 @@
           <h3>${item.name}</h3>
           <div class="quantity-control">
             <button class="dec" data-i="${idx}">-</button>
-            <span>${item.qty}</span>
+            <span>${item.quantity || 1}</span>
             <button class="inc" data-i="${idx}">+</button>
           </div>
         </div>
-        <p class="item-price">₱${(item.price * item.qty).toFixed(2)}</p>
+        <p class="item-price">₱${(item.price * (item.quantity || 1)).toFixed(2)}</p>
         <button class="delete-item" data-i="${idx}">🗑️</button>
       `;
       container.appendChild(row);
@@ -102,13 +102,19 @@
   function updateTotals(subtotal, deliveryFee, discount) {
     const total = subtotal + deliveryFee - discount;
     
-    // Update cart modal totals
-    const subtotalEls = document.querySelectorAll('.summary-line:nth-child(1) span:last-child');
+    const subtotalEls = document.querySelectorAll('.summary-line:nth-child(1) span:last-child, .summary-line span:last-child');
     const deliveryEls = document.querySelectorAll('.summary-line:nth-child(3) span:last-child');
     const totalEls = document.querySelectorAll('.summary-total span:last-child');
     
-    subtotalEls.forEach(el => el.textContent = `₱${subtotal.toFixed(2)}`);
-    deliveryEls.forEach(el => el.textContent = `₱${deliveryFee.toFixed(2)}`);
+    document.querySelectorAll('.summary-line').forEach(line => {
+      if(line.textContent.includes('Subtotal')) {
+        line.querySelector('span:last-child').textContent = `₱${subtotal.toFixed(2)}`;
+      }
+      if(line.textContent.includes('Delivery')) {
+        line.querySelector('span:last-child').textContent = `₱${deliveryFee.toFixed(2)}`;
+      }
+    });
+    
     totalEls.forEach(el => el.textContent = `₱${total.toFixed(2)}`);
     
     return { subtotal, deliveryFee, discount, total };
@@ -123,12 +129,28 @@
       const card = target.closest('.product-card') || target.closest('.popup-content-new');
       if(!card) return;
       
-      const item = {
-        name: card.querySelector('.product-name')?.textContent || card.querySelector('#popup-title')?.textContent || 'Product',
-        price: parseFloat((card.querySelector('.product-price')?.textContent || card.querySelector('#popup-price')?.textContent || '0').replace(/[^\d.]/g,'')),
-        img: card.querySelector('.product-image')?.src || card.querySelector('#popup-img')?.src || '',
-        qty: 1
-      };
+      let item;
+      if(card.dataset.name && card.dataset.price) {
+        // Use dataset if available
+        item = {
+          name: card.dataset.name,
+          price: parseFloat(card.dataset.price),
+          img: card.dataset.img || '',
+          quantity: 1
+        };
+      } else {
+        // Fallback to DOM elements
+        const nameEl = card.querySelector('.product-name') || card.querySelector('#popup-title');
+        const priceEl = card.querySelector('.product-price') || card.querySelector('#popup-price');
+        const imgEl = card.querySelector('.product-image') || card.querySelector('#popup-img');
+        
+        item = {
+          name: nameEl ? nameEl.textContent.trim() : 'Product',
+          price: parseFloat((priceEl ? priceEl.textContent : '0').replace(/[^\d.]/g, '')),
+          img: imgEl ? imgEl.src : '',
+          quantity: 1
+        };
+      }
       
       addToCart(item);
       return;
@@ -142,9 +164,9 @@
       if(isNaN(idx) || !cart[idx]) return;
       
       if(target.matches('.inc')) {
-        cart[idx].qty += 1;
+        cart[idx].quantity = (cart[idx].quantity || 1) + 1;
       } else if(target.matches('.dec')) {
-        cart[idx].qty = Math.max(1, cart[idx].qty - 1);
+        cart[idx].quantity = Math.max(1, (cart[idx].quantity || 1) - 1);
       } else if(target.matches('.delete-item')) {
         cart.splice(idx, 1);
       }
@@ -183,7 +205,6 @@
       radio.addEventListener('change', () => showMethod(radio.value));
     });
     
-    // Initialize with default checked
     const checked = Array.from(methodRadios).find(r => r.checked);
     if(checked) showMethod(checked.value);
   }
@@ -203,8 +224,8 @@
     }
     
     const cart = loadCart();
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    const total = subtotal + 30; // Add delivery fee
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+    const total = subtotal + 30;
     
     paypal.Buttons({
       createOrder: function(data, actions) {
@@ -231,7 +252,7 @@
     paypalRendered = true;
   }
 
-  // ========== ORDER COMPLETION ==========
+  // ========== ORDER COMPLETION WITH FIREBASE ==========
   function getOrderData(paymentMethod, reference = null) {
     const cart = loadCart();
     const inputs = document.querySelectorAll('.checkout-section input');
@@ -246,17 +267,17 @@
       },
       items: cart,
       totals: {
-        subtotal: cart.reduce((sum, item) => sum + (item.price * item.qty), 0),
+        subtotal: cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0),
         deliveryFee: 30,
         discount: 0,
-        total: cart.reduce((sum, item) => sum + (item.price * item.qty), 0) + 30
+        total: cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0) + 30
       },
       payment: {
         method: paymentMethod,
         reference: reference,
         status: paymentMethod === 'paypal' ? 'paid' : (paymentMethod === 'cod' ? 'pending' : 'awaiting_verification')
       },
-      status: 'placed'
+      status: 'pending'
     };
     
     return orderData;
@@ -267,6 +288,7 @@
       if(typeof firebase !== 'undefined' && firebase.firestore) {
         const db = firebase.firestore();
         const docRef = await db.collection('orders').add(orderData);
+        console.log('Order saved to Firestore:', docRef.id);
         return { success: true, id: docRef.id };
       }
     } catch(e) {
@@ -275,15 +297,33 @@
     return { success: false };
   }
 
+  function saveOrderToLocalStorage(orderData) {
+    try {
+      const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+      orders.unshift(orderData);
+      localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+      
+      // Trigger custom event for same-tab listeners
+      window.dispatchEvent(new Event('orders-updated'));
+      
+      return { success: true };
+    } catch(e) {
+      console.error('LocalStorage save error:', e);
+      return { success: false };
+    }
+  }
+
   function completeOrder(paymentMethod, reference = null, details = null) {
     const orderData = getOrderData(paymentMethod, reference);
     
-    // Save to Firebase if available
+    // Save to both Firebase and localStorage
     saveOrderToFirebase(orderData).then(result => {
       if(result.success) {
         orderData.firebaseId = result.id;
       }
     });
+    
+    saveOrderToLocalStorage(orderData);
     
     // Clear cart
     clearCart();
@@ -304,23 +344,34 @@
       // Update order info
       const orderInfoBar = confirmationModal.querySelector('.order-info-bar');
       if(orderInfoBar) {
-        const paymentInfo = document.createElement('div');
-        paymentInfo.innerHTML = `<strong>Payment:</strong> ${paymentMethod.toUpperCase()}`;
-        orderInfoBar.appendChild(paymentInfo);
+        // Clear existing dynamic info
+        const dynamicInfo = orderInfoBar.querySelectorAll('div:not(:first-child):not(:last-child)');
+        dynamicInfo.forEach(el => el.remove());
+        
+        // Add payment info
+        const paymentDiv = document.createElement('div');
+        paymentDiv.innerHTML = `<strong>Payment:</strong> ${paymentMethod.toUpperCase()}`;
+        orderInfoBar.insertBefore(paymentDiv, orderInfoBar.lastElementChild);
         
         if(reference) {
-          const refInfo = document.createElement('div');
-          refInfo.innerHTML = `<strong>Ref:</strong> ${reference}`;
-          orderInfoBar.appendChild(refInfo);
+          const refDiv = document.createElement('div');
+          refDiv.innerHTML = `<strong>Ref:</strong> ${reference}`;
+          orderInfoBar.insertBefore(refDiv, orderInfoBar.lastElementChild);
+        }
+        
+        // Update order ID
+        const orderIdDiv = orderInfoBar.querySelector('div:first-child');
+        if(orderIdDiv) {
+          orderIdDiv.innerHTML = `<strong>Order ID:</strong> ${orderData.orderId}`;
         }
       }
       
-      // Update order items in confirmation
-      updateConfirmationItems(orderData.items);
+      // Update order items
+      updateConfirmationItems(orderData.items, orderData.totals);
     }
   }
 
-  function updateConfirmationItems(items) {
+  function updateConfirmationItems(items, totals) {
     const orderDetailsContainer = document.querySelector('.order-details');
     if(!orderDetailsContainer) return;
     
@@ -329,20 +380,29 @@
         <img src="${item.img}" alt="${item.name}">
         <div>
           <p><strong>${item.name}</strong></p>
-          <p class="desc">Quantity: ${item.qty}</p>
+          <p class="desc">Quantity: ${item.quantity || 1}</p>
         </div>
-        <span class="price">₱${(item.price * item.qty).toFixed(2)}</span>
+        <span class="price">₱${(item.price * (item.quantity || 1)).toFixed(2)}</span>
       </div>
     `).join('');
     
+    // Clear existing items
+    const existingItems = orderDetailsContainer.querySelectorAll('.order-item');
+    existingItems.forEach(el => el.remove());
+    
+    // Insert new items after h4
     const itemsSection = orderDetailsContainer.querySelector('h4');
     if(itemsSection) {
-      // Clear existing items
-      const existingItems = orderDetailsContainer.querySelectorAll('.order-item');
-      existingItems.forEach(el => el.remove());
-      
-      // Insert new items after h4
       itemsSection.insertAdjacentHTML('afterend', itemsHTML);
+    }
+    
+    // Update totals
+    const summaryBottom = document.querySelector('.order-summary-bottom');
+    if(summaryBottom && totals) {
+      summaryBottom.querySelector('.summary-line:nth-child(1) span:last-child').textContent = `₱${totals.subtotal.toFixed(2)}`;
+      summaryBottom.querySelector('.summary-line:nth-child(2) span:last-child').textContent = `₱${totals.deliveryFee.toFixed(2)}`;
+      summaryBottom.querySelector('.summary-line:nth-child(3) span:last-child').textContent = `-₱${totals.discount.toFixed(2)}`;
+      summaryBottom.querySelector('.summary-total span:last-child').textContent = `₱${totals.total.toFixed(2)}`;
     }
   }
 
@@ -392,7 +452,6 @@
       } else if(method === 'cod') {
         completeOrder('cod');
       } else if(method === 'paypal') {
-        // PayPal handles its own flow
         alert('Please use the PayPal button below to complete payment.');
       }
     });
@@ -409,6 +468,18 @@
     if(checkoutBtn) {
       checkoutBtn.addEventListener('click', function() {
         paypalRendered = false;
+      });
+    }
+    
+    // Close confirmation modal
+    const closeConfirmation = document.getElementById('closeConfirmation');
+    if(closeConfirmation) {
+      closeConfirmation.addEventListener('click', function() {
+        const modal = document.getElementById('confirmationModal');
+        if(modal) {
+          modal.style.display = 'none';
+          document.body.style.overflow = 'auto';
+        }
       });
     }
   });

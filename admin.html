@@ -105,6 +105,7 @@
             color: white;
             padding: 2rem 0;
             z-index: 1000;
+            overflow-y: auto;
         }
 
         .logo {
@@ -246,7 +247,208 @@
             color: var(--primary);
         }
 
-        /* Product Grid */
+        /* Order Items */
+        .order-item {
+            border-bottom: 1px solid #eee;
+            padding: 1.5rem 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .order-id {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.6rem;
+        }
+
+        .order-status {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-ready {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .order-customer {
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .order-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+
+        .order-item-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .order-item-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+
+        .order-item-details {
+            flex: 1;
+        }
+
+        .order-item-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .order-item-qty {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .order-item-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-sm {
+            padding: 0.6rem 1.2rem;
+            font-size: 1.2rem;
+            border-radius: 0.5rem;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--primary-dark);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Chat Sessions */
+        .chat-sessions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .chat-session-card {
+            background: #f8f8f8;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .chat-session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chat-session-id {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .chat-human-request {
+            background: var(--warning);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .chat-session-user {
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .chat-session-time {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .chat-messages-preview {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.5rem;
+        }
+
+        .chat-message {
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .chat-message.bot {
+            background: #fff1cc;
+            color: #5b2c00;
+        }
+
+        .chat-message.user {
+            background: #f3f3f3;
+            color: #222;
+        }
+
+        /* Products Grid */
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -285,6 +487,16 @@
             color: var(--primary);
             font-weight: 700;
             font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-category {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: var(--secondary);
+            color: var(--primary-dark);
+            border-radius: 1rem;
+            font-size: 1.2rem;
             margin-bottom: 1rem;
         }
 
@@ -294,30 +506,90 @@
             margin-top: 1rem;
         }
 
-        .btn-sm {
-            padding: 0.6rem 1.2rem;
-            font-size: 1.2rem;
+        /* Product Modal */
+        .product-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
         }
 
-        .btn-secondary {
-            background: var(--secondary);
-            color: var(--primary-dark);
+        .product-modal-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
-        .btn-danger {
-            background: var(--danger);
-            color: white;
+        .product-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
+        .product-modal-title {
+            font-size: 2.4rem;
+            color: var(--primary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 3rem;
+            cursor: pointer;
             color: var(--text-light);
         }
 
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1.4rem;
+            font-family: 'Ubuntu', sans-serif;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: var(--text-light);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -393,12 +665,12 @@
                         <div class="value" id="pendingOrders">0</div>
                     </div>
                     <div class="stat-card">
-                        <h3>Total Products</h3>
-                        <div class="value" id="totalProducts">0</div>
+                        <h3>Completed Today</h3>
+                        <div class="value" id="completedToday">0</div>
                     </div>
                     <div class="stat-card">
-                        <h3>Active Chats</h3>
-                        <div class="value" id="activeChats">0</div>
+                        <h3>Total Products</h3>
+                        <div class="value" id="totalProducts">0</div>
                     </div>
                 </div>
 
@@ -406,7 +678,7 @@
                     <div class="card-header">
                         <h3 class="card-title">Recent Activity</h3>
                     </div>
-                    <p>Welcome to your admin dashboard! Here you can manage orders, products, and customer chats.</p>
+                    <p>Welcome to your admin dashboard! Here you can manage orders and customer chats in real-time.</p>
                 </div>
             </section>
 
@@ -416,9 +688,11 @@
                     <div class="card-header">
                         <h3 class="card-title">Order Management</h3>
                     </div>
-                    <div class="empty-state">
-                        <div class="empty-state-icon">🛒</div>
-                        <p>No orders yet</p>
+                    <div id="ordersContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🛒</div>
+                            <p>No orders yet</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -430,16 +704,10 @@
                         <h3 class="card-title">Product Management</h3>
                         <button class="btn btn-primary" id="addProductBtn">Add Product</button>
                     </div>
-                    <div class="products-grid">
-                        <div class="product-card">
-                            <img src="https://via.placeholder.com/300x200?text=Product+Image" alt="Product" class="product-image">
-                            <h3 class="product-name">Sample Product</h3>
-                            <div class="product-price">₱99.00</div>
-                            <p>This is a sample product description.</p>
-                            <div class="product-actions">
-                                <button class="btn btn-secondary btn-sm">Edit</button>
-                                <button class="btn btn-danger btn-sm">Delete</button>
-                            </div>
+                    <div id="productsContainer" class="products-grid">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🍗</div>
+                            <p>Loading products...</p>
                         </div>
                     </div>
                 </div>
@@ -451,13 +719,66 @@
                     <div class="card-header">
                         <h3 class="card-title">Live Chat Support</h3>
                     </div>
-                    <div class="empty-state">
-                        <div class="empty-state-icon">💬</div>
-                        <p>No active chats</p>
+                    <div id="chatsContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💬</div>
+                            <p>No active chats</p>
+                        </div>
                     </div>
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="product-modal">
+        <div class="product-modal-content">
+            <div class="product-modal-header">
+                <h2 class="product-modal-title" id="productModalTitle">Add Product</h2>
+                <button class="close-modal" id="closeProductModal">&times;</button>
+            </div>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                <div class="form-group">
+                    <label for="productName">Product Name *</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Price (₱) *</label>
+                    <input type="number" id="productPrice" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="productCategory">Category *</label>
+                    <select id="productCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="wings">Chicken Wings</option>
+                        <option value="pizza">Pizza</option>
+                        <option value="burgers">Burgers</option>
+                        <option value="sides">Sides</option>
+                        <option value="drinks">Drinks</option>
+                        <option value="combo">Combo Meals</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="productDescription">Description</label>
+                    <textarea id="productDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="productImage">Image URL</label>
+                    <input type="text" id="productImage" placeholder="e.g., buff.jfif">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="productBestSeller">
+                        Best Seller
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" id="cancelProductBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -476,7 +797,14 @@
         }
 
         const auth = firebase.auth();
+        const db = firebase.firestore();
+        const rtdb = firebase.database();
         const ADMIN_EMAIL = "domaycoselaine@gmail.com";
+        const ORDERS_KEY = 'easy_lunch_orders_v1';
+        const PRODUCTS_KEY = 'easy_lunch_products_v1';
+
+        let ordersListener = null;
+        let chatsListener = null;
 
         // Check authentication state
         auth.onAuthStateChanged((user) => {
@@ -485,13 +813,10 @@
             const isAdmin = user && user.email === ADMIN_EMAIL;
             
             if (isAdmin) {
-                // User is admin, show dashboard
                 showAdminDashboard(user);
             } else if (user) {
-                // User is logged in but not admin
                 showAccessDenied();
             } else {
-                // User is not logged in - redirect to main site
                 console.log('No user logged in, redirecting to main site');
                 window.location.href = 'index.html';
             }
@@ -503,12 +828,10 @@
             document.getElementById('accessDenied').style.display = 'none';
             document.getElementById('adminDashboard').style.display = 'block';
             
-            // Update user avatar
             if (user.email) {
                 document.getElementById('adminAvatar').textContent = user.email[0].toUpperCase();
             }
             
-            // Initialize admin dashboard functionality
             initAdminDashboard();
         }
 
@@ -545,20 +868,523 @@
                 });
             });
 
-            // Setup "Go to Main Site" button
             document.getElementById('goToMainSite').addEventListener('click', () => {
                 window.location.href = 'index.html';
             });
 
-            // Add product button
-            document.getElementById('addProductBtn').addEventListener('click', () => {
-                alert('Add product functionality would go here!');
-            });
+            // Listen to localStorage orders (from payment.js)
+            listenToLocalStorageOrders();
+            
+            // Listen to Firebase orders (if you decide to save them there too)
+            listenToFirebaseOrders();
+            
+            // Listen to chat sessions
+            listenToChats();
+
+            // Load and manage products
+            loadProducts();
+            initProductModal();
 
             console.log('Admin dashboard fully initialized');
         }
 
-        // If page loads and no auth state change after 3 seconds, redirect
+        // Listen to localStorage orders
+        function listenToLocalStorageOrders() {
+            function updateOrdersFromLocalStorage() {
+                try {
+                    const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+                    renderOrders(orders);
+                    updateStats(orders);
+                } catch (e) {
+                    console.error('Error reading orders:', e);
+                }
+            }
+
+            // Initial load
+            updateOrdersFromLocalStorage();
+
+            // Listen to storage events (from other tabs)
+            window.addEventListener('storage', (e) => {
+                if (e.key === ORDERS_KEY) {
+                    updateOrdersFromLocalStorage();
+                }
+            });
+
+            // Listen to custom event (from same tab)
+            window.addEventListener('orders-updated', updateOrdersFromLocalStorage);
+
+            // Poll every 2 seconds for changes
+            setInterval(updateOrdersFromLocalStorage, 2000);
+        }
+
+        // Listen to Firebase orders
+        function listenToFirebaseOrders() {
+            ordersListener = db.collection('orders')
+                .orderBy('timestamp', 'desc')
+                .limit(50)
+                .onSnapshot((snapshot) => {
+                    const orders = [];
+                    snapshot.forEach((doc) => {
+                        orders.push({ id: doc.id, ...doc.data() });
+                    });
+                    console.log('Firebase orders updated:', orders.length);
+                    // You can merge with localStorage orders if needed
+                }, (error) => {
+                    console.error('Error listening to orders:', error);
+                });
+        }
+
+        function renderOrders(orders) {
+            const container = document.getElementById('ordersContainer');
+            if (!container) return;
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🛒</div>
+                        <p>No orders yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const ordersHtml = orders.map(order => {
+                const statusClass = `status-${order.status || 'pending'}`;
+                const itemsHtml = (order.items || []).map(item => `
+                    <div class="order-item-row">
+                        <img src="${item.img || ''}" alt="${item.name}" class="order-item-img">
+                        <div class="order-item-details">
+                            <div class="order-item-name">${item.name}</div>
+                            <div class="order-item-qty">Qty: ${item.quantity || 1}</div>
+                        </div>
+                        <div class="order-item-price">₱${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</div>
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="order-item">
+                        <div class="order-header">
+                            <div>
+                                <div class="order-id">${order.orderId || order.id}</div>
+                                <div class="order-customer">
+                                    ${order.customer?.fullName || 'Guest'} • ${order.customer?.contact || ''}
+                                </div>
+                                <div style="font-size: 1.2rem; color: #999;">
+                                    ${new Date(order.timestamp || order.created_at).toLocaleString()}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="order-status ${statusClass}">${(order.status || 'pending').toUpperCase()}</div>
+                                <div style="text-align: right; margin-top: 0.5rem;">
+                                    <strong>₱${(order.totals?.total || order.total || 0).toFixed(2)}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="order-items-list">${itemsHtml}</div>
+                        ${order.customer?.address ? `<div style="color: #666; margin-top: 1rem;">📍 ${order.customer.address}</div>` : ''}
+                        <div class="order-actions">
+                            ${order.status === 'pending' || !order.status ? `
+                                <button class="btn btn-sm btn-secondary" onclick="updateOrderStatus('${order.orderId || order.id}', 'ready')">Mark as Ready</button>
+                            ` : ''}
+                            ${order.status === 'ready' || order.status === 'pending' || !order.status ? `
+                                <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.orderId || order.id}', 'completed')">Mark as Completed</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = ordersHtml;
+        }
+
+        function updateStats(orders) {
+            const totalOrders = orders.length;
+            const pendingOrders = orders.filter(o => o.status === 'pending' || !o.status).length;
+            const today = new Date().toDateString();
+            const completedToday = orders.filter(o => 
+                o.status === 'completed' && 
+                new Date(o.timestamp || o.created_at).toDateString() === today
+            ).length;
+
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('pendingOrders').textContent = pendingOrders;
+            document.getElementById('completedToday').textContent = completedToday;
+        }
+
+        window.updateOrderStatus = function(orderId, newStatus) {
+            try {
+                const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+                const orderIndex = orders.findIndex(o => (o.orderId || o.id) === orderId);
+                
+                if (orderIndex !== -1) {
+                    orders[orderIndex].status = newStatus;
+                    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+                    renderOrders(orders);
+                    updateStats(orders);
+                    
+                    // Trigger event for other listeners
+                    window.dispatchEvent(new Event('orders-updated'));
+                    
+                    alert(`Order ${orderId} updated to ${newStatus}`);
+                }
+            } catch (e) {
+                console.error('Error updating order:', e);
+            }
+        };
+
+        // Listen to chat sessions
+        function listenToChats() {
+            // Firestore chat sessions
+            db.collection('chat_sessions')
+                .orderBy('lastActiveAt', 'desc')
+                .limit(20)
+                .onSnapshot((snapshot) => {
+                    const sessions = [];
+                    snapshot.forEach((doc) => {
+                        sessions.push({ id: doc.id, ...doc.data() });
+                    });
+                    renderChats(sessions);
+                    document.getElementById('activeChats').textContent = sessions.filter(s => s.humanRequested).length;
+                }, (error) => {
+                    console.error('Error listening to chats:', error);
+                });
+
+            // Realtime Database chat sessions
+            rtdb.ref('chat_sessions').orderByChild('lastActiveAt').limitToLast(20).on('value', (snapshot) => {
+                const sessions = [];
+                snapshot.forEach((childSnapshot) => {
+                    sessions.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+                sessions.reverse(); // Most recent first
+                renderChatsFromRTDB(sessions);
+            });
+        }
+
+        function renderChats(sessions) {
+            const container = document.getElementById('chatsContainer');
+            if (!container) return;
+
+            if (sessions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💬</div>
+                        <p>No active chats</p>
+                    </div>
+                `;
+                return;
+            }
+
+            Promise.all(sessions.map(async session => {
+                // Fetch messages for each session
+                const messagesSnapshot = await db.collection('chat_sessions')
+                    .doc(session.id)
+                    .collection('messages')
+                    .orderBy('at', 'desc')
+                    .limit(5)
+                    .get();
+                
+                const messages = [];
+                messagesSnapshot.forEach(doc => {
+                    messages.push(doc.data());
+                });
+                messages.reverse(); // Show oldest first
+
+                return { ...session, messages };
+            })).then(sessionsWithMessages => {
+                const chatsHtml = sessionsWithMessages.map(session => {
+                    const messagesHtml = (session.messages || []).map(msg => `
+                        <div class="chat-message ${msg.sender}">
+                            <strong>${msg.sender}:</strong> ${msg.text}
+                        </div>
+                    `).join('');
+
+                    return `
+                        <div class="chat-session-card">
+                            <div class="chat-session-header">
+                                <div>
+                                    <div class="chat-session-id">Session: ${session.id}</div>
+                                    <div class="chat-session-user">
+                                        ${session.userEmail || 'Anonymous'} 
+                                        ${session.userUid ? `(${session.userUid.slice(0, 8)}...)` : ''}
+                                    </div>
+                                    <div class="chat-session-time">
+                                        Last active: ${session.lastActiveAt ? new Date(session.lastActiveAt.toDate()).toLocaleString() : 'Unknown'}
+                                    </div>
+                                </div>
+                                ${session.humanRequested ? '<div class="chat-human-request">🚨 Human Requested</div>' : ''}
+                            </div>
+                            ${messagesHtml ? `<div class="chat-messages-preview">${messagesHtml}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = chatsHtml;
+            });
+        }
+
+        function renderChatsFromRTDB(sessions) {
+            // Alternative rendering from Realtime Database
+            const container = document.getElementById('chatsContainer');
+            if (!container || sessions.length === 0) return;
+
+            const chatsHtml = sessions.map(session => {
+                const messages = session.messages ? Object.values(session.messages).sort((a, b) => a.at - b.at).slice(-5) : [];
+                const messagesHtml = messages.map(msg => `
+                    <div class="chat-message ${msg.sender}">
+                        <strong>${msg.sender}:</strong> ${msg.text}
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="chat-session-card">
+                        <div class="chat-session-header">
+                            <div>
+                                <div class="chat-session-id">Session: ${session.id}</div>
+                                <div class="chat-session-user">
+                                    ${session.userEmail || 'Anonymous'} 
+                                    ${session.userUid ? `(${session.userUid.slice(0, 8)}...)` : ''}
+                                </div>
+                                <div class="chat-session-time">
+                                    Last active: ${session.lastActiveAt ? new Date(session.lastActiveAt).toLocaleString() : 'Unknown'}
+                                </div>
+                            </div>
+                            ${session.humanRequested ? '<div class="chat-human-request">🚨 Human Requested</div>' : ''}
+                        </div>
+                        ${messagesHtml ? `<div class="chat-messages-preview">${messagesHtml}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = chatsHtml;
+        }
+
+        // ========== PRODUCT MANAGEMENT ==========
+        function loadProducts() {
+            try {
+                const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || getDefaultProducts();
+                if (!localStorage.getItem(PRODUCTS_KEY)) {
+                    localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
+                }
+                renderProducts(products);
+                updateProductCount(products.length);
+            } catch (e) {
+                console.error('Error loading products:', e);
+            }
+        }
+
+        function getDefaultProducts() {
+            // Default products from product.html
+            return [
+                { id: 'p1', name: 'Buffalo Wings', price: 130, category: 'wings', description: 'The OG spicy-tangy flavor that started it all', img: 'buff.jfif', bestSeller: true },
+                { id: 'p2', name: 'Teriyaki Wings', price: 130, category: 'wings', description: 'Sweet-savory glaze with a Japanese touch', img: 'Teriyaki Chicken Wings.jfif', bestSeller: false },
+                { id: 'p3', name: 'Honey Garlic Wings', price: 130, category: 'wings', description: 'Golden honey meets garlicky crunch', img: 'honey garlic chicken.jfif', bestSeller: true },
+                { id: 'p4', name: 'Garlic Parmesan Wings', price: 130, category: 'wings', description: 'Buttery, cheesy, and dangerously addictive', img: 'parme.jfif', bestSeller: false },
+                { id: 'p5', name: 'Cheesy Overload Pizza', price: 159, category: 'pizza', description: 'Triple cheese blend — gooey, melty, and comforting', img: 'cheese.jfif', bestSeller: false },
+                { id: 'p6', name: 'Classic Cheeseburger', price: 60, category: 'burgers', description: 'Beef patty, cheese, lettuce, tomato, signature sauce', img: 'classic.jfif', bestSeller: false },
+                { id: 'p7', name: 'Regular Fries', price: 49, category: 'sides', description: 'Golden, crispy, lightly salted', img: 'reg.jfif', bestSeller: false },
+                { id: 'p8', name: 'Iced Tea', price: 30, category: 'drinks', description: 'Classic house blend', img: 'icedtea.jfif', bestSeller: false }
+            ];
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById('productsContainer');
+            if (!container) return;
+
+            if (products.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🍗</div>
+                        <p>No products yet. Click "Add Product" to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const productsHtml = products.map(product => `
+                <div class="product-card">
+                    <img src="${product.img || 'https://via.placeholder.com/300x200?text=No+Image'}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                    ${product.bestSeller ? '<div class="badge">Best Seller</div>' : ''}
+                    <h3 class="product-name">${product.name}</h3>
+                    <div class="product-price">₱${parseFloat(product.price).toFixed(2)}</div>
+                    <span class="product-category">${getCategoryName(product.category)}</span>
+                    <p style="font-size: 1.3rem; color: #666; margin-bottom: 1rem;">${product.description || ''}</p>
+                    <div class="product-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="editProduct('${product.id}')">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}', '${product.name}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = productsHtml;
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                'wings': 'Chicken Wings',
+                'pizza': 'Pizza',
+                'burgers': 'Burgers',
+                'sides': 'Sides',
+                'drinks': 'Drinks',
+                'combo': 'Combo Meals'
+            };
+            return categories[category] || category;
+        }
+
+        function updateProductCount(count) {
+            const totalProductsEl = document.getElementById('totalProducts');
+            if (totalProductsEl) {
+                totalProductsEl.textContent = count;
+            }
+        }
+
+        function initProductModal() {
+            const modal = document.getElementById('productModal');
+            const addBtn = document.getElementById('addProductBtn');
+            const closeBtn = document.getElementById('closeProductModal');
+            const cancelBtn = document.getElementById('cancelProductBtn');
+            const form = document.getElementById('productForm');
+
+            addBtn.addEventListener('click', () => {
+                openProductModal();
+            });
+
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveProduct();
+            });
+
+            // Close on outside click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        function openProductModal(productId = null) {
+            const modal = document.getElementById('productModal');
+            const title = document.getElementById('productModalTitle');
+            const form = document.getElementById('productForm');
+
+            form.reset();
+            document.getElementById('productId').value = '';
+
+            if (productId) {
+                title.textContent = 'Edit Product';
+                const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
+                const product = products.find(p => p.id === productId);
+                
+                if (product) {
+                    document.getElementById('productId').value = product.id;
+                    document.getElementById('productName').value = product.name;
+                    document.getElementById('productPrice').value = product.price;
+                    document.getElementById('productCategory').value = product.category;
+                    document.getElementById('productDescription').value = product.description || '';
+                    document.getElementById('productImage').value = product.img || '';
+                    document.getElementById('productBestSeller').checked = product.bestSeller || false;
+                }
+            } else {
+                title.textContent = 'Add Product';
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function saveProduct() {
+            const productId = document.getElementById('productId').value;
+            const name = document.getElementById('productName').value.trim();
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const category = document.getElementById('productCategory').value;
+            const description = document.getElementById('productDescription').value.trim();
+            const img = document.getElementById('productImage').value.trim();
+            const bestSeller = document.getElementById('productBestSeller').checked;
+
+            if (!name || !price || !category) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
+
+            if (productId) {
+                // Edit existing product
+                const index = products.findIndex(p => p.id === productId);
+                if (index !== -1) {
+                    products[index] = { ...products[index], name, price, category, description, img, bestSeller };
+                }
+            } else {
+                // Add new product
+                const newProduct = {
+                    id: 'p' + Date.now(),
+                    name,
+                    price,
+                    category,
+                    description,
+                    img,
+                    bestSeller
+                };
+                products.push(newProduct);
+            }
+
+            localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
+            
+            // Save to Firebase
+            saveProductsToFirebase(products);
+
+            renderProducts(products);
+            updateProductCount(products.length);
+            document.getElementById('productModal').style.display = 'none';
+            
+            alert(productId ? 'Product updated successfully!' : 'Product added successfully!');
+        }
+
+        window.editProduct = function(productId) {
+            openProductModal(productId);
+        };
+
+        window.deleteProduct = function(productId, productName) {
+            if (!confirm(`Are you sure you want to delete "${productName}"?`)) {
+                return;
+            }
+
+            const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
+            const filteredProducts = products.filter(p => p.id !== productId);
+            
+            localStorage.setItem(PRODUCTS_KEY, JSON.stringify(filteredProducts));
+            
+            // Update Firebase
+            saveProductsToFirebase(filteredProducts);
+
+            renderProducts(filteredProducts);
+            updateProductCount(filteredProducts.length);
+            
+            alert('Product deleted successfully!');
+        };
+
+        async function saveProductsToFirebase(products) {
+            try {
+                if (db) {
+                    // Save all products as a single document for simplicity
+                    await db.collection('products').doc('all_products').set({
+                        products: products,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    console.log('Products saved to Firebase');
+                }
+            } catch (e) {
+                console.error('Error saving products to Firebase:', e);
+            }
+        }
+
+        // Timeout redirect if auth doesn't resolve
         setTimeout(() => {
             if (document.getElementById('loadingScreen').style.display !== 'none') {
                 console.log('Timeout reached, redirecting to main site');

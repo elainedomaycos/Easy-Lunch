@@ -4,8 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Easy Lunch | Products</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Ubuntu:400,600,700,800,900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+  
   <!-- Firebase (Compat for simplicity) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -26,331 +28,136 @@
   </script>
   <script defer src="auth.js"></script>
   <script defer src="chat.js"></script>
+  <script defer src="https://www.paypal.com/sdk/js?client-id=AbPwfLlPjLyG41Tmn0Zf34rfdT4pj9ddG_P6FX3yEPSLXrlRD6p1gVhiwcNRrZRNWudfVHV8IqAnYLLb&currency=PHP"></script>
+  <script defer src="payment.js"></script>
+  
   <style>
-    :root{
-      --hero-gradient: radial-gradient(circle at 65% 40%, #ffcc99 0%, #f9d8b5 40%, #fff4e6 90%);
-      --banner-red-start: #b81e1e;
-      --banner-red-end:   #8b0000;
-      --beige-icon:       #f5deb3;
-      --text-beige:       #fff1cc;
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+      margin-top: -70px;
     }
 
-    *, *:before, *:after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html {
-      font-size: 10px;
-    }
-
-    body {
-      font-family: 'Ubuntu', sans-serif;
-      color: #6e6e6e;
-      font-size: 1.6rem;
-      background-color: #fff8e7;
-      overflow-x: hidden;
-    }
-
-    /* MAIN CONTENT */
-    #main-content {
-      opacity: 0;
-      transition: opacity 0.5s ease-in;
-    }
-    #main-content.visible {
-      opacity: 1;
-    }
-
-    /* Navbar */
-    .navbar-awning {
-      position: fixed;
-      top: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 1200px;
-      z-index: 1000;
-    }
-
-    .navbar-bar {
-      background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%);
-      height: 7rem;
-      width: 100%;
-      border-radius: 5rem;
-      box-shadow: 0 8px 24px rgba(139, 0, 0, 0.25);
-      position: relative;
-    }
-
-    .navbar-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 3rem;
-      height: 100%;
-      gap: 2rem;
-    }
-
-    .logo-banner {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: auto;
-      height: 15rem;
-      cursor: pointer;
-      transition: transform 0.3s;
-      flex-shrink: 0;
-      margin-top: 17px;
-    }
-
-    .logo-banner:hover {
-      transform: scale(1.05);
-    }
-
-    .logo-img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    .nav-center {
-      display: flex;
-      gap: 2rem;
-      list-style: none;
-      align-items: center;
-      flex: 1;
-      justify-content: center;
-    }
-
-    .nav-center a {
-      text-decoration: none;
-      color: #FFFFFF;
-      font-weight: 600;
-      font-size: 1.5rem;
-      transition: all 0.3s;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      padding: 1rem 2rem;
-      border-radius: 50px;
-    }
-
-    .nav-center a.active {
-      background: #f5deb3;
+    .section-title {
+      font-size: 3rem;
       color: #8b0000;
+      font-weight: 900;
+      margin-bottom: 8px;
     }
 
-    .nav-center a:hover {
-      color: #FFF8E7;
+    .section-subtitle {
+      color: #666;
+      font-weight: 600;
+      margin-top: 20px;
     }
 
-    .nav-right {
+    .category-bar {
       display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      flex-shrink: 0;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin: 0 auto;
+      max-width: 1000px;
+      margin-top: -20px;
     }
 
-    .search-container {
+    .category-btn {
+      padding: 12px 24px;
+      border: 2px solid #8b0000;
+      border-radius: 25px;
+      background: #fff8e7;
+      color: #8b0000;
+      font-weight: 600;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      transition: transform 0.3s;
+      transition: all 0.3s ease;
     }
 
-    .search-container:hover {
+    .category-btn.active,
+    .category-btn:hover {
+      background: #8b0000;
+      color: #fff8e7;
       transform: translateY(-2px);
     }
 
-    .search-icon {
-      width: 2.4rem;
-      height: 2.4rem;
-      fill: #FFFFFF;
-    }
-
-    .icon-button {
-      background: transparent;
-      width: 4rem;
-      height: 4rem;
-      border-radius: 50%;
+    .hero-section {
+      position: relative;
+      width: 100%;
+      min-height: 90vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s;
+      padding: 20px 20px 20px;
+      margin-top: 10px;
     }
 
-    .icon-button:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-2px);
-    }
-
-    .icon-button svg {
-      width: 2.4rem;
-      height: 2.4rem;
-      fill: #FFFFFF;
-    }
-
-    /* Search box (match index navbar behavior) */
-    .nav-right { position: relative; }
-    .search-box {
+    .hero-banner {
+      width: 90%;
+      max-width: 1400px;
+      height: 400px;
+      border-radius: 40px;
       position: relative;
-      width: 0;
       overflow: hidden;
-      transition: width 0.25s ease, padding 0.25s ease;
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 2rem;
-      display: flex;
-      align-items: center;
-      height: 3.6rem;
-      flex: 0 0 auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
-    .search-box.active {
-      width: 260px;
-      padding: 0 0.8rem 0 1.2rem;
-    }
-    .search-input {
-      border: none;
-      background: transparent;
-      color: #ffffff;
+
+    .hero-image {
       width: 100%;
       height: 100%;
-      outline: none;
-      font-size: 1.4rem;
+      object-fit: cover;
+      border-radius: 40px;
     }
-    .search-input::placeholder {
-      color: rgba(255, 255, 255, 0.75);
+
+    @media (max-width: 1200px) {
+      .hero-banner { height: 500px; }
     }
-    .search-clear {
-      background: transparent;
-      border: none;
+
+    @media (max-width: 768px) {
+      .hero-section { padding: 120px 20px 40px; }
+      .hero-banner { width: 95%; height: 400px; border-radius: 30px; }
+      .hero-image { border-radius: 30px; }
+    }
+
+    @media (max-width: 576px) {
+      .hero-banner { height: 350px; border-radius: 20px; }
+      .hero-image { border-radius: 20px; }
+    }
+
+    footer {
+      background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%);
+      color: white;
+      text-align: center;
+      padding: 3rem 2rem;
+      font-size: 1.5rem;
+    }
+
+    footer p {
+      margin-bottom: 1rem;
+      color: #ffeadb;
+    }
+
+    footer a {
+      color: #fff1cc;
+      text-decoration: none;
+      margin: 0 1rem;
+      transition: 0.3s;
+      font-weight: 600;
+    }
+
+    footer a:hover {
       color: #ffffff;
-      font-size: 2.0rem;
-      line-height: 1;
-      width: 2.4rem;
-      height: 2.4rem;
-      cursor: pointer;
-      opacity: 0.85;
     }
 
-    /* Compaction when search open */
-    .navbar-content.search-active .nav-center { gap: 0.8rem; }
-    .navbar-content.search-active .nav-center a { padding: 0.6rem 1.2rem; font-size: 1.3rem; }
-    .navbar-content.search-active .nav-right { gap: 0.8rem; }
-    .navbar-content.search-active .logo-banner { transform: scale(0.92); }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.9s ease-out, transform 0.9s ease-out;
+    }
 
-    /* ===== HERO SECTION WITH ROUNDED BANNER ===== */
-        .hero-section {
-            position: relative;
-            width: 100%;
-            min-height: 90vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px 20px 20px;
-            margin-top: 10px;
-        }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-        .hero-banner {
-            width: 90%;
-            max-width: 1400px;
-            height: 400px;
-            border-radius: 40px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .hero-image {
-            width: 100%;
-            height: 100%;
-            object-fit:cover;
-            border-radius: 40px;
-        }
-
-        /* === Responsive Design === */
-        @media (max-width: 1200px) {
-            .hero-banner {
-                height: 500px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .hero-section {
-                padding: 120px 20px 40px;
-            }
-            
-            .hero-banner {
-                width: 95%;
-                height: 400px;
-                border-radius: 30px;
-            }
-            
-            .hero-image {
-                border-radius: 30px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .hero-banner {
-                height: 350px;
-                border-radius: 20px;
-            }
-            
-            .hero-image {
-                border-radius: 20px;
-            }
-        }
-
-    /* ===== CATEGORY SECTION ===== */
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 60px;
-            margin-top: -70px;
-        }
-
-        .section-title {
-            font-size: 3rem;
-            color: #8b0000;
-            font-weight: 900;
-            margin-bottom: 8px;
-        }
-
-        .section-subtitle {
-            color: #666;
-            font-weight: 600;
-            margin-top: 20px;
-        }
-
-        .category-bar {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin: 0 auto;
-            max-width: 1000px;
-            margin-top: -20px;
-        }
-
-        .category-btn {
-            padding: 12px 24px;
-            border: 2px solid #8b0000;
-            border-radius: 25px;
-            background: #fff8e7;
-            color: #8b0000;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .category-btn.active,
-        .category-btn:hover {
-            background: #8b0000;
-            color: #fff8e7;
-            transform: translateY(-2px);
-        }
-
-    /* Product Grid */
     .product-section {
       padding: 4rem 2rem 6rem;
       background-color: #fff8e7;
@@ -451,73 +258,6 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(192, 57, 43, 0.4);
     }
-
-    /* Floating Chat Button */
-    .floating-chat {
-      position: fixed;
-      bottom: 3rem;
-      right: 3rem;
-      width: 6rem;
-      height: 6rem;
-      background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 6px 20px rgba(192, 57, 43, 0.4);
-      transition: all 0.3s;
-      z-index: 999;
-    }
-
-    .floating-chat:hover {
-      transform: translateY(-5px) scale(1.1);
-      box-shadow: 0 8px 25px rgba(192, 57, 43, 0.5);
-    }
-
-    .floating-chat svg {
-      width: 3rem;
-      height: 3rem;
-      fill: white;
-    }
-
-    /* Footer */
-    footer {
-      background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%);
-      color: white;
-      text-align: center;
-      padding: 3rem 2rem;
-      font-size: 1.5rem;
-    }
-
-    footer p {
-      margin-bottom: 1rem;
-      color: #ffeadb;
-    }
-
-    footer a {
-      color: #fff1cc;
-      text-decoration: none;
-      margin: 0 1rem;
-      transition: 0.3s;
-      font-weight: 600;
-    }
-
-    footer a:hover {
-      color: #ffffff;
-    }
-
-    /* === Fade-in animation === */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.9s ease-out, transform 0.9s ease-out;
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
   </style>
 </head>
 
@@ -525,22 +265,22 @@
 
   <!-- Main Content -->
   <div id="main-content">
-    <!-- Navbar -->
+    <!-- Navbar (same as index.html) -->
     <nav class="navbar-awning">
       <div class="navbar-bar">
         <div class="navbar-content">
-          <div class="logo-banner">
+          <div class="logo-banner" onclick="window.location.href='index.html'">
             <img src="El Pollo - Logo - Création de l'identité visuelle du restaurant fast food mexicain.png" alt="Bossing's Wings" class="logo-img">
           </div>
-
+          
           <ul class="nav-center">
-            <li><a href="index.html">HOME</a></li>
-            <li><a href="#" class="active">PRODUCTS</a></li>
-            <li><a href="index.html#story">STORY</a></li>
-            <li><a href="index.html#about">ABOUT US</a></li>
-            <li><a href="index.html#contact">CONTACT US</a></li>
+            <li><a href="index.html#hero" class="nav-link">HOME</a></li>
+            <li><a href="product.html" class="nav-link active">PRODUCTS</a></li>
+            <li><a href="index.html#about" class="nav-link">ABOUT US</a></li>
+            <li><a href="index.html#testimony" class="nav-link">RATINGS</a></li>
+            <li><a href="index.html#contact" class="nav-link">CONTACT US</a></li>
           </ul>
-
+          
           <div class="nav-right">
             <div class="search-container" id="searchToggle" aria-label="Open search" role="button" tabindex="0">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="search-icon">
@@ -567,36 +307,35 @@
     </nav>
 
     <!-- Hero Section with Rounded Banner -->
-        <section class="hero-section">
-        <div class="hero-banner">
-            <img src="50 (1).png" alt="Bossing's Wings" class="hero-image">
-        </div>
+    <section class="hero-section">
+      <div class="hero-banner">
+        <img src="50 (1).png" alt="Bossing's Wings" class="hero-image">
+      </div>
     </section>
 
     <!-- Category Section -->
-        <section id="categories" class="category-section">
-            <div class="section-header">
-                <h2 class="section-title">OUR CATEGORIES</h2>
-                <p class="section-subtitle">Choose your favorite category</p>
-            </div>
+    <section id="categories" class="category-section">
+      <div class="section-header">
+        <h2 class="section-title">OUR CATEGORIES</h2>
+        <p class="section-subtitle">Choose your favorite category</p>
+      </div>
 
-            <div class="category-bar">
-                <button class="category-btn active" data-filter="all">ALL ITEMS</button>
-                <button class="category-btn" data-filter="wings">CHICKEN WINGS</button>
-                <button class="category-btn" data-filter="pizza">PIZZA</button>
-                <button class="category-btn" data-filter="burgers">BURGERS</button>
-                <button class="category-btn" data-filter="sides">SIDES</button>
-                <button class="category-btn" data-filter="drinks">DRINKS</button>
-                <button class="category-btn" data-filter="combo">COMBO MEALS</button>
-            </div>
-        </section>
-
+      <div class="category-bar">
+        <button class="category-btn active" data-filter="all">ALL ITEMS</button>
+        <button class="category-btn" data-filter="wings">CHICKEN WINGS</button>
+        <button class="category-btn" data-filter="pizza">PIZZA</button>
+        <button class="category-btn" data-filter="burgers">BURGERS</button>
+        <button class="category-btn" data-filter="sides">SIDES</button>
+        <button class="category-btn" data-filter="drinks">DRINKS</button>
+        <button class="category-btn" data-filter="combo">COMBO MEALS</button>
+      </div>
+    </section>
 
     <!-- Product Grid -->
     <section class="product-section">
       <div class="product-grid">
         <!-- Wings Category -->
-        <div class="product-card show" data-category="wings">
+        <div class="product-card show" data-category="wings" data-name="Buffalo Wings" data-price="130" data-img="buff.jfif">
           <div class="badge">Best Seller</div>
           <img src="buff.jfif" alt="Buffalo Blaze Wings" class="product-image">
           <h3 class="product-name">Buffalo Wings</h3>
@@ -605,7 +344,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="wings">
+        <div class="product-card show" data-category="wings" data-name="Teriyaki Wings" data-price="130" data-img="Teriyaki Chicken Wings.jfif">
           <div class="badge new">New</div>
           <img src="Teriyaki Chicken Wings.jfif" alt="Spicy Wings" class="product-image">
           <h3 class="product-name">Teriyaki Wings</h3>
@@ -614,7 +353,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="wings">
+        <div class="product-card show" data-category="wings" data-name="Honey Garlic Wings" data-price="130" data-img="honey garlic chicken.jfif">
           <div class="badge">Best Seller</div>
           <img src="honey garlic chicken.jfif" alt="Honey Glazed" class="product-image">
           <h3 class="product-name">Honey Garlic Wings</h3>
@@ -623,7 +362,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="wings">
+        <div class="product-card show" data-category="wings" data-name="Garlic Parmesan Wings" data-price="130" data-img="parme.jfif">
           <img src="parme.jfif" alt="BBQ Wings" class="product-image">
           <h3 class="product-name">Garlic Parmesan Wings</h3>
           <p class="product-description">Buttery, cheesy, and dangerously addictive</p>
@@ -631,7 +370,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="wings">
+        <div class="product-card show" data-category="wings" data-name="Salted Egg Wings" data-price="130" data-img="Salted Egg Chicken Wings.jfif">
           <img src="Salted Egg Chicken Wings.jfif" alt="Garlic Parmesan" class="product-image">
           <h3 class="product-name">Salted Egg Wings</h3>
           <p class="product-description">Creamy, savory, and proudly Pinoy twist</p>
@@ -639,7 +378,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="wings">
+        <div class="product-card show" data-category="wings" data-name="Zesty Lemon Pepper" data-price="130" data-img="Crispy Lemon Pepper Chicken Wings with 5-Star Flavor Burst.jfif">
           <img src="Crispy Lemon Pepper Chicken Wings with 5-Star Flavor Burst.jfif" alt="Teriyaki" class="product-image">
           <h3 class="product-name">Zesty Lemon Pepper</h3>
           <p class="product-description">Tangy citrus meets peppery crunch.</p>
@@ -647,7 +386,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="wings">
+        <div class="product-card show" data-category="wings" data-name="Spicy Cajun Wings" data-price="130" data-img="Cajun Brown Sugar Chicken Wings – The Perfect Sweet & Spicy Snack.jfif">
           <img src="Cajun Brown Sugar Chicken Wings – The Perfect Sweet & Spicy Snack.jfif" alt="Teriyaki" class="product-image">
           <h3 class="product-name">Spicy Cajun Wings</h3>
           <p class="product-description">Southern-style spice that hits just right</p>
@@ -655,7 +394,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="wings">
+        <div class="product-card show" data-category="wings" data-name="K-Style Wings" data-price="130" data-img="korean.jfif">
           <img src="korean.jfif" alt="Teriyaki" class="product-image">
           <h3 class="product-name">K-Style Wings</h3>
           <p class="product-description">Crispy wings coated in savory soy and garlic glaze.</p>
@@ -663,9 +402,8 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-
         <!-- Pizza Category -->
-        <div class="product-card show" data-category="pizza">
+        <div class="product-card show" data-category="pizza" data-name="Cheesy Overload Pizza" data-price="159" data-img="cheese.jfif">
           <img src="cheese.jfif" alt="Pepperoni Pizza" class="product-image">
           <h3 class="product-name">Cheesy Overload Pizza</h3>
           <p class="product-description">Triple cheese blend — gooey, melty, and comforting</p>
@@ -673,7 +411,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="pizza">
+        <div class="product-card show" data-category="pizza" data-name="Pepperoni Rush Pizza" data-price="169" data-img="pepp.jfif">
           <img src="pepp.jfif" alt="Hawaiian Pizza" class="product-image">
           <h3 class="product-name">Pepperoni Rush Pizza</h3>
           <p class="product-description">Crispy pepperoni on rich tomato sauce and mozzarella</p>
@@ -681,7 +419,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="pizza">
+        <div class="product-card show" data-category="pizza" data-name="Hawaiian Hype Pizza" data-price="169" data-img="Hawaiian Pizza Perfection_ 5 Tips for a Tropical Homemade Treat.jfif">
           <img src="Hawaiian Pizza Perfection_ 5 Tips for a Tropical Homemade Treat.jfif" alt="Hawaiian Pizza" class="product-image">
           <h3 class="product-name">Hawaiian Hype Pizza</h3>
           <p class="product-description">Ham, pineapple, and mozzarella for that sweet-savory love</p>
@@ -689,7 +427,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="pizza">
+        <div class="product-card show" data-category="pizza" data-name="BBQ Chicken Pizza" data-price="169" data-img="Classic BBQ Chicken Pizza.jfif">
           <img src="Classic BBQ Chicken Pizza.jfif" alt="Hawaiian Pizza" class="product-image">
           <h3 class="product-name">BBQ Chicken Pizza</h3>
           <p class="product-description">Smoked chicken, BBQ sauce, onions, and cheese</p>
@@ -698,7 +436,7 @@
         </div>
 
         <!-- Burgers Category -->
-        <div class="product-card show" data-category="burgers">
+        <div class="product-card show" data-category="burgers" data-name="Classic Cheeseburger" data-price="60" data-img="classic.jfif">
           <img src="classic.jfif" alt="Beef Burger" class="product-image">
           <h3 class="product-name">Classic Cheeseburger</h3>
           <p class="product-description">Beef patty, cheese, lettuce, tomato, signature sauce</p>
@@ -706,7 +444,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="burgers">
+        <div class="product-card show" data-category="burgers" data-name="Cheesy Bacon Melt" data-price="99" data-img="chebac.jfif">
           <img src="chebac.jfif" alt="Chicken Burger" class="product-image">
           <h3 class="product-name">Cheesy Bacon Melt</h3>
           <p class="product-description">Bacon, cheese, and creamy sauce</p>
@@ -714,7 +452,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="burgers">
+        <div class="product-card show" data-category="burgers" data-name="Spicy Chick Burger" data-price="99" data-img="spichik.jfif">
           <img src="spichik.jfif" alt="Chicken Burger" class="product-image">
           <h3 class="product-name">Spicy Chick Burger</h3>
           <p class="product-description">Crispy chicken fillet with spicy mayo</p>
@@ -722,8 +460,8 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <!-- Fries Category -->
-        <div class="product-card show" data-category="sides">
+        <!-- Sides Category -->
+        <div class="product-card show" data-category="sides" data-name="Regular Fries" data-price="49" data-img="reg.jfif">
           <img src="reg.jfif" alt="Cheesy Fries" class="product-image">
           <h3 class="product-name">Regular Fries</h3>
           <p class="product-description">Golden, crispy, lightly salted</p>
@@ -731,7 +469,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="sides">
+        <div class="product-card show" data-category="sides" data-name="Cheesy Fries" data-price="69" data-img="chef.jfif">
           <img src="chef.jfif" alt="Garlic Fries" class="product-image">
           <h3 class="product-name">Cheesy Fries</h3>
           <p class="product-description">Drizzled with creamy cheese sauce.</p>
@@ -739,7 +477,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="sides">
+        <div class="product-card show" data-category="sides" data-name="BBQ Fries" data-price="69" data-img="bbqf.jfif">
           <img src="bbqf.jfif" alt="Garlic Fries" class="product-image">
           <h3 class="product-name">BBQ Fries</h3>
           <p class="product-description">Smoky, tangy, and perfectly seasoned</p>
@@ -747,7 +485,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="sides">
+        <div class="product-card show" data-category="sides" data-name="Sour Cream Fries" data-price="69" data-img="sour.jfif">
           <img src="sour.jfif" alt="Garlic Fries" class="product-image">
           <h3 class="product-name">Sour Cream Fries</h3>
           <p class="product-description">Creamy, zesty, and addicting</p>
@@ -755,7 +493,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="sides">
+        <div class="product-card show" data-category="sides" data-name="Plain Rice" data-price="12" data-img="plain.jfif">
           <img src="plain.jfif" alt="Garlic Fries" class="product-image">
           <h3 class="product-name">Plain Rice</h3>
           <p class="product-description">Steamed, fluffy white rice — perfect with any wings</p>
@@ -763,7 +501,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="sides">
+        <div class="product-card show" data-category="sides" data-name="Garlic Rice" data-price="20" data-img="Garlic Butter Rice.jfif">
           <img src="Garlic Butter Rice.jfif" alt="Garlic Fries" class="product-image">
           <h3 class="product-name">Garlic Rice</h3>
           <p class="product-description">Savory and buttery upgrade</p>
@@ -771,7 +509,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="sides">
+        <div class="product-card show" data-category="sides" data-name="Potato Wedges" data-price="59" data-img="potwed.jfif">
           <img src="potwed.jfif" alt="Garlic Fries" class="product-image">
           <h3 class="product-name">Potato Wedges</h3>
           <p class="product-description">Chunky, crispy, seasoned fries</p>
@@ -779,7 +517,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="sides">
+        <div class="product-card show" data-category="sides" data-name="Coleslaw" data-price="40" data-img="cole.jfif">
           <img src="cole.jfif" alt="Garlic Fries" class="product-image">
           <h3 class="product-name">Coleslaw</h3>
           <p class="product-description">Fresh, tangy, and creamy veggies</p>
@@ -787,7 +525,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="sides">
+        <div class="product-card show" data-category="sides" data-name="Garlic Mayo Dip" data-price="25" data-img="gmd.jfif">
           <img src="gmd.jfif" alt="Garlic Fries" class="product-image">
           <h3 class="product-name">Garlic Mayo Dip</h3>
           <p class="product-description">Creamy, garlicky, all-time fave</p>
@@ -795,7 +533,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="sides">
+        <div class="product-card show" data-category="sides" data-name="Ranch Dip" data-price="25" data-img="rd.jfif">
           <img src="rd.jfif" alt="Garlic Fries" class="product-image">
           <h3 class="product-name">Ranch Dip</h3>
           <p class="product-description">Cool, tangy, and herby</p>
@@ -803,7 +541,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="sides">
+        <div class="product-card show" data-category="sides" data-name="Cheese Dip" data-price="25" data-img="cd.jfif">
           <img src="cd.jfif" alt="Garlic Fries" class="product-image">
           <h3 class="product-name">Cheese Dip</h3>
           <p class="product-description">Smooth, rich, and cheesy</p>
@@ -811,7 +549,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="sides">
+        <div class="product-card show" data-category="sides" data-name="Honey Mustard Dip" data-price="25" data-img="hmd.jfif">
           <img src="hmd.jfif" alt="Garlic Fries" class="product-image">
           <h3 class="product-name">Honey Mustard Dip</h3>
           <p class="product-description">Sweet and tangy balance</p>
@@ -819,7 +557,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="sides">
+        <div class="product-card show" data-category="sides" data-name="Buffalo Sauce Dip" data-price="25" data-img="bfdip.jfif">
           <img src="bfdip.jfif" alt="Garlic Fries" class="product-image">
           <h3 class="product-name">Buffalo Sauce Dip</h3>
           <p class="product-description">Classic hot and tangy kick</p>
@@ -828,7 +566,7 @@
         </div>
 
         <!-- Drinks Category -->
-        <div class="product-card show" data-category="drinks">
+        <div class="product-card show" data-category="drinks" data-name="Iced Tea" data-price="30" data-img="icedtea.jfif">
           <img src="icedtea.jfif" alt="Iced Cola" class="product-image">
           <h3 class="product-name">Iced Tea</h3>
           <p class="product-description">Classic house blend</p>
@@ -836,7 +574,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="drinks">
+        <div class="product-card show" data-category="drinks" data-name="Coca Cola" data-price="30" data-img="cola.jfif">
           <img src="cola.jfif" alt="Lemonade" class="product-image">
           <h3 class="product-name">Coca Cola</h3>
           <p class="product-description">Refreshingly cold coca-cola</p>
@@ -844,7 +582,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="drinks">
+        <div class="product-card show" data-category="drinks" data-name="Blue Breeze" data-price="30" data-img="blue.jfif">
           <img src="blue.jfif" alt="Iced Tea" class="product-image">
           <h3 class="product-name">Blue Breeze</h3>
           <p class="product-description">Signature blue lemonade fizz</p>
@@ -852,7 +590,8 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="combo">
+        <!-- Combo Meals -->
+        <div class="product-card show" data-category="combo" data-name="Combo A – Easy Wing Meal" data-price="149" data-img="coma.png">
           <img src="coma.png" alt="Iced Tea" class="product-image">
           <h3 class="product-name">Combo A – Easy Wing Meal</h3>
           <p class="product-description">4 wings (any flavor), rice, drink</p>
@@ -860,7 +599,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="combo">
+        <div class="product-card show" data-category="combo" data-name="Combo B – Burger & Fries Meal" data-price="149" data-img="comb.png">
           <img src="comb.png" alt="Iced Tea" class="product-image">
           <h3 class="product-name">Combo B – Burger & Fries Meal</h3>
           <p class="product-description">Any burger + fries + drink</p>
@@ -868,7 +607,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="combo">
+        <div class="product-card show" data-category="combo" data-name="Combo C – Wing & Fries Meal" data-price="169" data-img="comc.png">
           <img src="comc.png" alt="Iced Tea" class="product-image">
           <h3 class="product-name">Combo C – Wing & Fries Meal</h3>
           <p class="product-description">4 wings + fries + drink</p>
@@ -876,7 +615,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="combo">
+        <div class="product-card show" data-category="combo" data-name="Combo D – Duo Deal (for 2)" data-price="299" data-img="comd.png">
           <img src="comd.png" alt="Iced Tea" class="product-image">
           <h3 class="product-name">Combo D – Duo Deal (for 2)</h3>
           <p class="product-description">8 wings (2 flavors) + 2 rice + 2 drinks</p>
@@ -884,7 +623,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="combo">
+        <div class="product-card show" data-category="combo" data-name="Combo E – Chicky Feast (for group)" data-price="499" data-img="come.png">
           <img src="come.png" alt="Iced Tea" class="product-image">
           <h3 class="product-name">Combo E – Chicky Feast (for group)</h3>
           <p class="product-description">16 wings (up to 4 flavors) + large fries + 3 drinks</p>
@@ -892,7 +631,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="combo">
+        <div class="product-card show" data-category="combo" data-name="Combo F – Pizza & Wings" data-price="279" data-img="comf.png">
           <img src="comf.png" alt="Iced Tea" class="product-image">
           <h3 class="product-name">Combo F – Pizza & Wings</h3>
           <p class="product-description">7" pizza (any flavor) + 4 wings (any flavor) + drink</p>
@@ -900,7 +639,7 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="combo">
+        <div class="product-card show" data-category="combo" data-name="Combo G – Barkada Feast" data-price="499" data-img="comg.png">
           <img src="comg.png" alt="Iced Tea" class="product-image">
           <h3 class="product-name">Combo G – Barkada Feast</h3>
           <p class="product-description">10" pizza (any flavor) + 8 wings (2 flavors) + 2 drinks</p>
@@ -908,14 +647,13 @@
           <button class="add-to-cart">Add to Cart</button>
         </div>
 
-        <div class="product-card show" data-category="combo">
+        <div class="product-card show" data-category="combo" data-name="Combo H – Ultimate Easy Box" data-price="599" data-img="comh.png">
           <img src="comh.png" alt="Iced Tea" class="product-image">
           <h3 class="product-name">Combo H – Ultimate Easy Box</h3>
           <p class="product-description">10" pizza + 6 wings + 1 burger + fries + 2 drinks</p>
           <p class="product-price">₱599</p>
           <button class="add-to-cart">Add to Cart</button>
         </div>
-
       </div>
     </section>
 
@@ -936,6 +674,117 @@
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
       <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
     </svg>
+  </div>
+
+  <!-- Cart Modal (include from index.html) -->
+  <div id="cartModal" class="cart-modal">
+    <div class="cart-container">
+      <button class="close-cart" id="closeCart">&times;</button>
+      <div class="cart-columns">
+        <div class="cart-left">
+          <h2 class="cart-title">Cart</h2>
+          <div id="cartItemsContainer"></div>
+        </div>
+        <div class="cart-right">
+          <div class="order-summary">
+            <h3>Order Summary</h3>
+            <input type="text" placeholder="Enter promo code">
+            <div class="summary-line"><span>Subtotal</span><span>₱0</span></div>
+            <div class="summary-line"><span>Discount</span><span>-₱0</span></div>
+            <div class="summary-line"><span>Delivery Fee</span><span>₱30</span></div>
+            <hr>
+            <div class="summary-total"><span>Total</span><span>₱30</span></div>
+            <p class="guarantee">All orders include 100% satisfaction guarantee.</p>
+            <button id="checkoutBtn" class="checkout-btn">Checkout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal (include from index.html) -->
+  <div id="checkoutModal" class="checkout-modal">
+    <div class="checkout-card">
+      <button class="close-checkout" id="closeCheckout">&times;</button>
+      <h2 class="checkout-title">Checkout</h2>
+      <div class="checkout-section">
+        <h3>Delivery Information</h3>
+        <input type="text" placeholder="Full Name">
+        <input type="text" placeholder="Address">
+        <input type="text" placeholder="Contact Number">
+      </div>
+      <div class="checkout-section">
+        <h3>Payment Method</h3>
+        <div class="pay-methods">
+          <label class="pay-option"><input type="radio" name="payMethod" value="gcash" checked> GCash</label>
+          <label class="pay-option"><input type="radio" name="payMethod" value="bank"> Bank Transfer</label>
+          <label class="pay-option"><input type="radio" name="payMethod" value="cod"> Cash on Delivery</label>
+          <label class="pay-option"><input type="radio" name="payMethod" value="paypal"> PayPal</label>
+        </div>
+        <div class="pay-section" id="payGCash">
+          <p class="pay-help">Scan QR to pay via GCash, then enter your Reference Number.</p>
+          <div class="qr-box">
+            <img src="gcash-qr.png" alt="GCash QR" onerror="this.style.display='none'">
+            <div class="qr-fallback">GCash QR Placeholder</div>
+          </div>
+          <input type="text" class="pay-input" id="gcashRef" placeholder="GCash Reference Number">
+        </div>
+        <div class="pay-section" id="payBank" style="display:none;">
+          <p class="pay-help">Transfer to one of our accounts, then enter your Reference Number.</p>
+          <div class="bank-list">
+            <div class="bank-item"><strong>BPI</strong> • Account: 1234-5678-90 • Name: Easy Lunch</div>
+            <div class="bank-item"><strong>BDO</strong> • Account: 1234-5678-90 • Name: Easy Lunch</div>
+          </div>
+          <input type="text" class="pay-input" id="bankRef" placeholder="Bank Transfer Reference Number">
+        </div>
+        <div class="pay-section" id="payCOD" style="display:none;">
+          <p class="pay-help">Pay in cash upon delivery. Please ensure someone is available to receive the order.</p>
+        </div>
+        <div class="pay-section" id="payPaypal" style="display:none;">
+          <p class="pay-help">Secure payment via PayPal.</p>
+          <div id="paypalButtons"></div>
+        </div>
+      </div>
+      <div class="checkout-summary">
+        <div class="summary-line"><span>Subtotal</span><span>₱0</span></div>
+        <div class="summary-line"><span>Delivery Fee</span><span>₱30</span></div>
+        <div class="summary-line"><span>Discount</span><span>-₱0</span></div>
+        <hr>
+        <div class="summary-total"><span>Total</span><span>₱30</span></div>
+      </div>
+      <button id="placeOrderBtn" class="place-order-btn">Place Order</button>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal (include from index.html) -->
+  <div id="confirmationModal" class="confirmation-modal">
+    <div class="confirmation-card">
+      <button class="close-confirmation" id="closeConfirmation">&times;</button>
+      <div class="confirmation-header">
+        <div class="check-icon">✔</div>
+        <h2>Your order is completed!</h2>
+        <p>Thank you! Your delicious wings are on the way.</p>
+      </div>
+      <div class="order-info-bar">
+        <div><strong>Order ID:</strong> #CWG1254FD</div>
+        <div><strong>Payment:</strong> PayPal</div>
+        <div><strong>ETA:</strong> 30–45 mins</div>
+      </div>
+      <div class="order-details">
+        <h3>Order Details</h3>
+        <h4>Your Items</h4>
+      </div>
+      <div class="order-summary-bottom">
+        <div class="summary-line"><span>Subtotal</span><span>₱0</span></div>
+        <div class="summary-line"><span>Delivery Fee</span><span>₱30</span></div>
+        <div class="summary-line"><span>Discount</span><span>-₱0</span></div>
+        <hr>
+        <div class="summary-total"><span>Total</span><span>₱30</span></div>
+      </div>
+      <div class="footer-msg">
+        Your order is being prepared. Sit tight — wings are coming hot and fresh! 🔥
+      </div>
+    </div>
   </div>
 
   <script>
@@ -964,48 +813,7 @@
       });
     });
 
-    // Search query from index redirect (?q=...)
-    (function handleIncomingSearch() {
-      const params = new URLSearchParams(window.location.search);
-      const q = (params.get('q') || '').trim().toLowerCase();
-      if (!q) return;
-
-      // Show all by default, then filter by name
-      let visible = 0;
-      products.forEach(product => {
-        const nameEl = product.querySelector('.product-name');
-        const name = nameEl ? nameEl.textContent.toLowerCase() : '';
-        const match = name.includes(q);
-        product.classList.toggle('show', match);
-        if (match) visible++;
-      });
-
-      // Add a status line above the grid
-      const section = document.querySelector('.product-section');
-      const grid = document.querySelector('.product-grid');
-      if (section && grid) {
-        let status = document.getElementById('searchStatus');
-        if (!status) {
-          status = document.createElement('div');
-          status.id = 'searchStatus';
-          status.style.margin = '0 auto 1rem';
-          status.style.maxWidth = '1200px';
-          status.style.textAlign = 'left';
-          status.style.color = '#8b0000';
-          status.style.fontWeight = '700';
-          status.style.fontSize = '1.6rem';
-          section.insertBefore(status, grid);
-        }
-        status.textContent = visible === 0
-          ? `No results for "${q}".`
-          : `${visible} result${visible === 1 ? '' : 's'} for "${q}".`;
-      }
-
-      // Scroll to results
-      section && section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    })();
-
-    // Navbar search on product page (live filter by name)
+    // Navbar search functionality (same as index.html)
     (function () {
       const searchToggle = document.getElementById('searchToggle');
       const searchBox = document.getElementById('searchBox');
@@ -1020,6 +828,7 @@
         if (navbarContent) navbarContent.classList.add('search-active');
         setTimeout(() => searchInput.focus(), 10);
       }
+      
       function closeSearch() {
         searchBox.classList.remove('active');
         searchBox.setAttribute('aria-hidden', 'true');
@@ -1028,7 +837,10 @@
         searchInput.value = '';
         applyFilter('');
       }
-      function toggleSearch() { searchBox.classList.contains('active') ? closeSearch() : openSearch(); }
+      
+      function toggleSearch() { 
+        searchBox.classList.contains('active') ? closeSearch() : openSearch(); 
+      }
 
       function applyFilter(query) {
         const normalized = (query || '').trim().toLowerCase();
@@ -1040,6 +852,7 @@
           product.classList.toggle('show', match);
           if (match) visible++;
         });
+        
         const section = document.querySelector('.product-section');
         const grid = document.querySelector('.product-grid');
         if (section && grid) {
@@ -1069,86 +882,110 @@
       document.addEventListener('click', (e) => { if (!searchBox.contains(e.target) && !searchToggle.contains(e.target) && searchBox.classList.contains('active')) closeSearch(); });
     })();
 
-    (function () {
-  async function fetchProductsFromPage(url = 'product.html') {
+    // Cart Modal functionality
+    const cartButton = document.getElementById("cartButton");
+    const cartModal = document.getElementById("cartModal");
+    const closeCart = document.getElementById("closeCart");
+
+    cartButton.addEventListener("click", () => {
+      cartModal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+    });
+
+    closeCart.addEventListener("click", () => {
+      cartModal.style.display = "none";
+      document.body.style.overflow = "auto";
+    });
+
+    window.addEventListener("click", (e) => {
+      if (e.target === cartModal) {
+        cartModal.style.display = "none";
+        document.body.style.overflow = "auto";
+      }
+    });
+
+    // Checkout Modal
+    const checkoutBtn = document.getElementById("checkoutBtn");
+    const checkoutModal = document.getElementById("checkoutModal");
+    const closeCheckout = document.getElementById("closeCheckout");
+
+    checkoutBtn.addEventListener("click", () => {
+      cartModal.style.display = "none";
+      checkoutModal.style.display = "flex";
+    });
+
+    closeCheckout.addEventListener("click", () => {
+      checkoutModal.style.display = "none";
+      document.body.style.overflow = "auto";
+    });
+
+    // Product Sync Script - Add this to product.html before closing </body> tag
+// This script loads products from localStorage (managed by admin) and renders them dynamically
+
+(function() {
+  const PRODUCTS_KEY = 'easy_lunch_products_v1';
+
+  function loadProducts() {
     try {
-      const res = await fetch(url, { cache: 'no-cache' });
-      if (!res.ok) throw new Error('Failed to fetch products page');
-      const html = await res.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const cards = doc.querySelectorAll('.product-card');
-      const products = Array.from(cards).map(card => {
-        const nameEl = card.querySelector('.product-name');
-        const priceEl = card.querySelector('.product-price');
-        const imgEl = card.querySelector('.product-image');
-        const descEl = card.querySelector('.product-description') || card.querySelector('p');
-        const category = card.dataset.category || card.getAttribute('data-category') || '';
-        const priceText = priceEl ? priceEl.textContent.trim() : '';
-        // extract numeric price
-        const price = parseFloat((priceText || '').replace(/[^\d.]/g, '')) || 0;
-        return {
-          name: nameEl ? nameEl.textContent.trim() : 'Product',
-          price,
-          priceText: priceEl ? priceEl.textContent.trim() : '',
-          img: imgEl ? imgEl.getAttribute('src') : '',
-          desc: descEl ? descEl.textContent.trim() : '',
-          category
-        };
-      });
-      return products;
-    } catch (err) {
-      console.warn('products.js: could not fetch/parse product.html', err);
-      return [];
+      const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY));
+      if (products && products.length > 0) {
+        renderDynamicProducts(products);
+      }
+      // If no products in localStorage, keep the static HTML products
+    } catch(e) {
+      console.error('Error loading products:', e);
     }
   }
 
-  async function init() {
-    // If window.PRODUCTS already provided (server-side build etc.), use it.
-    if (Array.isArray(window.PRODUCTS) && window.PRODUCTS.length) {
-      document.dispatchEvent(new CustomEvent('products:loaded', { detail: { from: 'window' } }));
-      return;
-    }
+  function renderDynamicProducts(products) {
+    const grid = document.querySelector('.product-grid');
+    if (!grid) return;
 
-    // Try to scrape products from the current DOM (if product cards are on the current page)
-    const localCards = document.querySelectorAll && document.querySelectorAll('.product-card');
-    if (localCards && localCards.length) {
-      window.PRODUCTS = Array.from(localCards).map(card => {
-        const name = card.querySelector('.product-name')?.textContent?.trim() || 'Product';
-        const priceText = card.querySelector('.product-price')?.textContent?.trim() || '';
-        const price = parseFloat(priceText.replace(/[^\d.]/g, '')) || 0;
-        const img = card.querySelector('.product-image')?.getAttribute('src') || '';
-        const desc = card.querySelector('.product-description')?.textContent?.trim() || '';
-        const category = card.dataset.category || '';
-        return { name, price, priceText, img, desc, category };
-      });
-      document.dispatchEvent(new CustomEvent('products:loaded', { detail: { from: 'dom' } }));
-      return;
-    }
+    // Clear existing products
+    grid.innerHTML = '';
 
-    // Otherwise fetch product.html and parse
-    const products = await fetchProductsFromPage('product.html');
-    window.PRODUCTS = products;
-    document.dispatchEvent(new CustomEvent('products:loaded', { detail: { from: 'fetch', count: products.length } }));
+    products.forEach(product => {
+      const card = document.createElement('div');
+      card.className = 'product-card show';
+      card.dataset.category = product.category;
+      card.dataset.name = product.name;
+      card.dataset.price = product.price;
+      card.dataset.img = product.img || '';
+
+      card.innerHTML = `
+        ${product.bestSeller ? '<div class="badge">Best Seller</div>' : ''}
+        <img src="${product.img || 'https://via.placeholder.com/300x200?text=No+Image'}" 
+             alt="${product.name}" 
+             class="product-image"
+             onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+        <h3 class="product-name">${product.name}</h3>
+        <p class="product-description">${product.description || ''}</p>
+        <p class="product-price">₱${parseFloat(product.price).toFixed(2)}</p>
+        <button class="add-to-cart">Add to Cart</button>
+      `;
+
+      grid.appendChild(card);
+    });
+
+    console.log(`Loaded ${products.length} products from admin`);
   }
 
-  // Run init on load
+  // Load products when page loads
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', loadProducts);
   } else {
-    init();
+    loadProducts();
   }
 
-  // Expose a small helper to get top N recommendations
-  window.getProductRecommendations = function (count = 4) {
-    const arr = Array.isArray(window.PRODUCTS) ? window.PRODUCTS.slice() : [];
-    // Shuffle a bit and pick first `count`
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+  // Listen for product updates from admin
+  window.addEventListener('storage', (e) => {
+    if (e.key === PRODUCTS_KEY) {
+      loadProducts();
     }
-    return arr.slice(0, count);
-  };
+  });
+
+  // Reload products every 5 seconds to catch changes
+  setInterval(loadProducts, 5000);
 })();
   </script>
 </body>
