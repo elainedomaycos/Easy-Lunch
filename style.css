@@ -2068,26 +2068,52 @@ body {
     padding: 0.5rem;
     border-radius: 1rem;
   }
+  .navbar-awning {
+    top: 0;
+    width: 100%;
+    min-width: 0;
+    border-radius: 0;
+    position: fixed;
+    left: 0;
+    z-index: 1000;
+  }
+  .navbar-bar {
+    height: auto;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0.5rem 0;
+  }
   .navbar-content {
     flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem 1rem;
     gap: 0.5rem;
-    padding: 0.5rem;
   }
   .nav-center {
     flex-direction: column;
     gap: 0.5rem;
+    align-items: stretch;
+    width: 100%;
+  }
+  .nav-center a {
+    font-size: 1.6rem;
+    padding: 1.2rem 0.5rem;
+    border-radius: 12px;
+    width: 100%;
+    text-align: left;
   }
   .nav-right {
+    flex-direction: row;
     gap: 0.5rem;
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 0.5rem;
   }
   .logo-banner {
-    height: 5rem;
-  }
-  .image-bg {
-    height: 180px;
-  }
-  .leaves-bg {
+    height: 4rem;
+    margin: 0 auto 0.5rem auto;
     width: 100%;
+    justify-content: center;
   }
 }
 
