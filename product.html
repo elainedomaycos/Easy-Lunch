@@ -258,6 +258,184 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(192, 57, 43, 0.4);
     }
+
+    /* Navbar styles */
+    .navbar-awning {
+      position: relative;
+      z-index: 1000;
+    }
+
+    .navbar-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 0 0 1.5rem 1.5rem;
+    }
+
+    .logo-banner {
+      cursor: pointer;
+    }
+
+    .logo-img {
+      height: 50px;
+      object-fit: contain;
+    }
+
+    .nav-center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+      margin: 0 2rem;
+    }
+
+    .nav-center.open {
+      display: block;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: 0 0 1.5rem 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 100;
+    }
+
+    .nav-center ul {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      flex-direction: row;
+    }
+
+    .nav-center.open ul {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .nav-center li {
+      margin: 0 1rem;
+    }
+
+    .nav-center a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-center a:hover {
+      color: #8b0000;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .icon-button {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 1rem;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .icon-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .search-container {
+      position: relative;
+    }
+
+    .search-icon {
+      width: 24px;
+      height: 24px;
+      fill: #8b0000;
+      cursor: pointer;
+    }
+
+    .search-box {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: 0 0 1.5rem 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      display: none;
+      flex-direction: column;
+      padding: 1rem;
+      z-index: 100;
+    }
+
+    .search-box.active {
+      display: flex;
+    }
+
+    .search-input {
+      border: 2px solid #8b0000;
+      border-radius: 1rem;
+      padding: 0.8rem 1rem;
+      font-size: 1rem;
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+
+    .search-clear {
+      background: none;
+      border: none;
+      color: #8b0000;
+      font-size: 1.2rem;
+      cursor: pointer;
+      align-self: flex-end;
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 30px;
+      height: 30px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 100%;
+      height: 3px;
+      background: #8b0000;
+      margin-bottom: 4px;
+      border-radius: 2px;
+    }
+
+    .hamburger:hover {
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 768px) {
+      .nav-center {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+    }
   </style>
 </head>
 
@@ -266,14 +444,18 @@
   <!-- Main Content -->
   <div id="main-content">
     <!-- Navbar (same as index.html) -->
-    <nav class="navbar-awning">
+    <nav class="navbar-awning fade-in">
       <div class="navbar-bar">
-        <div class="navbar-content">
-          <div class="logo-banner" onclick="window.location.href='index.html'">
-            <img src="El Pollo - Logo - Création de l'identité visuelle du restaurant fast food mexicain.png" alt="Bossing's Wings" class="logo-img">
-          </div>
-          
-          <ul class="nav-center">
+        <div class="logo-banner" onclick="window.location.href='index.html'">
+          <img src="El Pollo - Logo - Création de l'identité visuelle du restaurant fast food mexicain.png" alt="Bossing's Wings" class="logo-img">
+        </div>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="navbar-content slide-in">
+          <ul class="nav-center" id="navMenu">
             <li><a href="index.html#hero" class="nav-link">HOME</a></li>
             <li><a href="product.html" class="nav-link active">PRODUCTS</a></li>
             <li><a href="index.html#about" class="nav-link">ABOUT US</a></li>
@@ -1073,6 +1255,21 @@ For inquiries: contact@easylunch.com
         downloadBtn.style.boxShadow = '0 4px 12px rgba(76, 175, 80, 0.3)';
       });
     }
+
+    // Hamburger menu toggle for mobile
+    document.addEventListener('DOMContentLoaded', function() {
+      var hamburger = document.getElementById('hamburgerBtn');
+      var navMenu = document.getElementById('navMenu');
+      hamburger.addEventListener('click', function() {
+        navMenu.classList.toggle('open');
+      });
+      // Optional: close menu when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!navMenu.contains(e.target) && !hamburger.contains(e.target)) {
+          navMenu.classList.remove('open');
+        }
+      });
+    });
   </script>
 
   <!-- Scroll to Top Button Script -->
