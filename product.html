@@ -699,6 +699,11 @@
           </div>
         </div>
       </div>
+
+      <div class="recommendations">
+        <h3 style="font-size: 2rem; color: #8b0000; margin-bottom: 1.5rem;">You Might Like</h3>
+        <div class="recommendation-grid" id="recommendationGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; overflow-x: auto;"></div>
+      </div>
     </div>
   </div>
 
@@ -781,6 +786,7 @@
         <hr>
         <div class="summary-total"><span>Total</span><span>₱30</span></div>
       </div>
+      <button id="downloadInvoiceBtn" class="download-invoice-btn" style="margin: 2rem auto 1rem; background: #4CAF50; width: 90%; max-width: 400px; padding: 1.5rem; border: none; border-radius: 0.8rem; color: white; font-size: 1.6rem; font-weight: 700; cursor: pointer; display: block; transition: all 0.3s; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);">📄 Download Invoice</button>
       <div class="footer-msg">
         Your order is being prepared. Sit tight — wings are coming hot and fresh! 🔥
       </div>
@@ -910,6 +916,13 @@
     const closeCheckout = document.getElementById("closeCheckout");
 
     checkoutBtn.addEventListener("click", () => {
+      // Check if cart is empty before proceeding to checkout
+      const cart = JSON.parse(localStorage.getItem('easy_lunch_cart_v1') || '[]');
+      if (cart.length === 0) {
+        alert('Your cart is empty! Please add items before checking out.');
+        return;
+      }
+      
       cartModal.style.display = "none";
       checkoutModal.style.display = "flex";
     });
@@ -919,74 +932,199 @@
       document.body.style.overflow = "auto";
     });
 
-    // Product Sync Script - Add this to product.html before closing </body> tag
-// This script loads products from localStorage (managed by admin) and renders them dynamically
+    // ========== RECOMMENDATION SYSTEM ==========
+    function loadRecommendations() {
+      const recommendationGrid = document.getElementById('recommendationGrid');
+      if (!recommendationGrid) return;
 
-(function() {
-  const PRODUCTS_KEY = 'easy_lunch_products_v1';
+      // Get all products from the page
+      const allProducts = Array.from(document.querySelectorAll('.product-card')).map(card => ({
+        name: card.dataset.name || card.querySelector('.product-name')?.textContent || '',
+        price: parseFloat(card.dataset.price || card.querySelector('.product-price')?.textContent.replace(/[^\d.]/g, '')) || 0,
+        img: card.dataset.img || card.querySelector('.product-image')?.src || '',
+        category: card.dataset.category || ''
+      })).filter(p => p.name && p.price > 0);
 
-  function loadProducts() {
-    try {
-      const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY));
-      if (products && products.length > 0) {
-        renderDynamicProducts(products);
-      }
-      // If no products in localStorage, keep the static HTML products
-    } catch(e) {
-      console.error('Error loading products:', e);
+      // Shuffle and take 4 random products
+      const shuffled = allProducts.sort(() => 0.5 - Math.random());
+      const recommendations = shuffled.slice(0, 4);
+
+      recommendationGrid.innerHTML = recommendations.map(product => `
+        <div class="recommendation-card" style="background: #fff; border-radius: 1rem; padding: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; min-width: 0;" 
+             data-name="${product.name}" 
+             data-price="${product.price}" 
+             data-img="${product.img}">
+          <img src="${product.img}" alt="${product.name}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 0.8rem; margin-bottom: 0.8rem;">
+          <h4 style="font-size: 1.5rem; color: #333; margin-bottom: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${product.name}</h4>
+          <p style="font-size: 1.6rem; color: #8b0000; font-weight: 700; margin-bottom: 0.8rem;">₱${product.price.toFixed(2)}</p>
+          <button class="add-to-cart-recommendation" style="width: 100%; padding: 0.8rem; background: #c0392b; color: white; border: none; border-radius: 0.8rem; font-weight: 600; cursor: pointer; transition: background 0.2s; font-size: 1.3rem;">Add to Cart</button>
+        </div>
+      `).join('');
+
+      // Add hover effect
+      document.querySelectorAll('.recommendation-card').forEach(card => {
+        card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-5px)');
+        card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
+      });
+
+      // Add event listeners to recommendation cards
+      document.querySelectorAll('.add-to-cart-recommendation').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const card = btn.closest('.recommendation-card');
+          const item = {
+            name: card.dataset.name,
+            price: parseFloat(card.dataset.price),
+            img: card.dataset.img,
+            quantity: 1
+          };
+          
+          // Trigger add to cart (this will be handled by payment.js)
+          const event = new CustomEvent('addToCart', { detail: item });
+          document.dispatchEvent(event);
+        });
+      });
     }
-  }
 
-  function renderDynamicProducts(products) {
-    const grid = document.querySelector('.product-grid');
-    if (!grid) return;
-
-    // Clear existing products
-    grid.innerHTML = '';
-
-    products.forEach(product => {
-      const card = document.createElement('div');
-      card.className = 'product-card show';
-      card.dataset.category = product.category;
-      card.dataset.name = product.name;
-      card.dataset.price = product.price;
-      card.dataset.img = product.img || '';
-
-      card.innerHTML = `
-        ${product.bestSeller ? '<div class="badge">Best Seller</div>' : ''}
-        <img src="${product.img || 'https://via.placeholder.com/300x200?text=No+Image'}" 
-             alt="${product.name}" 
-             class="product-image"
-             onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
-        <h3 class="product-name">${product.name}</h3>
-        <p class="product-description">${product.description || ''}</p>
-        <p class="product-price">₱${parseFloat(product.price).toFixed(2)}</p>
-        <button class="add-to-cart">Add to Cart</button>
-      `;
-
-      grid.appendChild(card);
+    // Load recommendations when cart modal is opened
+    cartButton.addEventListener("click", () => {
+      cartModal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+      loadRecommendations();
     });
 
-    console.log(`Loaded ${products.length} products from admin`);
-  }
+    // ========== INVOICE DOWNLOAD ==========
+    document.getElementById('downloadInvoiceBtn')?.addEventListener('click', () => {
+      // Get the last order from localStorage
+      const orders = JSON.parse(localStorage.getItem('easy_lunch_orders_v1') || '[]');
+      
+      if (orders.length === 0) {
+        alert('No order found. Please place an order first.');
+        return;
+      }
 
-  // Load products when page loads
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadProducts);
-  } else {
-    loadProducts();
-  }
+      // Get the most recent order (first in array since we unshift new orders)
+      const order = orders[0];
+      const invoiceId = order.orderId || 'INV-' + Date.now();
+      const date = new Date(order.timestamp || Date.now()).toLocaleString();
 
-  // Listen for product updates from admin
-  window.addEventListener('storage', (e) => {
-    if (e.key === PRODUCTS_KEY) {
-      loadProducts();
+      let invoiceText = `
+═══════════════════════════════════════
+         THE EASY LUNCH - INVOICE
+═══════════════════════════════════════
+
+Invoice ID: ${invoiceId}
+Order Date: ${date}
+
+Customer Information:
+Name: ${order.customer?.fullName || 'N/A'}
+Contact: ${order.customer?.contact || 'N/A'}
+Address: ${order.customer?.address || 'N/A'}
+
+Payment Method: ${order.payment?.method?.toUpperCase() || 'N/A'}
+${order.payment?.reference ? `Reference: ${order.payment.reference}` : ''}
+
+───────────────────────────────────────
+ITEMS
+───────────────────────────────────────
+
+${(order.items || []).map(item => `${item.name}
+  Qty: ${item.quantity || item.qty || 1} x ₱${item.price.toFixed(2)} = ₱${((item.quantity || item.qty || 1) * item.price).toFixed(2)}`).join('\n\n')}
+
+───────────────────────────────────────
+SUMMARY
+───────────────────────────────────────
+
+Subtotal:        ₱${(order.totals?.subtotal || 0).toFixed(2)}
+Delivery Fee:    ₱${(order.totals?.deliveryFee || 0).toFixed(2)}
+Discount:       -₱${(order.totals?.discount || 0).toFixed(2)}
+
+TOTAL:           ₱${(order.totals?.total || 0).toFixed(2)}
+
+───────────────────────────────────────
+
+Thank you for choosing The Easy Lunch!
+For inquiries: contact@easylunch.com
+
+═══════════════════════════════════════
+      `;
+
+      // Create and download the invoice
+      const blob = new Blob([invoiceText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `easy-lunch-invoice-${invoiceId}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // Add hover effect to download button
+    const downloadBtn = document.getElementById('downloadInvoiceBtn');
+    if (downloadBtn) {
+      downloadBtn.addEventListener('mouseenter', () => {
+        downloadBtn.style.transform = 'translateY(-2px)';
+        downloadBtn.style.boxShadow = '0 6px 20px rgba(76, 175, 80, 0.4)';
+      });
+      downloadBtn.addEventListener('mouseleave', () => {
+        downloadBtn.style.transform = 'translateY(0)';
+        downloadBtn.style.boxShadow = '0 4px 12px rgba(76, 175, 80, 0.3)';
+      });
     }
-  });
+  </script>
 
-  // Reload products every 5 seconds to catch changes
-  setInterval(loadProducts, 5000);
-})();
+  <!-- Scroll to Top Button Script -->
+  <script>
+      (function() {
+          const scrollBtn = document.createElement('button');
+          scrollBtn.innerHTML = '↑';
+          scrollBtn.style.cssText = `
+              position: fixed;
+              bottom: 3rem;
+              left: 3rem;
+              width: 50px;
+              height: 50px;
+              border-radius: 50%;
+              background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%);
+              color: white;
+              border: none;
+              font-size: 2rem;
+              cursor: pointer;
+              display: none;
+              z-index: 999;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+              transition: all 0.3s;
+          `;
+          scrollBtn.id = 'scrollToTop';
+          document.body.appendChild(scrollBtn);
+
+          // Show/hide based on scroll position
+          window.addEventListener('scroll', () => {
+              if (window.pageYOffset > 500) {
+                  scrollBtn.style.display = 'block';
+              } else {
+                  scrollBtn.style.display = 'none';
+              }
+          });
+
+          // Scroll to top on click
+          scrollBtn.addEventListener('click', () => {
+              window.scrollTo({
+                  top: 0,
+                  behavior: 'smooth'
+              });
+          });
+
+          // Hover effect
+          scrollBtn.addEventListener('mouseenter', () => {
+              scrollBtn.style.transform = 'translateY(-5px) scale(1.1)';
+          });
+          scrollBtn.addEventListener('mouseleave', () => {
+              scrollBtn.style.transform = 'translateY(0) scale(1)';
+          });
+      })();
   </script>
 </body>
 </html>

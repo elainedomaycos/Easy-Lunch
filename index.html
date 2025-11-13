@@ -51,8 +51,8 @@
                     
                     <ul class="nav-center">
                         <li><a href="#hero" class="nav-link" data-section="menu">HOME</a></li>
-                        <li><a href="#products" class="nav-link" data-section="products">PRODUCTS</a></li>
-                        <li><a href="#about" class="nav-link" data-section="story">ABOUT US</a></li>
+                        <li><a href="product.html" class="nav-link" data-section="products">PRODUCTS</a></li>
+                        <li><a href="about-us.html" class="nav-link" data-section="story">ABOUT US</a></li>
                         <li><a href="#testimony" class="nav-link" data-section="about">RATINGS</a></li>
                         <li><a href="#contact" class="nav-link" data-section="contact">CONTACT US</a></li>
                     </ul>
@@ -83,14 +83,14 @@
         </nav>
 
         <!-- Hero Section -->
-        <section class="hero" id="hero">
-            <div class="hero-text">
-                <p class="tagline">The Easy Lunch</p>
-                <h1 class="hero-title">The Easy Way To Wing Your Day</h1>
+        <section class="hero fade-in visible" id="hero">
+            <div class="hero-text slide-in visible">
+                <span class="tagline">Effortless Comfort Food</span>
+                <h1 class="hero-title">Easy Lunch</h1>
                 <p class="hero-description">
                     Your go-to spot for comfort chicken that’s effortlessly delicious. Perfect for lunch breaks, hangouts, or any moment that deserves a little flavor boost.
                 </p>
-                <div class="social-media-hero">
+                <div class="social-media-hero fade-in visible">
                     <a href="#" class="social-icon-hero">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -112,17 +112,37 @@
                         </svg>
                     </a>
                 </div>
-                <button class="order-btn" onclick="window.location.href='product.html'">Order Now</button>
+                <button class="order-btn button-animate fade-in visible" onclick="window.location.href='product.html'">Order Now</button>
             </div>
-            <div class="image-bg">
+            <div class="image-bg fade-in visible">
               <img src="leaves.png" alt="Leaves" class="leaves-bg">
-              <img src="chik.png" alt="Chicken" class="chicken-img">
+              <img src="chik.png" alt="Chicken" class="chicken-img" id="heroChickenImg">
             </div>
         </section>
 
+        <script>
+        // Chicken image slideshow for hero section
+        (function() {
+          const chickenImages = [
+            'chik.png',
+            'chik3.png',
+            'chik6.png',
+            'chik7.png',
+            'chik8.png'
+          ];
+          let idx = 0;
+          const chickenImg = document.getElementById('heroChickenImg');
+          function nextChicken() {
+            idx = (idx + 1) % chickenImages.length;
+            chickenImg.src = chickenImages[idx];
+          }
+          setInterval(nextChicken, 2500);
+        })();
+        </script>
+
         <!-- Statistics Section -->
-        <section class="statistics">
-            <div class="stat-item">
+        <section class="statistics fade-in visible">
+            <div class="stat-item slide-in visible">
                 <div class="stat-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
@@ -131,7 +151,7 @@
                 <div class="stat-number">50K+</div>
                 <div class="stat-label">Happy Customers</div>
             </div>
-            <div class="stat-item">
+            <div class="stat-item slide-in visible">
                 <div class="stat-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                         <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
@@ -140,7 +160,7 @@
                 <div class="stat-number">100K+</div>
                 <div class="stat-label">Orders Delivered</div>
             </div>
-            <div class="stat-item">
+            <div class="stat-item slide-in visible">
                 <div class="stat-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                         <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24l-7.19-.61L12 2zm0 3.65l1.71 3.47 3.83.33-2.91 2.52 1 4.28-3.63-2.19-3.63 2.19 1-4.28-2.91-2.52 3.83-.33L12 5.65z"/>
@@ -149,7 +169,7 @@
                 <div class="stat-number">25+</div>
                 <div class="stat-label">Awards Won</div>
             </div>
-            <div class="stat-item">
+            <div class="stat-item slide-in visible">
                 <div class="stat-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
@@ -161,11 +181,11 @@
         </section>
 
         <!-- Product Section -->
-        <section class="product-section" id="products">
+        <section class="product-section fade-in visible" id="products">
           <h2 class="section-title">Our Popular Products</h2>
           <a href="product.html"> <button class="order-btn">View More</button></a>
           <div class="product-grid">
-            <div class="product-card" data-name="Buffalo Wings" data-price="120" data-img="buff.jfif">
+            <div class="product-card card-animate fade-in visible" data-name="Buffalo Wings" data-price="120" data-img="buff.jfif">
                <div class="badge">Best Seller</div>
                <img src="buff.jfif" alt="Classic Wings" class="product-image">
                <h3 class="product-name">Buffalo Wings</h3>
@@ -173,14 +193,14 @@
                <button class="add-to-cart">Add to Cart</button>
              </div>
  
-            <div class="product-card" data-name="Chicken Burger w/ Fries" data-price="149" data-img="chebac.jfif">
+            <div class="product-card card-animate fade-in visible" data-name="Chicken Burger w/ Fries" data-price="149" data-img="chebac.jfif">
                <img src="chebac.jfif" alt="Spicy Wings" class="product-image">
                <h3 class="product-name">Chicken Burger w/ Fries</h3>
                <p class="product-price">₱149</p>
                <button class="add-to-cart">Add to Cart</button>
              </div>
  
-            <div class="product-card" data-name="Classic Cheeseburger" data-price="60" data-img="classic.jfif">
+            <div class="product-card card-animate fade-in visible" data-name="Classic Cheeseburger" data-price="60" data-img="classic.jfif">
                <div class="badge">Best Seller</div>
                <img src="classic.jfif" alt="Honey Glazed" class="product-image">
                <h3 class="product-name">Classic Cheeseburger</h3>
@@ -188,7 +208,7 @@
                <button class="add-to-cart">Add to Cart</button>
              </div>
  
-            <div class="product-card" data-name="12 pieces Buffalo Wings" data-price="299" data-img="bundle.jfif">
+            <div class="product-card card-animate fade-in visible" data-name="12 pieces Buffalo Wings" data-price="299" data-img="bundle.jfif">
                <img src="bundle.jfif" alt="BBQ Bundle" class="product-image">
                <h3 class="product-name">12 pieces Buffalo Wings</h3>
                <p class="product-price">₱299</p>
@@ -256,7 +276,7 @@
                 that started with a small dream: to share comfort food that brings people together.
                 Each batch is made with passion and heart, just the way it should be.
               </p>
-              <button class="about-btn">Learn more about us</button>
+              <a href="about-us.html"><button class="about-btn">Learn more about us</button></a>
             </div>
             <div class="about-image">
               <img src="team.jpg" alt="Bossing's Wings Team">
@@ -444,27 +464,10 @@
           </div>
         </div>
 
-        <div class="recommendations">
-          <h3>You might like</h3>
-          <div class="recommendation-scroll">
-            <div class="rec-card hot">
-              <span class="tag">HOT DEAL</span>
-              <img src="https://via.placeholder.com/120/ff6666/ffffff?text=Spicy" alt="">
-              <p>Spicy Combo – ₱349</p>
-            </div>
-            <div class="rec-card new">
-              <span class="tag">NEW</span>
-              <img src="https://via.placeholder.com/120/996633/ffffff?text=Family" alt="">
-              <p>Family Feast – ₱899</p>
-            </div>
-            <div class="rec-card">
-              <img src="https://via.placeholder.com/120/8b4513/ffffff?text=BBQ" alt="">
-              <p>Retro BBQ Bucket – ₱749</p>
-            </div>
-            <div class="rec-card">
-              <img src="https://via.placeholder.com/120/ffcc00/ffffff?text=Cheesy" alt="">
-              <p>Cheesy Duo – ₱499</p>
-            </div>
+        <div class="recommendations fade-in visible">
+          <h3 style="font-size: 2rem; color: #8b0000; margin-bottom: 1.5rem;" class="slide-in visible">You Might Like</h3>
+          <div class="recommendation-grid">
+            <!-- Dynamic recommendations will be loaded here -->
           </div>
         </div>
       </div>
@@ -596,13 +599,229 @@
           <div class="summary-total"><span>Total</span><span>₱577</span></div>
         </div>
 
-        
+        <button id="downloadInvoiceBtnIndex" class="download-invoice-btn" style="margin: 2rem auto 1rem; background: #4CAF50; width: 90%; max-width: 400px; padding: 1.5rem; border: none; border-radius: 0.8rem; color: white; font-size: 1.6rem; font-weight: 700; cursor: pointer; display: block; transition: all 0.3s; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);">📄 Download Invoice</button>
 
         <div class="footer-msg">
           Your order is being prepared. Sit tight — wings are coming hot and fresh! 🔥
         </div>
       </div>
     </div>
+
+    <script>
+      // ========== RECOMMENDATION SYSTEM FOR INDEX.HTML ==========
+      function loadRecommendationsIndex() {
+        const recommendationScroll = document.getElementById('recommendationScrollIndex');
+        if (!recommendationScroll) return;
+
+        // Get all products from the page
+        const allProducts = Array.from(document.querySelectorAll('.product-card')).map(card => ({
+          name: card.dataset.name || card.querySelector('.product-name')?.textContent || '',
+          price: parseFloat(card.dataset.price || card.querySelector('.product-price')?.textContent.replace(/[^\d.]/g, '')) || 0,
+          img: card.dataset.img || card.querySelector('.product-image')?.src || ''
+        })).filter(p => p.name && p.price > 0);
+
+        // Shuffle and take 4 random products
+        const shuffled = allProducts.sort(() => 0.5 - Math.random());
+        const recommendations = shuffled.slice(0, 4);
+
+        recommendationScroll.innerHTML = recommendations.map((product, idx) => {
+          const tags = ['HOT DEAL', 'NEW', 'POPULAR', 'BEST'];
+          const tagClasses = ['hot', 'new', '', ''];
+          return `
+            <div class="rec-card ${tagClasses[idx % 4]}" 
+                 data-name="${product.name}" 
+                 data-price="${product.price}" 
+                 data-img="${product.img}">
+              ${idx < 2 ? `<span class="tag">${tags[idx]}</span>` : ''}
+              <img src="${product.img}" alt="${product.name}">
+              <p>${product.name} – ₱${product.price.toFixed(0)}</p>
+              <button class="add-rec-to-cart" style="margin-top: 0.5rem; width: 100%; padding: 0.5rem; background: #c0392b; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 1.2rem; font-weight: 600;">Add to Cart</button>
+            </div>
+          `;
+        }).join('');
+
+        // Add event listeners
+        document.querySelectorAll('.add-rec-to-cart').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const card = btn.closest('.rec-card');
+            const item = {
+              name: card.dataset.name,
+              price: parseFloat(card.dataset.price),
+              img: card.dataset.img,
+              quantity: 1
+            };
+            
+            // Trigger add to cart (this will be handled by payment.js)
+            const event = new CustomEvent('addToCart', { detail: item });
+            document.dispatchEvent(event);
+          });
+        });
+      }
+
+      // Load recommendations when cart modal is opened
+      const cartBtn = document.getElementById('cartButton');
+      if (cartBtn) {
+        const originalClick = cartBtn.onclick;
+        cartBtn.onclick = function() {
+          if (originalClick) originalClick.call(this);
+          setTimeout(loadRecommendationsIndex, 100);
+        };
+      }
+
+      // Also load on page load
+      document.addEventListener('DOMContentLoaded', loadRecommendationsIndex);
+
+      // ========== INVOICE DOWNLOAD FOR INDEX.HTML ==========
+      document.getElementById('downloadInvoiceBtnIndex')?.addEventListener('click', () => {
+        // Get the last order from localStorage
+        const orders = JSON.parse(localStorage.getItem('easy_lunch_orders_v1') || '[]');
+        
+        if (orders.length === 0) {
+          alert('No order found. Please place an order first.');
+          return;
+        }
+
+        // Get the most recent order (first in array since we unshift new orders)
+        const order = orders[0];
+        const invoiceId = order.orderId || 'INV-' + Date.now();
+        const date = new Date(order.timestamp || Date.now()).toLocaleString();
+
+        let invoiceText = `
+═══════════════════════════════════════
+         THE EASY LUNCH - INVOICE
+═══════════════════════════════════════
+
+Invoice ID: ${invoiceId}
+Order Date: ${date}
+
+Customer Information:
+Name: ${order.customer?.fullName || 'N/A'}
+Contact: ${order.customer?.contact || 'N/A'}
+Address: ${order.customer?.address || 'N/A'}
+
+Payment Method: ${order.payment?.method?.toUpperCase() || 'N/A'}
+${order.payment?.reference ? `Reference: ${order.payment.reference}` : ''}
+
+───────────────────────────────────────
+ITEMS
+───────────────────────────────────────
+
+${(order.items || []).map(item => `${item.name}
+  Qty: ${item.quantity || item.qty || 1} x ₱${item.price.toFixed(2)} = ₱${((item.quantity || item.qty || 1) * item.price).toFixed(2)}`).join('\n\n')}
+
+───────────────────────────────────────
+SUMMARY
+───────────────────────────────────────
+
+Subtotal:        ₱${(order.totals?.subtotal || 0).toFixed(2)}
+Delivery Fee:    ₱${(order.totals?.deliveryFee || 0).toFixed(2)}
+Discount:       -₱${(order.totals?.discount || 0).toFixed(2)}
+
+TOTAL:           ₱${(order.totals?.total || 0).toFixed(2)}
+
+───────────────────────────────────────
+
+Thank you for choosing The Easy Lunch!
+For inquiries: contact@easylunch.com
+
+═══════════════════════════════════════
+        `;
+
+        // Create and download the invoice
+        const blob = new Blob([invoiceText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `easy-lunch-invoice-${invoiceId}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      // Add hover effect to download button
+      const downloadBtnIndex = document.getElementById('downloadInvoiceBtnIndex');
+      if (downloadBtnIndex) {
+        downloadBtnIndex.addEventListener('mouseenter', () => {
+          downloadBtnIndex.style.transform = 'translateY(-2px)';
+          downloadBtnIndex.style.boxShadow = '0 6px 20px rgba(76, 175, 80, 0.4)';
+        });
+        downloadBtnIndex.addEventListener('mouseleave', () => {
+          downloadBtnIndex.style.transform = 'translateY(0)';
+          downloadBtnIndex.style.boxShadow = '0 4px 12px rgba(76, 175, 80, 0.3)';
+        });
+      }
+    </script>
+
+    <!-- IntersectionObserver Script -->
+    <script>
+    // IntersectionObserver for fade-in/slide-in animations
+    document.addEventListener('DOMContentLoaded', function() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.fade-in, .slide-in').forEach(el => {
+        observer.observe(el);
+      });
+    });
+    </script>
+
+    <!-- Scroll to Top Button Script -->
+    <script>
+        (function() {
+            const scrollBtn = document.createElement('button');
+            scrollBtn.innerHTML = '↑';
+            scrollBtn.style.cssText = `
+                position: fixed;
+                bottom: 3rem;
+                left: 3rem;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%);
+                color: white;
+                border: none;
+                font-size: 2rem;
+                cursor: pointer;
+                display: none;
+                z-index: 999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                transition: all 0.3s;
+            `;
+            scrollBtn.id = 'scrollToTop';
+            document.body.appendChild(scrollBtn);
+
+            // Show/hide based on scroll position
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 500) {
+                    scrollBtn.style.display = 'block';
+                } else {
+                    scrollBtn.style.display = 'none';
+                }
+            });
+
+            // Scroll to top on click
+            scrollBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Hover effect
+            scrollBtn.addEventListener('mouseenter', () => {
+                scrollBtn.style.transform = 'translateY(-5px) scale(1.1)';
+            });
+            scrollBtn.addEventListener('mouseleave', () => {
+                scrollBtn.style.transform = 'translateY(0) scale(1)';
+            });
+        })();
+    </script>
     
   </body>
 </html>

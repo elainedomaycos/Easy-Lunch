@@ -177,6 +177,13 @@
     }
   });
 
+  // Listen for addToCart custom event (for recommendations)
+  document.addEventListener('addToCart', function(e) {
+    if (e.detail) {
+      addToCart(e.detail);
+    }
+  });
+
   // ========== PAYMENT METHOD SWITCHING ==========
   function initPaymentMethods() {
     const methodRadios = document.querySelectorAll('input[name="payMethod"]');
@@ -409,9 +416,17 @@
   // ========== PLACE ORDER HANDLER ==========
   function initCheckout() {
     const placeOrderBtn = document.getElementById('placeOrderBtn');
+    
     if(!placeOrderBtn) return;
     
     placeOrderBtn.addEventListener('click', function() {
+      // Double-check cart isn't empty
+      const cart = loadCart();
+      if(cart.length === 0) {
+        alert('Your cart is empty! Please add items before placing an order.');
+        return;
+      }
+      
       const inputs = document.querySelectorAll('.checkout-section input');
       const fullName = inputs[0]?.value?.trim();
       const address = inputs[1]?.value?.trim();
@@ -484,3 +499,4 @@
     }
   });
 })();
+

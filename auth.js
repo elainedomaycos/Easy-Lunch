@@ -155,6 +155,8 @@
   async function signIn(email, password) {
     if (!firebase || !firebase.auth) throw new Error('Firebase not loaded');
     await firebase.auth().signInWithEmailAndPassword(email, password);
+    // Optionally redirect to account page after login (only from home/product pages)
+    // Users can navigate back if they want
   }
   async function signUp(email, password) {
     if (!firebase || !firebase.auth) throw new Error('Firebase not loaded');
@@ -163,6 +165,10 @@
     if (cred.user && !cred.user.displayName) {
       await cred.user.updateProfile({ displayName: email.split('@')[0] });
     }
+    // Redirect to account page after successful signup
+    setTimeout(() => {
+      window.location.href = 'account.html';
+    }, 500);
   }
   async function doSignOut() {
     if (!firebase || !firebase.auth) return;
@@ -238,8 +244,8 @@
 
     // Event wiring
     document.getElementById('myAccountBtn').addEventListener('click', () => {
-      alert('Account page coming soon.');
       hideUserMenu();
+      window.location.href = 'account.html';
     });
 
     if (isAdmin) {
@@ -364,3 +370,4 @@
     init();
   }
 })();
+

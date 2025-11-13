@@ -136,6 +136,13 @@
 
         // Cart -> Checkout
         checkoutBtn.addEventListener("click", () => {
+          // Check if cart is empty before proceeding to checkout
+          const cart = JSON.parse(localStorage.getItem('easy_lunch_cart_v1') || '[]');
+          if (cart.length === 0) {
+            alert('Your cart is empty! Please add items before checking out.');
+            return;
+          }
+          
           cartModal.style.display = "none";
           checkoutModal.classList.add("active");
           checkoutModal.style.display = "flex";

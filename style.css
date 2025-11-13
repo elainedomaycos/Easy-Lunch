@@ -2000,3 +2000,135 @@ body {
   color: #6e6e6e;
 }
 
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 10rem 1rem 4rem;
+    gap: 2rem;
+  }
+  .hero-text {
+    margin-left: 0;
+    padding: 1rem;
+  }
+  .image-bg {
+    width: 100%;
+    height: 300px;
+  }
+  .statistics {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 3rem 1rem;
+    gap: 1.2rem;
+  }
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    width: 100%;
+    padding: 0;
+  }
+  .product-card {
+    max-width: 100%;
+    padding: 1rem;
+  }
+  .navbar-awning {
+    top: 1rem;
+    width: 98%;
+    min-width: 0;
+  }
+  .navbar-bar {
+    height: 5rem;
+    border-radius: 3rem;
+  }
+  .logo-banner {
+    height: 8rem;
+    margin-top: 0;
+  }
+}
+@media (max-width: 600px) {
+  html {
+    font-size: 8px;
+  }
+  .hero-title {
+    font-size: 2.8rem;
+  }
+  .hero-description {
+    font-size: 1.2rem;
+  }
+  .statistics {
+    grid-template-columns: 1fr;
+    padding: 2rem 0.5rem;
+    gap: 0.8rem;
+    border-radius: 20px;
+  }
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .product-card {
+    padding: 0.5rem;
+    border-radius: 1rem;
+  }
+  .navbar-content {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+  .nav-center {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .nav-right {
+    gap: 0.5rem;
+  }
+  .logo-banner {
+    height: 5rem;
+  }
+  .image-bg {
+    height: 180px;
+  }
+  .leaves-bg {
+    width: 100%;
+  }
+}
+
+/* --- ANIMATION & TRANSITIONS --- */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.4,0,.2,1);
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: none;
+}
+.slide-in {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.4,0,.2,1);
+}
+.slide-in.visible {
+  opacity: 1;
+  transform: none;
+}
+.button-animate {
+  transition: background 0.3s, transform 0.3s;
+}
+.button-animate:hover {
+  background: #e04b34;
+  transform: scale(1.07);
+}
+.card-animate {
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+.card-animate:hover {
+  box-shadow: 0 12px 32px rgba(192,57,43,0.18);
+  transform: translateY(-8px) scale(1.03);
+}
+.modal-animate {
+  animation: modalFadeIn 0.5s cubic-bezier(.4,0,.2,1);
+}
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+

@@ -591,9 +591,57 @@
             border-radius: 0.5rem;
             cursor: pointer;
         }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide-in {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .slide-in.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Override for sections and cards */
+        .section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
-<body>
+<body class="fade-in">
     <!-- Loading Screen -->
     <div id="loadingScreen" class="fullscreen-message">
         <div class="message-content">
@@ -654,31 +702,33 @@
             </header>
 
             <!-- Dashboard Section -->
-            <section id="dashboard" class="section active">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>Total Orders</h3>
-                        <div class="value" id="totalOrders">0</div>
+            <section id="dashboard" class="section fade-in">
+                <div class="dashboard-content slide-in">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Total Orders</h3>
+                            <div class="value" id="totalOrders">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Pending Orders</h3>
+                            <div class="value" id="pendingOrders">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Completed Today</h3>
+                            <div class="value" id="completedToday">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Products</h3>
+                            <div class="value" id="totalProducts">0</div>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <h3>Pending Orders</h3>
-                        <div class="value" id="pendingOrders">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Completed Today</h3>
-                        <div class="value" id="completedToday">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Total Products</h3>
-                        <div class="value" id="totalProducts">0</div>
-                    </div>
-                </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Recent Activity</h3>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Activity</h3>
+                        </div>
+                        <p>Welcome to your admin dashboard! Here you can manage orders and customer chats in real-time.</p>
                     </div>
-                    <p>Welcome to your admin dashboard! Here you can manage orders and customer chats in real-time.</p>
                 </div>
             </section>
 
@@ -698,17 +748,11 @@
             </section>
 
             <!-- Products Section -->
-            <section id="products" class="section">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Product Management</h3>
-                        <button class="btn btn-primary" id="addProductBtn">Add Product</button>
-                    </div>
-                    <div id="productsContainer" class="products-grid">
-                        <div class="empty-state">
-                            <div class="empty-state-icon">🍗</div>
-                            <p>Loading products...</p>
-                        </div>
+            <section id="products" class="section fade-in">
+                <div id="productsContainer" class="products-grid">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🍗</div>
+                        <p>Loading products...</p>
                     </div>
                 </div>
             </section>
@@ -1179,10 +1223,22 @@
                 { id: 'p2', name: 'Teriyaki Wings', price: 130, category: 'wings', description: 'Sweet-savory glaze with a Japanese touch', img: 'Teriyaki Chicken Wings.jfif', bestSeller: false },
                 { id: 'p3', name: 'Honey Garlic Wings', price: 130, category: 'wings', description: 'Golden honey meets garlicky crunch', img: 'honey garlic chicken.jfif', bestSeller: true },
                 { id: 'p4', name: 'Garlic Parmesan Wings', price: 130, category: 'wings', description: 'Buttery, cheesy, and dangerously addictive', img: 'parme.jfif', bestSeller: false },
-                { id: 'p5', name: 'Cheesy Overload Pizza', price: 159, category: 'pizza', description: 'Triple cheese blend — gooey, melty, and comforting', img: 'cheese.jfif', bestSeller: false },
-                { id: 'p6', name: 'Classic Cheeseburger', price: 60, category: 'burgers', description: 'Beef patty, cheese, lettuce, tomato, signature sauce', img: 'classic.jfif', bestSeller: false },
-                { id: 'p7', name: 'Regular Fries', price: 49, category: 'sides', description: 'Golden, crispy, lightly salted', img: 'reg.jfif', bestSeller: false },
-                { id: 'p8', name: 'Iced Tea', price: 30, category: 'drinks', description: 'Classic house blend', img: 'icedtea.jfif', bestSeller: false }
+                { id: 'p5', name: 'Salted Egg Wings', price: 130, category: 'wings', description: 'Creamy, savory, and proudly Pinoy twist', img: 'Salted Egg Chicken Wings.jfif', bestSeller: false },
+                { id: 'p6', name: 'Zesty Lemon Pepper', price: 130, category: 'wings', description: 'Tangy citrus meets peppery crunch.', img: 'Crispy Lemon Pepper Chicken Wings with 5-Star Flavor Burst.jfif', bestSeller: false },
+                { id: 'p7', name: 'Spicy Cajun Wings', price: 130, category: 'wings', description: 'Southern-style spice that hits just right', img: 'Cajun Brown Sugar Chicken Wings – The Perfect Sweet & Spicy Snack.jfif', bestSeller: false },
+                { id: 'p8', name: 'K-Style Wings', price: 130, category: 'wings', description: 'Crispy wings coated in savory soy and garlic glaze.', img: 'korean.jfif', bestSeller: false },
+                { id: 'p9', name: 'Cheesy Overload Pizza', price: 159, category: 'pizza', description: 'Triple cheese blend — gooey, melty, and comforting', img: 'cheese.jfif', bestSeller: false },
+                { id: 'p10', name: 'Pepperoni Rush Pizza', price: 169, category: 'pizza', description: 'Crispy pepperoni on rich tomato sauce and mozzarella', img: 'pepp.jfif', bestSeller: false },
+                { id: 'p11', name: 'Hawaiian Hype Pizza', price: 169, category: 'pizza', description: 'Ham, pineapple, and mozzarella for that sweet-savory love', img: 'Hawaiian Pizza Perfection_ 5 Tips for a Tropical Homemade Treat.jfif', bestSeller: false },
+                { id: 'p12', name: 'BBQ Chicken Pizza', price: 169, category: 'pizza', description: 'Smoked chicken, BBQ sauce, onions, and cheese', img: 'Classic BBQ Chicken Pizza.jfif', bestSeller: false },
+                { id: 'p13', name: 'Classic Cheeseburger', price: 60, category: 'burgers', description: 'Beef patty, cheese, lettuce, tomato, signature sauce', img: 'classic.jfif', bestSeller: false },
+                { id: 'p14', name: 'Cheesy Bacon Melt', price: 99, category: 'burgers', description: 'Bacon, cheese, and creamy sauce', img: 'chebac.jfif', bestSeller: false },
+                { id: 'p15', name: 'Spicy Chick Burger', price: 99, category: 'burgers', description: 'Crispy chicken fillet with spicy mayo', img: 'spichik.jfif', bestSeller: false },
+                { id: 'p16', name: 'Regular Fries', price: 49, category: 'sides', description: 'Golden, crispy, lightly salted', img: 'reg.jfif', bestSeller: false },
+                { id: 'p17', name: 'Cheesy Fries', price: 69, category: 'sides', description: 'Drizzled with creamy cheese sauce.', img: 'chef.jfif', bestSeller: false },
+                { id: 'p18', name: 'BBQ Fries', price: 69, category: 'sides', description: 'Smoky, tangy, and perfectly seasoned', img: 'bbqf.jfif', bestSeller: false },
+                { id: 'p19', name: 'Sour Cream Fries', price: 69, category: 'sides', description: 'Creamy, zesty, and addicting', img: 'sour.jfif', bestSeller: false },
+                { id: 'p20', name: 'Plain Rice', price: 12, category: 'sides', description: 'Golden, crispy, lightly salted', img: 'plain.jfif', bestSeller: false }
             ];
         }
 
@@ -1201,7 +1257,7 @@
             }
 
             const productsHtml = products.map(product => `
-                <div class="product-card">
+                <div class="product-card card-animate fade-in">
                     <img src="${product.img || 'https://via.placeholder.com/300x200?text=No+Image'}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
                     ${product.bestSeller ? '<div class="badge">Best Seller</div>' : ''}
                     <h3 class="product-name">${product.name}</h3>
@@ -1383,6 +1439,20 @@
                 console.error('Error saving products to Firebase:', e);
             }
         }
+
+        // IntersectionObserver for fade-in/slide-in animations
+        (function() {
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+              }
+            });
+          }, { threshold: 0.1 });
+          document.querySelectorAll('.fade-in, .slide-in').forEach(el => {
+            observer.observe(el);
+          });
+        })();
 
         // Timeout redirect if auth doesn't resolve
         setTimeout(() => {
