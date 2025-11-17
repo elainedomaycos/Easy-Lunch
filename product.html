@@ -25,6 +25,50 @@
     if (typeof firebase !== 'undefined' && firebase.apps && !firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
+    // ====== EMAILJS INTEGRATION FOR INVOICE ======
+    // Load EmailJS SDK
+    var emailjsScript = document.createElement('script');
+    emailjsScript.src = 'https://cdn.emailjs.com/dist/email.min.js';
+    emailjsScript.onload = function() {
+      emailjs.init('Tdy_NDcBylAqG77FL');
+    };
+    document.head.appendChild(emailjsScript);
+
+    // Helper to send invoice email
+    function sendInvoiceEmail(toEmail, invoiceText) {
+      emailjs.send('service_0tzvspp', 'template_6ydxikb', {
+        to_email: toEmail,
+        invoice_data: invoiceText
+      })
+      .then(function(response) {
+        console.log('Invoice email sent!', response);
+      }, function(error) {
+        console.error('Failed to send invoice:', error);
+      });
+    }
+
+    // Attach to Place Order button
+    document.getElementById('placeOrderBtn')?.addEventListener('click', function() {
+      // Get the last order from localStorage (simulate what download does)
+      const orders = JSON.parse(localStorage.getItem('easy_lunch_orders_v1') || '[]');
+      if (orders.length === 0) return;
+      const order = orders[0];
+      const invoiceId = order.orderId || 'INV-' + Date.now();
+      const date = new Date(order.timestamp || Date.now()).toLocaleString();
+      // Try to get customer email (if you have an input for it, use its value)
+      let toEmail = order.customer?.email || '';
+      if (!toEmail) {
+        // Try to get from a form field if present
+        const emailInput = document.querySelector('input[type="email"]');
+        if (emailInput) toEmail = emailInput.value;
+      }
+      if (!toEmail) {
+        console.warn('No customer email found, invoice email not sent.');
+        return;
+      }
+      let invoiceText = `\n═══════════════════════════════════════\n         THE EASY LUNCH - INVOICE\n═══════════════════════════════════════\n\nInvoice ID: ${invoiceId}\nOrder Date: ${date}\n\nCustomer Information:\nName: ${order.customer?.fullName || 'N/A'}\nContact: ${order.customer?.contact || 'N/A'}\nAddress: ${order.customer?.address || 'N/A'}\n\nPayment Method: ${order.payment?.method?.toUpperCase() || 'N/A'}\n${order.payment?.reference ? `Reference: ${order.payment.reference}` : ''}\n\n───────────────────────────────────────\nITEMS\n───────────────────────────────────────\n\n${(order.items || []).map(item => `${item.name}\n  Qty: ${item.quantity || item.qty || 1} x ₱${item.price.toFixed(2)} = ₱${((item.quantity || item.qty || 1) * item.price).toFixed(2)}`).join('\n\n')}\n\n───────────────────────────────────────\nSUMMARY\n───────────────────────────────────────\n\nSubtotal:        ₱${(order.totals?.subtotal || 0).toFixed(2)}\nDelivery Fee:    ₱${(order.totals?.deliveryFee || 0).toFixed(2)}\nDiscount:       -₱${(order.totals?.discount || 0).toFixed(2)}\n\nTOTAL:           ₱${(order.totals?.total || 0).toFixed(2)}\n\n───────────────────────────────────────\n\nThank you for choosing The Easy Lunch!\nFor inquiries: contact@easylunch.com\n\n═══════════════════════════════════════\n      `;
+      sendInvoiceEmail(toEmail, invoiceText);
+    });
   </script>
   <script defer src="auth.js"></script>
   <script defer src="chat.js"></script>
@@ -940,10 +984,11 @@
       <button class="close-checkout" id="closeCheckout">&times;</button>
       <h2 class="checkout-title">Checkout</h2>
       <div class="checkout-section">
-        <h3>Delivery Information</h3>
-        <input type="text" placeholder="Full Name">
-        <input type="text" placeholder="Address">
-        <input type="text" placeholder="Contact Number">
+  <h3>Delivery Information</h3>
+  <input type="text" placeholder="Full Name">
+  <input type="text" placeholder="Address">
+  <input type="text" placeholder="Contact Number">
+  <input type="email" placeholder="Email Address" id="customerEmail" required style="margin-top: 0.5rem;">
       </div>
       <div class="checkout-section">
         <h3>Payment Method</h3>

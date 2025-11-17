@@ -272,7 +272,8 @@
       customer: {
         fullName: inputs[0]?.value?.trim() || '',
         address: inputs[1]?.value?.trim() || '',
-        contact: inputs[2]?.value?.trim() || ''
+        contact: inputs[2]?.value?.trim() || '',
+        email: inputs[3]?.value?.trim() || ''
       },
       items: cart,
       totals: {
