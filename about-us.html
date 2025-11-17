@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Easy Lunch</title>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu:400,600,700,800,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1gn5zMy8sKJUfLc-vqOMkhDfR1s_2gAg",
+            authDomain: "easy-lunch-368cf.firebaseapp.com",
+            projectId: "easy-lunch-368cf",
+            storageBucket: "easy-lunch-368cf.firebasestorage.app",
+            messagingSenderId: "494805181477",
+            appId: "1:494805181477:web:cb96df42879af6ccd08bcc"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+    </script>
+    <script defer src="auth.js"></script>
+    <script defer src="chat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 62.5%;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Ubuntu', sans-serif;
+            overflow-x: hidden;
+            background-color: #fff8e7;
+        }
+
+        /* Hero Section - Extended to accommodate overlapping stats */
+        .about-hero {
+            min-height: 80vh;
+            background: linear-gradient(135deg, rgba(192, 57, 43, 0.9) 0%, rgba(139, 0, 0, 0.9) 100%),
+                        url('IMG_5500.jpg') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 15rem 2rem 12rem;
+            color: white;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem 2rem;
+            border-radius: 5rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 0.1rem;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .hero-title {
+            font-size: 4.5rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            color: #fff8e7;
+        }
+
+        .hero-title span {
+            color: #ffd700;
+        }
+
+        .hero-subtitle {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            opacity: 0.95;
+            font-weight: 400;
+        }
+
+        .hero-tagline {
+            font-size: 1.6rem;
+            opacity: 0.85;
+            font-style: italic;
+        }
+
+        /* Stats Section - Overlapping the hero */
+        .stats-section {
+            position: relative;
+            margin-top: -8rem;
+            z-index: 2;
+            padding: 0 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s;
+            border: 2px solid #fff8e7;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            color: #c0392b;
+        }
+
+        .stat-label {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
+            color: #666;
+        }
+
+        /* Section Styles */
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            color: #8b0000;
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            color: #666;
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        /* Story Section */
+        .story-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+            align-items: center;
+            margin-bottom: 6rem;
+        }
+
+        .story-image-container {
+            position: relative;
+        }
+
+        .story-image {
+            width: 100%;
+            border-radius: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-badge {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, #c0392b, #8b0000);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .badge-number {
+            font-size: 2.2rem;
+            font-weight: 900;
+            display: block;
+        }
+
+        .badge-text {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .story-content {
+            font-size: 1.6rem;
+            line-height: 1.8;
+            color: #444;
+        }
+
+        .story-content p {
+            margin-bottom: 2rem;
+        }
+
+        .story-highlight {
+            color: #c0392b;
+            font-weight: 700;
+        }
+
+        /* Vision & Mission */
+        .vm-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 4rem;
+        }
+
+        .vm-card {
+            background: white;
+            border-radius: 2rem;
+            padding: 4rem 3rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+        }
+
+        .vm-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .vm-icon {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            display: block;
+        }
+
+        .vm-title {
+            font-size: 2.4rem;
+            color: #8b0000;
+            margin-bottom: 2rem;
+            font-weight: 900;
+        }
+
+        .vm-text {
+            font-size: 1.6rem;
+            line-height: 1.7;
+            color: #555;
+        }
+
+        /* Values Section */
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+
+        .value-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 2rem;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+        }
+
+        .value-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .value-icon {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            display: block;
+        }
+
+        .value-title {
+            font-size: 2rem;
+            color: #8b0000;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .value-text {
+            font-size: 1.5rem;
+            color: #666;
+            line-height: 1.7;
+        }
+
+        /* Location Section */
+        .location-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 4rem;
+            align-items: start;
+            margin-top: 4rem;
+        }
+
+        .location-info {
+            background: white;
+            padding: 4rem;
+            border-radius: 2rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .location-title {
+            font-size: 2.4rem;
+            color: #8b0000;
+            margin-bottom: 3rem;
+            font-weight: 900;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .info-item:hover {
+            background: #fff8e7;
+        }
+
+        .info-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .info-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        .info-content h3 {
+            font-size: 1.6rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .info-content p {
+            font-size: 1.4rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .map-container {
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            height: 500px;
+            border: 3px solid white;
+        }
+
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%);
+            color: white;
+            text-align: center;
+            padding: 6rem 2rem;
+        }
+
+        .cta-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta-title {
+            font-size: 3.5rem;
+            margin-bottom: 2rem;
+            font-weight: 900;
+        }
+
+        .cta-text {
+            font-size: 1.8rem;
+            margin-bottom: 3rem;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            background: white;
+            color: #c0392b;
+            padding: 1.6rem 4rem;
+            border: none;
+            border-radius: 5rem;
+            font-size: 1.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-button:hover {
+            background: #ffd700;
+            color: #8b0000;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Footer */
+        .about-footer {
+            background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%);
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .footer-links {
+            margin-bottom: 2rem;
+        }
+
+        .footer-links a {
+            color: #fff1cc;
+            text-decoration: none;
+            margin: 0 1.5rem;
+            font-weight: 600;
+            font-size: 1.5rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #ffffff;
+        }
+
+        .footer-copyright {
+            font-size: 1.4rem;
+            opacity: 0.9;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            html { font-size: 55%; }
+            
+            .hero-title { font-size: 3.5rem; }
+            .story-grid { grid-template-columns: 1fr; }
+            .vm-grid { grid-template-columns: 1fr; }
+            .location-grid { grid-template-columns: 1fr; }
+            .stats-grid { gap: 2rem; }
+            .stats-section { margin-top: -6rem; }
+        }
+
+        @media (max-width: 576px) {
+            html { font-size: 50%; }
+            
+            .hero-title { font-size: 3rem; }
+            .vm-card, .location-info { padding: 3rem 2rem; }
+            .map-container { height: 350px; }
+            .stats-section { margin-top: -4rem; padding: 0 1rem; }
+            .stat-card { padding: 2rem 1.5rem; }
+        }
+
+        /* Animation classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .slide-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-animate {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .card-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="fade-in">
+    <!-- Navbar -->
+    <nav class="navbar-awning">
+        <div class="navbar-bar">
+            <div class="navbar-content">
+                <div class="logo-banner" onclick="window.location.href='index.html'">
+                    <img src="El Pollo - Logo - Création de l'identité visuelle du restaurant fast food mexicain.png" alt="Easy Lunch" class="logo-img">
+                </div>
+                
+                <ul class="nav-center">
+                    <li><a href="index.html#hero" class="nav-link">HOME</a></li>
+                    <li><a href="product.html" class="nav-link">PRODUCTS</a></li>
+                    <li><a href="about-us.html" class="nav-link active">ABOUT US</a></li>
+                    <li><a href="index.html#testimony" class="nav-link">RATINGS</a></li>
+                    <li><a href="index.html#contact" class="nav-link">CONTACT US</a></li>
+                </ul>
+                
+                <div class="nav-right">
+                    <div class="icon-button" id="cartButton">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                        </svg>
+                    </div>
+                    <div class="icon-button" id="userButton">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="about-hero fade-in">
+        <div class="hero-content">
+            <div class="hero-badge">Since 2020</div>
+            <h1 class="hero-title">Our <span>Story</span></h1>
+            <p class="hero-subtitle">From a small kitchen to your table</p>
+            <p class="hero-tagline">"Serving comfort, one wing at a time"</p>
+            <!-- Removed CTA buttons as requested -->
+        </div>
+    </section>
+
+    <!-- Stats Section - Now overlapping the hero -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card fade-in">
+                <div class="stat-number" data-count="5000">0</div>
+                <div class="stat-label">Happy Customers</div>
+            </div>
+            <div class="stat-card fade-in">
+                <div class="stat-number" data-count="50">0</div>
+                <div class="stat-label">Menu Items</div>
+            </div>
+            <div class="stat-card fade-in">
+                <div class="stat-number" data-count="5">0</div>
+                <div class="stat-label">Years Serving</div>
+            </div>
+            <div class="stat-card fade-in">
+                <div class="stat-number" data-count="100">0</div>
+                <div class="stat-label">5-Star Reviews</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story Section -->
+    <section class="section-container" id="story">
+        <div class="section-header">
+            <h2 class="section-title">How It All Began</h2>
+            <p class="section-subtitle">A journey of passion, flavor, and community</p>
+        </div>
+        
+        <div class="story-grid fade-in">
+            <div class="story-image-container">
+                <img src="team.jpg" alt="Our Team" class="story-image">
+                <div class="image-badge">
+                    <span class="badge-number">2020</span>
+                    <span class="badge-text">Founded</span>
+                </div>
+            </div>
+            <div class="story-content slide-in">
+                <p>
+                    <span class="story-highlight">Easy Lunch</span> started with a simple dream in a small kitchen in Mabini, Batangas. 
+                    What began as a passion project between friends has grown into a beloved local favorite, serving thousands 
+                    of satisfied customers every month.
+                </p>
+                <p>
+                    Our founder, <span class="story-highlight">EL</span>, always believed that great food doesn't have to be complicated. 
+                    After years of perfecting recipes and experimenting with flavors, the first batch of our signature 
+                    buffalo wings was served to friends and family. The response was overwhelming.
+                </p>
+                <p>
+                    Today, we're proud to be <span class="story-highlight">Mabini's go-to spot</span> for comfort food that brings people together. 
+                    Every wing, burger, and pizza is made with the same care and passion that started it all—real ingredients, 
+                    real teamwork, and hearts full of love for what we do.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vision & Mission Section -->
+    <section class="section-container" style="background: #fff8e7;">
+        <div class="section-header">
+            <h2 class="section-title">Vision & Mission</h2>
+            <p class="section-subtitle">Driven by purpose, powered by passion</p>
+        </div>
+        
+        <div class="vm-grid fade-in">
+            <div class="vm-card card-animate">
+                <div class="vm-icon">🎯</div>
+                <h3 class="vm-title">Our Vision</h3>
+                <p class="vm-text">
+                    To become the leading comfort food brand in Batangas and beyond, recognized for our 
+                    unwavering commitment to quality, innovation, and community. We envision a future where 
+                    Easy Lunch is synonymous with delicious, reliable meals that bring people together, 
+                    creating lasting memories one order at a time.
+                </p>
+            </div>
+
+            <div class="vm-card card-animate">
+                <div class="vm-icon">🚀</div>
+                <h3 class="vm-title">Our Mission</h3>
+                <p class="vm-text">
+                    To serve fresh, flavorful, and affordable comfort food made with passion and integrity. 
+                    We are committed to using quality ingredients, supporting local suppliers, and providing 
+                    exceptional service. Our mission is to make every customer's experience memorable, 
+                    building a loyal community around great food and genuine care.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location Section -->
+    <section class="section-container" style="background: #fff8e7;">
+        <div class="section-header">
+            <h2 class="section-title">Visit Our Store</h2>
+            <p class="section-subtitle">Come experience Easy Lunch in person</p>
+        </div>
+        
+        <div class="location-grid fade-in">
+            <div class="location-info slide-in">
+                <h3 class="location-title">Come Say Hi!</h3>
+                
+                <div class="info-item">
+                    <div class="info-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h3>Address</h3>
+                        <p>Mabini, Batangas, Philippines</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h3>Business Hours</h3>
+                        <p>Monday - Sunday<br>10:00 AM - 9:00 PM</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h3>Contact</h3>
+                        <p>Phone: +63 123 456 7890<br>Email: hello@easylunch.com</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h3>Follow Us</h3>
+                        <p>@easylunch on Facebook<br>@easylunch_ph on Instagram</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-container fade-in">
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d247392.73693478418!2d120.6758892!3d13.7428376!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33bd9f1e5cd14cc5%3A0x4a84270d35c4e78!2sMabini%2C%20Batangas%2C%20Philippines!5e0!3m2!1sen!2s!4v1736951234567!5m2!1sen!2s" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section fade-in">
+        <div class="cta-container">
+            <h2 class="cta-title">Ready to Try Easy Lunch?</h2>
+            <p class="cta-text">Order online for delivery or pickup, or visit us in Mabini!<br>Experience the taste that keeps our community coming back.</p>
+            <a href="product.html" class="cta-button">Order Now</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="about-footer">
+        <div class="footer-links">
+            <a href="index.html#about">About</a> |
+            <a href="product.html">Menu</a> |
+            <a href="index.html#testimony">Reviews</a> |
+            <a href="index.html#contact">Contact</a>
+        </div>
+        <p class="footer-copyright">© 2025 Easy Lunch. Designed with ❤️ for food lovers.</p>
+    </footer>
+
+    <!-- Floating Chat Button -->
+    <div class="floating-chat" id="floatingChat">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+        </svg>
+    </div>
+
+    <script>
+        // ========== SCROLL ANIMATIONS ==========
+        function initScrollAnimations() {
+            const observerOptions = {
+                threshold: 0.15,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fade-in, .slide-in, .card-animate').forEach(element => {
+                observer.observe(element);
+            });
+        }
+
+        // ========== COUNTER ANIMATION ==========
+        function animateCounter(element, target, duration = 2000) {
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current).toLocaleString();
+            }, 16);
+        }
+
+        function initCounters() {
+            const statsObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !entry.target.classList.contains('counted')) {
+                        entry.target.classList.add('counted');
+                        const counters = entry.target.querySelectorAll('[data-count]');
+                        counters.forEach(counter => {
+                            const target = parseInt(counter.getAttribute('data-count'));
+                            animateCounter(counter, target);
+                        });
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            document.querySelectorAll('.stats-section').forEach(section => {
+                statsObserver.observe(section);
+            });
+        }
+
+        // ========== CART REDIRECT ==========
+        function setupCartButton() {
+            const cartButton = document.getElementById('cartButton');
+            if (cartButton) {
+                cartButton.addEventListener('click', () => {
+                    window.location.href = 'product.html';
+                });
+            }
+        }
+
+        // ========== SMOOTH SCROLL ==========
+        function setupSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const href = this.getAttribute('href');
+                    if (href !== '#' && href.length > 1) {
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    }
+                });
+            });
+        }
+
+        // ========== NAVIGATION ACTIVE STATE ==========
+        function updateActiveNav() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === 'about-us.html' || 
+                    link.textContent === 'ABOUT US') {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        // ========== SCROLL TO TOP BUTTON ==========
+        function addScrollToTop() {
+            const scrollBtn = document.createElement('button');
+            scrollBtn.innerHTML = '↑';
+            scrollBtn.style.cssText = `
+                position: fixed;
+                bottom: 3rem;
+                left: 3rem;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%);
+                color: white;
+                border: none;
+                font-size: 2rem;
+                cursor: pointer;
+                display: none;
+                z-index: 999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                transition: all 0.3s;
+            `;
+            scrollBtn.id = 'scrollToTop';
+            document.body.appendChild(scrollBtn);
+
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 500) {
+                    scrollBtn.style.display = 'block';
+                } else {
+                    scrollBtn.style.display = 'none';
+                }
+            });
+
+            scrollBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            scrollBtn.addEventListener('mouseenter', () => {
+                scrollBtn.style.transform = 'translateY(-5px) scale(1.1)';
+                scrollBtn.style.boxShadow = '0 8px 20px rgba(0,0,0,0.3)';
+            });
+            
+            scrollBtn.addEventListener('mouseleave', () => {
+                scrollBtn.style.transform = 'translateY(0) scale(1)';
+                scrollBtn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+            });
+        }
+
+        // ========== INITIALIZATION ==========
+        function init() {
+            console.log('About Us page loaded');
+            
+            initScrollAnimations();
+            initCounters();
+            setupCartButton();
+            setupSmoothScroll();
+            updateActiveNav();
+            addScrollToTop();
+
+            console.log('All features initialized successfully');
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+    <script>
+        // IntersectionObserver for fade-in/slide-in/card animations
+    (function() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1 });
+            document.querySelectorAll('.fade-in, .slide-in, .card-animate').forEach(el => {
+        observer.observe(el);
+      });
+    })();
+    </script>
+</body>
+</html>

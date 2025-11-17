@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Easy Lunch</title>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu:400,400i,700,700i&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="script.js"></script>
+    <!-- Firebase (Compat for simplicity) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1gn5zMy8sKJUfLc-vqOMkhDfR1s_2gAg",
+            authDomain: "easy-lunch-368cf.firebaseapp.com",
+            projectId: "easy-lunch-368cf",
+            storageBucket: "easy-lunch-368cf.firebasestorage.app",
+            messagingSenderId: "494805181477",
+            appId: "1:494805181477:web:cb96df42879af6ccd08bcc"
+        };
+        if (typeof firebase !== 'undefined' && firebase.apps && !firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+    </script>
+    <script defer src="auth.js"></script>
+    <script defer src="chat.js"></script>
+    <script defer src="https://www.paypal.com/sdk/js?client-id=AbPwfLlPjLyG41Tmn0Zf34rfdT4pj9ddG_P6FX3yEPSLXrlRD6p1gVhiwcNRrZRNWudfVHV8IqAnYLLb&currency=PHP"></script>
+    <script defer src="payment.js"></script>
+</head>
+<body>
+    <!-- Loader -->
+    <div id="loader-wrapper">
+        <div class="chicken-loader">
+            <span></span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <!-- Navbar -->
+        <nav class="navbar-awning">
+            <div class="navbar-bar">
+                <div class="navbar-content">
+                    <div class="logo-banner">
+                        <img src="El Pollo - Logo - Création de l'identité visuelle du restaurant fast food mexicain.png" alt="Bossing's Wings" class="logo-img">
+                    </div>
+                    
+                    <ul class="nav-center">
+                        <li><a href="#hero" class="nav-link" data-section="menu">HOME</a></li>
+                        <li><a href="product.html" class="nav-link" data-section="products">PRODUCTS</a></li>
+                        <li><a href="about-us.html" class="nav-link" data-section="story">ABOUT US</a></li>
+                        <li><a href="#testimony" class="nav-link" data-section="about">RATINGS</a></li>
+                        <li><a href="#contact" class="nav-link" data-section="contact">CONTACT US</a></li>
+                    </ul>
+                    
+                    <div class="nav-right">
+                        <div class="search-container" id="searchToggle" aria-label="Open search" role="button" tabindex="0">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="search-icon">
+                                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                            </svg>
+                        </div>
+                        <div class="search-box" id="searchBox" aria-hidden="true">
+                            <input type="text" id="searchInput" class="search-input" placeholder="Search products..." autocomplete="off" />
+                            <button class="search-clear" id="searchClear" title="Clear search" aria-label="Clear search">&times;</button>
+                        </div>
+                        <div class="icon-button" id="cartButton">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                            </svg>
+                        </div>
+                        <div class="icon-button" id="userButton">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero fade-in visible" id="hero">
+            <div class="hero-text slide-in visible">
+                <span class="tagline">Effortless Comfort Food</span>
+                <h1 class="hero-title">Easy Lunch</h1>
+                <p class="hero-description">
+                    Your go-to spot for comfort chicken that’s effortlessly delicious. Perfect for lunch breaks, hangouts, or any moment that deserves a little flavor boost.
+                </p>
+                <div class="social-media-hero fade-in visible">
+                    <a href="#" class="social-icon-hero">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon-hero">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon-hero">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon-hero">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1.04-.1z"/>
+                        </svg>
+                    </a>
+                </div>
+                <button class="order-btn button-animate fade-in visible" onclick="window.location.href='product.html'">Order Now</button>
+            </div>
+            <div class="image-bg fade-in visible">
+              <img src="leaves.png" alt="Leaves" class="leaves-bg">
+              <img src="chik.png" alt="Chicken" class="chicken-img" id="heroChickenImg">
+            </div>
+        </section>
+
+        <script>
+        // Chicken image slideshow for hero section
+        (function() {
+          const chickenImages = [
+            'chik.png',
+            'chik3.png',
+            'chik6.png',
+            'chik7.png',
+            'chik8.png'
+          ];
+          let idx = 0;
+          const chickenImg = document.getElementById('heroChickenImg');
+          function nextChicken() {
+            idx = (idx + 1) % chickenImages.length;
+            chickenImg.src = chickenImages[idx];
+          }
+          setInterval(nextChicken, 2500);
+        })();
+        </script>
+
+        <!-- Statistics Section -->
+        <section class="statistics fade-in visible">
+            <div class="stat-item slide-in visible">
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                    </svg>
+                </div>
+                <div class="stat-number">50K+</div>
+                <div class="stat-label">Happy Customers</div>
+            </div>
+            <div class="stat-item slide-in visible">
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+                    </svg>
+                </div>
+                <div class="stat-number">100K+</div>
+                <div class="stat-label">Orders Delivered</div>
+            </div>
+            <div class="stat-item slide-in visible">
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24l-7.19-.61L12 2zm0 3.65l1.71 3.47 3.83.33-2.91 2.52 1 4.28-3.63-2.19-3.63 2.19 1-4.28-2.91-2.52 3.83-.33L12 5.65z"/>
+                    </svg>
+                </div>
+                <div class="stat-number">25+</div>
+                <div class="stat-label">Awards Won</div>
+            </div>
+            <div class="stat-item slide-in visible">
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                </div>
+                <div class="stat-number">15+</div>
+                <div class="stat-label">Locations</div>
+            </div>
+        </section>
+
+        <!-- Product Section -->
+        <section class="product-section fade-in visible" id="products">
+          <h2 class="section-title">Our Popular Products</h2>
+          <a href="product.html"> <button class="order-btn">View More</button></a>
+          <div class="product-grid">
+            <div class="product-card card-animate fade-in visible" data-name="Buffalo Wings" data-price="120" data-img="buff.jfif">
+               <div class="badge">Best Seller</div>
+               <img src="buff.jfif" alt="Classic Wings" class="product-image">
+               <h3 class="product-name">Buffalo Wings</h3>
+               <p class="product-price">₱120</p>
+               <button class="add-to-cart">Add to Cart</button>
+             </div>
+ 
+            <div class="product-card card-animate fade-in visible" data-name="Chicken Burger w/ Fries" data-price="149" data-img="chebac.jfif">
+               <img src="chebac.jfif" alt="Spicy Wings" class="product-image">
+               <h3 class="product-name">Chicken Burger w/ Fries</h3>
+               <p class="product-price">₱149</p>
+               <button class="add-to-cart">Add to Cart</button>
+             </div>
+ 
+            <div class="product-card card-animate fade-in visible" data-name="Classic Cheeseburger" data-price="60" data-img="classic.jfif">
+               <div class="badge">Best Seller</div>
+               <img src="classic.jfif" alt="Honey Glazed" class="product-image">
+               <h3 class="product-name">Classic Cheeseburger</h3>
+               <p class="product-price">₱60</p>
+               <button class="add-to-cart">Add to Cart</button>
+             </div>
+ 
+            <div class="product-card card-animate fade-in visible" data-name="12 pieces Buffalo Wings" data-price="299" data-img="bundle.jfif">
+               <img src="bundle.jfif" alt="BBQ Bundle" class="product-image">
+               <h3 class="product-name">12 pieces Buffalo Wings</h3>
+               <p class="product-price">₱299</p>
+               <button class="add-to-cart">Add to Cart</button>
+             </div>
+ 
+           </div>
+        </section>
+
+        <!-- Product Popup -->
+        <div id="product-popup" class="popup">
+          <div class="popup-content-new">
+            <span class="close" onclick="closePopup()">&times;</span>
+            <div class="popup-left">
+              <img id="popup-img" src="" alt="Product image">
+            </div>
+            <div class="popup-right">
+              <div class="popup-header">
+                <div class="popup-rating">
+                  <span class="stars">★★★★★</span>
+                  <span class="rating-text">(4.8)</span>
+                </div>
+                <p class="popup-price" id="popup-price"></p>
+              </div>
+              <h2 id="popup-title"></h2>
+              <p class="popup-tagline">Crispy, juicy, and bursting with flavor</p>
+              
+              <div class="popup-description">
+                <h3>Description</h3>
+                <p id="popup-desc">Our signature wings are perfectly seasoned and cooked to golden perfection. Each bite delivers a satisfying crunch followed by tender, juicy meat that melts in your mouth.</p>
+              </div>
+              
+              <div class="popup-features">
+                <h3>Features</h3>
+                <ul>
+                  <li>🍗 Premium quality chicken</li>
+                  <li>🔥 Perfectly crispy coating</li>
+                  <li>🌶️ Bold and savory flavors</li>
+                  <li>✨ Served fresh and hot</li>
+                  <li>🥗 Includes dipping sauce</li>
+                </ul>
+              </div>
+              
+              <div class="popup-actions">
+                <button class="add-to-cart-popup">Add to Cart</button>
+                <button class="add-to-wishlist">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                  </svg>
+                  Add to Wishlist
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- About Section -->
+        <section class="about-section" id="about">
+          <div class="about-content">
+            <div class="about-text">
+              <h2><span>EL</span> & the team</h2>
+              <p>
+                At <strong>Easy Lunch</strong>, we keep things simple — real ingredients,
+                real teamwork, and hands-on care in every recipe. We're a homegrown food business
+                that started with a small dream: to share comfort food that brings people together.
+                Each batch is made with passion and heart, just the way it should be.
+              </p>
+              <a href="about-us.html"><button class="about-btn">Learn more about us</button></a>
+            </div>
+            <div class="about-image">
+              <img src="team.jpg" alt="Bossing's Wings Team">
+            </div>
+          </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials-section" id="testimony">
+          <div class="testimonials-container">
+            <div class="testimonials-left">
+              <p class="testimonials-subtitle">Real words from our product lovers</p>
+              <h2 class="testimonials-title">What people are saying</h2>
+              <div class="testimonials-nav">
+                <button class="nav-button" id="prevBtn">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                  </svg>
+                </button>
+                <button class="nav-button" id="nextBtn">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="testimonials-right">
+              <div class="testimonials-carousel" id="carousel">
+                
+                <div class="testimonial-card">
+                  <div class="quote-mark">"</div>
+                  <p class="testimonial-text">
+                    I've tried many wing places, but this one stands out. The spicy wings have the perfect kick and the portions are generous!
+                  </p>
+                  <p class="testimonial-author">Sarah Chen</p>
+                  <p class="testimonial-location">Singapore</p>
+                </div>
+
+                <div class="testimonial-card">
+                  <div class="quote-mark">"</div>
+                  <p class="testimonial-text">
+                    Absolutely delicious! The BBQ bundle is perfect for family gatherings. Everyone loved it. Will definitely order again!
+                  </p>
+                  <p class="testimonial-author">Michael Brown</p>
+                  <p class="testimonial-location">New York, USA</p>
+                </div>
+
+                <div class="testimonial-card">
+                  <div class="quote-mark">"</div>
+                  <p class="testimonial-text">
+                    Best wings in town! The quality is consistent and the service is excellent. My go-to spot for chicken wings!
+                  </p>
+                  <p class="testimonial-author">Lisa Anderson</p>
+                  <p class="testimonial-location">London, UK</p>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Contact/Newsletter Section -->
+        <section class="contact-section" id="contact">
+          <div class="contact-container">
+            <div class="contact-left">
+              <h3 class="contact-company-name">The Easy Lunch</h3>
+              <p class="contact-tagline">
+                Premium quality chicken wings made with love and served fresh daily. Experience the perfect blend of flavor and crispiness.
+              </p>
+
+              <div class="contact-info">
+                <div class="contact-item">
+                  <div class="contact-item-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                      <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                    </svg>
+                  </div>
+                  <div class="contact-item-text">
+                    <p class="contact-item-label">Call Us</p>
+                    <p class="contact-item-value">+1 (555) 123-4567</p>
+                  </div>
+                </div>
+
+                <div class="contact-item">
+                  <div class="contact-item-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                      <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                    </svg>
+                  </div>
+                  <div class="contact-item-text">
+                    <p class="contact-item-label">Email Us</p>
+                    <p class="contact-item-value">hello@bossingswings.com</p>
+                  </div>
+                </div>
+
+                <div class="contact-item">
+                  <div class="contact-item-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                  </div>
+                  <div class="contact-item-text">
+                    <p class="contact-item-label">Visit Us</p>
+                    <p class="contact-item-value">123 Wing Street, Food City</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="social-media">
+                <a href="#" class="social-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                </a>
+                <a href="#" class="social-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </a>
+                <a href="#" class="social-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                  </svg>
+                </a>
+                <a href="#" class="social-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1.04-.1z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            <div class="contact-right">
+              <p class="contact-subtitle">Stay Connected</p>
+              <h2 class="contact-title">Join Our Newsletter</h2>
+              <p class="contact-description">
+                Subscribe to receive exclusive offers, new menu updates, and special promotions delivered straight to your inbox!
+              </p>
+
+              <form class="newsletter-form" id="newsletterForm">
+                <input 
+                  type="email" 
+                  class="newsletter-input" 
+                  placeholder="Enter your email address"
+                  required
+                />
+                <button type="submit" class="newsletter-button">Subscribe Now</button>
+              </form>
+            </div>
+          </div>
+        </section>
+    </div>
+
+    <!-- Floating Chat Button -->
+    <div class="floating-chat" id="floatingChat">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+      </svg>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="cart-modal">
+      <div class="cart-container">
+        <button class="close-cart" id="closeCart">&times;</button>
+
+        <div class="cart-columns">
+           <div class="cart-left">
+             <h2 class="cart-title">Cart</h2>
+             <div id="cartItemsContainer"></div>
+           </div>
+
+          <div class="cart-right">
+            <div class="order-summary">
+              <h3>Order Summary</h3>
+              <input type="text" placeholder="Enter promo code">
+              <div class="summary-line"><span>Subtotal</span><span>₱448</span></div>
+              <div class="summary-line"><span>Discount</span><span>-₱0</span></div>
+              <div class="summary-line"><span>Delivery Fee</span><span>₱30</span></div>
+              <hr>
+              <div class="summary-total"><span>Total</span><span>₱478</span></div>
+              <p class="guarantee">All orders include 100% satisfaction guarantee.</p>
+              <button id="checkoutBtn" class="checkout-btn">Checkout</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="recommendations fade-in visible">
+          <h3 style="font-size: 2rem; color: #8b0000; margin-bottom: 1.5rem;" class="slide-in visible">You Might Like</h3>
+          <div class="recommendation-grid">
+            <!-- Dynamic recommendations will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="checkout-modal">
+      <div class="checkout-card">
+        <button class="close-checkout" id="closeCheckout">&times;</button>
+        <h2 class="checkout-title">Checkout</h2>
+
+        <div class="checkout-section">
+          <h3>Delivery Information</h3>
+          <input type="text" placeholder="Full Name">
+          <input type="text" placeholder="Address">
+          <input type="text" placeholder="Contact Number">
+        </div>
+
+        <div class="checkout-section">
+          <h3>Payment Method</h3>
+          <div class="pay-methods">
+            <label class="pay-option"><input type="radio" name="payMethod" value="gcash" checked> GCash</label>
+            <label class="pay-option"><input type="radio" name="payMethod" value="bank"> Bank Transfer</label>
+            <label class="pay-option"><input type="radio" name="payMethod" value="cod"> Cash on Delivery</label>
+            <label class="pay-option"><input type="radio" name="payMethod" value="gcash_gateway"> GCash (Gateway)</label>
+            <label class="pay-option"><input type="radio" name="payMethod" value="paypal"> PayPal</label>
+          </div>
+
+          <div class="pay-section" id="payGCash">
+            <p class="pay-help">Scan QR to pay via GCash, then enter your Reference Number.</p>
+            <div class="qr-box">
+              <img src="gcash-qr.png" alt="GCash QR" onerror="this.style.display='none'">
+              <div class="qr-fallback">GCash QR Placeholder</div>
+            </div>
+            <input type="text" class="pay-input" id="gcashRef" placeholder="GCash Reference Number">
+            <div style="margin:1rem 0; text-align:center; font-size:1.3rem; color:#666;">— OR —</div>
+            <button id="paymongoGcashBtn" type="button" style="width:100%; padding:1rem 1.4rem; background:#c0392b; color:#fff; border:none; border-radius:1rem; font-size:1.4rem; font-weight:600; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:background .25s;">Pay with GCash (Checkout Link)</button>
+            <p style="font-size:1.1rem; margin-top:0.8rem; color:#955;">You will be redirected to the PayMongo Checkout page.</p>
+          </div>
+
+          <div class="pay-section" id="payBank" style="display:none;">
+            <p class="pay-help">Transfer to one of our accounts, then enter your Reference Number.</p>
+            <div class="bank-list">
+              <div class="bank-item"><strong>BPI</strong> • Account: 1234-5678-90 • Name: Easy Lunch</div>
+              <div class="bank-item"><strong>BDO</strong> • Account: 1234-5678-90 • Name: Easy Lunch</div>
+            </div>
+            <input type="text" class="pay-input" id="bankRef" placeholder="Bank Transfer Reference Number">
+          </div>
+
+          <div class="pay-section" id="payCOD" style="display:none;">
+            <p class="pay-help">Pay in cash upon delivery. Please ensure someone is available to receive the order.</p>
+          </div>
+
+          <div class="pay-section" id="payGcashGateway" style="display:none;">
+            <p class="pay-help">You will be redirected to a secure GCash checkout page.</p>
+            <button type="button" class="auth-submit" id="gcashGatewayBtn">Pay with GCash</button>
+          </div>
+
+          <div class="pay-section" id="payPaypal" style="display:none;">
+            <p class="pay-help">Secure payment via PayPal.</p>
+            <div id="paypalButtons"></div>
+          </div>
+        </div>
+
+        <div class="checkout-summary">
+          <div class="summary-line"><span>Subtotal</span><span>₱547</span></div>
+          <div class="summary-line"><span>Delivery Fee</span><span>₱30</span></div>
+          <div class="summary-line"><span>Discount</span><span>-₱0</span></div>
+          <hr>
+          <div class="summary-total"><span>Total</span><span>₱577</span></div>
+        </div>
+
+        <button id="placeOrderBtn" class="place-order-btn" data-origin="index">Place Order</button>
+      </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div id="confirmationModal" class="confirmation-modal">
+      <div class="confirmation-card">
+        <button class="close-confirmation" id="closeConfirmation">&times;</button>
+        <div class="confirmation-header">
+          <div class="check-icon">✔</div>
+          <h2>Your order is completed!</h2>
+          <p>Thank you! Your delicious wings are on the way.</p>
+        </div>
+
+        <div class="order-info-bar">
+          <div><strong>Order ID:</strong> #CWG1254FD</div>
+          <div><strong>Payment:</strong> PayPal</div>
+          <div><strong>Transaction:</strong> TRS425SFE</div>
+          <div><strong>ETA:</strong> 30–45 mins</div>
+          <button class="download-btn">Download Invoice</button>
+        </div>
+
+        <div class="order-details">
+          <h3>Order Details</h3>
+          <h4>Your Items</h4>
+
+          <div class="order-item">
+            <img src="https://via.placeholder.com/60/ff9966/ffffff?text=Wings" alt="">
+            <div>
+              <p><strong>Buffalo Blaze Wings</strong></p>
+              <p class="desc">6 pcs with ranch dip</p>
+            </div>
+            <span class="price">₱249</span>
+          </div>
+
+          <div class="order-item">
+            <img src="https://via.placeholder.com/60/ffcc66/ffffff?text=BBQ" alt="">
+            <div>
+              <p><strong>Honey BBQ Combo</strong></p>
+              <p class="desc">6 pcs with garlic dip</p>
+            </div>
+            <span class="price">₱199</span>
+          </div>
+
+          <div class="order-item">
+            <img src="https://via.placeholder.com/60/ffcc00/ffffff?text=Fries" alt="">
+            <div>
+              <p><strong>Cheesy Fries Add-on</strong></p>
+              <p class="desc">Loaded with cheddar</p>
+            </div>
+            <span class="price">₱99</span>
+          </div>
+        </div>
+
+        <div class="order-summary-bottom">
+          <div class="summary-line"><span>Subtotal</span><span>₱547</span></div>
+          <div class="summary-line"><span>Delivery Fee</span><span>₱30</span></div>
+          <div class="summary-line"><span>Discount</span><span>-₱0</span></div>
+          <hr>
+          <div class="summary-total"><span>Total</span><span>₱577</span></div>
+        </div>
+
+        <button id="downloadInvoiceBtnIndex" class="download-invoice-btn" style="margin: 2rem auto 1rem; background: #4CAF50; width: 90%; max-width: 400px; padding: 1.5rem; border: none; border-radius: 0.8rem; color: white; font-size: 1.6rem; font-weight: 700; cursor: pointer; display: block; transition: all 0.3s; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);">📄 Download Invoice</button>
+
+        <div class="footer-msg">
+          Your order is being prepared. Sit tight — wings are coming hot and fresh! 🔥
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ========== RECOMMENDATION SYSTEM FOR INDEX.HTML ==========
+      function loadRecommendationsIndex() {
+        const recommendationScroll = document.getElementById('recommendationScrollIndex');
+        if (!recommendationScroll) return;
+
+        // Get all products from the page
+        const allProducts = Array.from(document.querySelectorAll('.product-card')).map(card => ({
+          name: card.dataset.name || card.querySelector('.product-name')?.textContent || '',
+          price: parseFloat(card.dataset.price || card.querySelector('.product-price')?.textContent.replace(/[^\d.]/g, '')) || 0,
+          img: card.dataset.img || card.querySelector('.product-image')?.src || ''
+        })).filter(p => p.name && p.price > 0);
+
+        // Shuffle and take 4 random products
+        const shuffled = allProducts.sort(() => 0.5 - Math.random());
+        const recommendations = shuffled.slice(0, 4);
+
+        recommendationScroll.innerHTML = recommendations.map((product, idx) => {
+          const tags = ['HOT DEAL', 'NEW', 'POPULAR', 'BEST'];
+          const tagClasses = ['hot', 'new', '', ''];
+          return `
+            <div class="rec-card ${tagClasses[idx % 4]}" 
+                 data-name="${product.name}" 
+                 data-price="${product.price}" 
+                 data-img="${product.img}">
+              ${idx < 2 ? `<span class="tag">${tags[idx]}</span>` : ''}
+              <img src="${product.img}" alt="${product.name}">
+              <p>${product.name} – ₱${product.price.toFixed(0)}</p>
+              <button class="add-rec-to-cart" style="margin-top: 0.5rem; width: 100%; padding: 0.5rem; background: #c0392b; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 1.2rem; font-weight: 600;">Add to Cart</button>
+            </div>
+          `;
+        }).join('');
+
+        // Add event listeners
+        document.querySelectorAll('.add-rec-to-cart').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const card = btn.closest('.rec-card');
+            const item = {
+              name: card.dataset.name,
+              price: parseFloat(card.dataset.price),
+              img: card.dataset.img,
+              quantity: 1
+            };
+            
+            // Trigger add to cart (this will be handled by payment.js)
+            const event = new CustomEvent('addToCart', { detail: item });
+            document.dispatchEvent(event);
+          });
+        });
+      }
+
+      // Load recommendations when cart modal is opened
+      const cartBtn = document.getElementById('cartButton');
+      if (cartBtn) {
+        const originalClick = cartBtn.onclick;
+        cartBtn.onclick = function() {
+          if (originalClick) originalClick.call(this);
+          setTimeout(loadRecommendationsIndex, 100);
+        };
+      }
+
+      // Also load on page load
+      document.addEventListener('DOMContentLoaded', loadRecommendationsIndex);
+
+      // ========== INVOICE DOWNLOAD FOR INDEX.HTML ==========
+      document.getElementById('downloadInvoiceBtnIndex')?.addEventListener('click', () => {
+        // Get the last order from localStorage
+        const orders = JSON.parse(localStorage.getItem('easy_lunch_orders_v1') || '[]');
+        
+        if (orders.length === 0) {
+          alert('No order found. Please place an order first.');
+          return;
+        }
+
+        // Get the most recent order (first in array since we unshift new orders)
+        const order = orders[0];
+        const invoiceId = order.orderId || 'INV-' + Date.now();
+        const date = new Date(order.timestamp || Date.now()).toLocaleString();
+
+        let invoiceText = `
+═══════════════════════════════════════
+         THE EASY LUNCH - INVOICE
+═══════════════════════════════════════
+
+Invoice ID: ${invoiceId}
+Order Date: ${date}
+
+Customer Information:
+Name: ${order.customer?.fullName || 'N/A'}
+Contact: ${order.customer?.contact || 'N/A'}
+Address: ${order.customer?.address || 'N/A'}
+
+Payment Method: ${order.payment?.method?.toUpperCase() || 'N/A'}
+${order.payment?.reference ? `Reference: ${order.payment.reference}` : ''}
+
+───────────────────────────────────────
+ITEMS
+───────────────────────────────────────
+
+${(order.items || []).map(item => `${item.name}
+  Qty: ${item.quantity || item.qty || 1} x ₱${item.price.toFixed(2)} = ₱${((item.quantity || item.qty || 1) * item.price).toFixed(2)}`).join('\n\n')}
+
+───────────────────────────────────────
+SUMMARY
+───────────────────────────────────────
+
+Subtotal:        ₱${(order.totals?.subtotal || 0).toFixed(2)}
+Delivery Fee:    ₱${(order.totals?.deliveryFee || 0).toFixed(2)}
+Discount:       -₱${(order.totals?.discount || 0).toFixed(2)}
+
+TOTAL:           ₱${(order.totals?.total || 0).toFixed(2)}
+
+───────────────────────────────────────
+
+Thank you for choosing The Easy Lunch!
+For inquiries: contact@easylunch.com
+
+═══════════════════════════════════════
+        `;
+
+        // Create and download the invoice
+        const blob = new Blob([invoiceText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `easy-lunch-invoice-${invoiceId}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      // Add hover effect to download button
+      const downloadBtnIndex = document.getElementById('downloadInvoiceBtnIndex');
+      if (downloadBtnIndex) {
+        downloadBtnIndex.addEventListener('mouseenter', () => {
+          downloadBtnIndex.style.transform = 'translateY(-2px)';
+          downloadBtnIndex.style.boxShadow = '0 6px 20px rgba(76, 175, 80, 0.4)';
+        });
+        downloadBtnIndex.addEventListener('mouseleave', () => {
+          downloadBtnIndex.style.transform = 'translateY(0)';
+          downloadBtnIndex.style.boxShadow = '0 4px 12px rgba(76, 175, 80, 0.3)';
+        });
+      }
+    </script>
+
+    <!-- IntersectionObserver Script -->
+    <script>
+    // IntersectionObserver for fade-in/slide-in animations
+    document.addEventListener('DOMContentLoaded', function() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.fade-in, .slide-in').forEach(el => {
+        observer.observe(el);
+      });
+    });
+    </script>
+
+    <!-- Scroll to Top Button Script -->
+    <script>
+        (function() {
+            const scrollBtn = document.createElement('button');
+            scrollBtn.innerHTML = '↑';
+            scrollBtn.style.cssText = `
+                position: fixed;
+                bottom: 3rem;
+                left: 3rem;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%);
+                color: white;
+                border: none;
+                font-size: 2rem;
+                cursor: pointer;
+                display: none;
+                z-index: 999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                transition: all 0.3s;
+            `;
+            scrollBtn.id = 'scrollToTop';
+            document.body.appendChild(scrollBtn);
+
+            // Show/hide based on scroll position
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 500) {
+                    scrollBtn.style.display = 'block';
+                } else {
+                    scrollBtn.style.display = 'none';
+                }
+            });
+
+            // Scroll to top on click
+            scrollBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Hover effect
+            scrollBtn.addEventListener('mouseenter', () => {
+                scrollBtn.style.transform = 'translateY(-5px) scale(1.1)';
+            });
+            scrollBtn.addEventListener('mouseleave', () => {
+                scrollBtn.style.transform = 'translateY(0) scale(1)';
+            });
+        })();
+    </script>
+    
+  </body>
+</html>
