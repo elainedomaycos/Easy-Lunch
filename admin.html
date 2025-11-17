@@ -462,10 +462,24 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             border: 2px solid transparent;
             transition: all 0.3s;
+            position: relative;
         }
 
         .product-card:hover {
             border-color: var(--primary);
+        }
+
+        .product-card .badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            z-index: 10;
         }
 
         .product-image {
@@ -702,7 +716,7 @@
             </header>
 
             <!-- Dashboard Section -->
-            <section id="dashboard" class="section fade-in">
+            <section id="dashboard" class="section active fade-in">
                 <div class="dashboard-content slide-in">
                     <div class="stats-grid">
                         <div class="stat-card">
@@ -737,11 +751,13 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Order Management</h3>
+                        <button class="btn btn-secondary btn-sm" onclick="addTestOrder()">+ Add Test Order</button>
                     </div>
                     <div id="ordersContainer">
                         <div class="empty-state">
                             <div class="empty-state-icon">🛒</div>
                             <p>No orders yet</p>
+                            <p style="font-size: 1.2rem; color: #999; margin-top: 1rem;">Orders will appear here when customers place orders</p>
                         </div>
                     </div>
                 </div>
@@ -749,6 +765,15 @@
 
             <!-- Products Section -->
             <section id="products" class="section fade-in">
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">Product Management</h3>
+                        <button class="btn btn-primary" id="addProductBtn">+ Add Product</button>
+                    </div>
+                    <p style="padding: 0 1rem; color: #666; font-size: 1.3rem;">
+                        <strong>Tip:</strong> All 39 products from your menu are loaded automatically. You can edit, delete, or add new products here.
+                    </p>
+                </div>
                 <div id="productsContainer" class="products-grid">
                     <div class="empty-state">
                         <div class="empty-state-icon">🍗</div>
@@ -767,6 +792,7 @@
                         <div class="empty-state">
                             <div class="empty-state-icon">💬</div>
                             <p>No active chats</p>
+                            <p style="font-size: 1.2rem; color: #999; margin-top: 1rem;">Chat sessions will appear here when customers request human support</p>
                         </div>
                     </div>
                 </div>
@@ -901,14 +927,28 @@
             // Setup navigation
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.addEventListener('click', () => {
+                    console.log('🔄 Navigation clicked:', item.dataset.section);
+                    
                     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
                     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                     item.classList.add('active');
                     
                     const section = item.dataset.section;
-                    document.getElementById(section).classList.add('active');
+                    const sectionEl = document.getElementById(section);
+                    sectionEl.classList.add('active');
+                    
+                    // Also add 'visible' class to make animations work
+                    setTimeout(() => {
+                        sectionEl.classList.add('visible');
+                        sectionEl.querySelectorAll('.card, .fade-in, .slide-in').forEach(el => {
+                            el.classList.add('visible');
+                        });
+                    }, 50);
+                    
                     document.getElementById('pageTitle').textContent = 
                         section.charAt(0).toUpperCase() + section.slice(1);
+                    
+                    console.log('✅ Switched to section:', section);
                 });
             });
 
@@ -929,6 +969,17 @@
             loadProducts();
             initProductModal();
 
+            // Make sure the active section is visible
+            setTimeout(() => {
+                const activeSection = document.querySelector('.section.active');
+                if (activeSection) {
+                    activeSection.classList.add('visible');
+                    activeSection.querySelectorAll('.card, .fade-in, .slide-in').forEach(el => {
+                        el.classList.add('visible');
+                    });
+                }
+            }, 100);
+
             console.log('Admin dashboard fully initialized');
         }
 
@@ -937,25 +988,36 @@
             function updateOrdersFromLocalStorage() {
                 try {
                     const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+                    console.log('📦 Orders from localStorage:', orders.length, 'orders');
+                    if (orders.length > 0) {
+                        console.log('First order sample:', orders[0]);
+                    } else {
+                        console.log('ℹ️ No orders found. Place an order from the products page or click "Add Test Order"');
+                    }
                     renderOrders(orders);
                     updateStats(orders);
                 } catch (e) {
-                    console.error('Error reading orders:', e);
+                    console.error('❌ Error reading orders:', e);
                 }
             }
 
             // Initial load
+            console.log('🔄 Initializing order listener...');
             updateOrdersFromLocalStorage();
 
             // Listen to storage events (from other tabs)
             window.addEventListener('storage', (e) => {
                 if (e.key === ORDERS_KEY) {
+                    console.log('🔔 Storage event detected for orders');
                     updateOrdersFromLocalStorage();
                 }
             });
 
             // Listen to custom event (from same tab)
-            window.addEventListener('orders-updated', updateOrdersFromLocalStorage);
+            window.addEventListener('orders-updated', () => {
+                console.log('🔔 Orders updated event triggered');
+                updateOrdersFromLocalStorage();
+            });
 
             // Poll every 2 seconds for changes
             setInterval(updateOrdersFromLocalStorage, 2000);
@@ -979,10 +1041,15 @@
         }
 
         function renderOrders(orders) {
+            console.log('renderOrders called with', orders.length, 'orders');
             const container = document.getElementById('ordersContainer');
-            if (!container) return;
+            if (!container) {
+                console.error('ordersContainer not found');
+                return;
+            }
 
             if (orders.length === 0) {
+                console.log('No orders to display');
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">🛒</div>
@@ -1076,8 +1143,57 @@
             }
         };
 
+        // Test function to add a sample order
+        window.addTestOrder = function() {
+            try {
+                const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+                const testOrder = {
+                    orderId: 'TEST' + Date.now(),
+                    timestamp: new Date().toISOString(),
+                    status: 'pending',
+                    customer: {
+                        fullName: 'Test Customer',
+                        contact: '09123456789',
+                        address: '123 Test Street, Test City',
+                        email: 'test@example.com'
+                    },
+                    items: [
+                        {
+                            name: 'Buffalo Wings',
+                            price: 130,
+                            quantity: 2,
+                            img: 'buff.jfif'
+                        },
+                        {
+                            name: 'Regular Fries',
+                            price: 49,
+                            quantity: 1,
+                            img: 'reg.jfif'
+                        }
+                    ],
+                    totals: {
+                        subtotal: 309,
+                        deliveryFee: 50,
+                        total: 359
+                    },
+                    paymentMethod: 'gcash'
+                };
+
+                orders.push(testOrder);
+                localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+                renderOrders(orders);
+                updateStats(orders);
+                alert('Test order added successfully!');
+            } catch (e) {
+                console.error('Error adding test order:', e);
+                alert('Error adding test order: ' + e.message);
+            }
+        };
+
         // Listen to chat sessions
         function listenToChats() {
+            console.log('🔄 Initializing chat listener...');
+            
             // Firestore chat sessions
             db.collection('chat_sessions')
                 .orderBy('lastActiveAt', 'desc')
@@ -1087,10 +1203,16 @@
                     snapshot.forEach((doc) => {
                         sessions.push({ id: doc.id, ...doc.data() });
                     });
+                    console.log('💬 Chat sessions from Firestore:', sessions.length, 'sessions');
+                    if (sessions.length > 0) {
+                        console.log('First chat sample:', sessions[0]);
+                    } else {
+                        console.log('ℹ️ No chat sessions found. Chats will appear when customers request human support');
+                    }
                     renderChats(sessions);
                     document.getElementById('activeChats').textContent = sessions.filter(s => s.humanRequested).length;
                 }, (error) => {
-                    console.error('Error listening to chats:', error);
+                    console.error('❌ Error listening to chats:', error);
                 });
 
             // Realtime Database chat sessions
@@ -1204,49 +1326,89 @@
 
         // ========== PRODUCT MANAGEMENT ==========
         function loadProducts() {
+            console.log('🔄 Loading products...');
             try {
                 const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || getDefaultProducts();
+                console.log('📦 Products loaded:', products.length, 'products');
+                
                 if (!localStorage.getItem(PRODUCTS_KEY)) {
+                    console.log('💾 Initializing localStorage with default products');
                     localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
                 }
+                
+                console.log('🎨 Rendering products...');
                 renderProducts(products);
                 updateProductCount(products.length);
+                console.log('✅ Products rendered successfully');
             } catch (e) {
-                console.error('Error loading products:', e);
+                console.error('❌ Error loading products:', e);
             }
         }
 
         function getDefaultProducts() {
-            // Default products from product.html
+            // All products from product.html
             return [
+                // Wings
                 { id: 'p1', name: 'Buffalo Wings', price: 130, category: 'wings', description: 'The OG spicy-tangy flavor that started it all', img: 'buff.jfif', bestSeller: true },
                 { id: 'p2', name: 'Teriyaki Wings', price: 130, category: 'wings', description: 'Sweet-savory glaze with a Japanese touch', img: 'Teriyaki Chicken Wings.jfif', bestSeller: false },
                 { id: 'p3', name: 'Honey Garlic Wings', price: 130, category: 'wings', description: 'Golden honey meets garlicky crunch', img: 'honey garlic chicken.jfif', bestSeller: true },
                 { id: 'p4', name: 'Garlic Parmesan Wings', price: 130, category: 'wings', description: 'Buttery, cheesy, and dangerously addictive', img: 'parme.jfif', bestSeller: false },
                 { id: 'p5', name: 'Salted Egg Wings', price: 130, category: 'wings', description: 'Creamy, savory, and proudly Pinoy twist', img: 'Salted Egg Chicken Wings.jfif', bestSeller: false },
-                { id: 'p6', name: 'Zesty Lemon Pepper', price: 130, category: 'wings', description: 'Tangy citrus meets peppery crunch.', img: 'Crispy Lemon Pepper Chicken Wings with 5-Star Flavor Burst.jfif', bestSeller: false },
+                { id: 'p6', name: 'Zesty Lemon Pepper', price: 130, category: 'wings', description: 'Tangy citrus meets peppery crunch', img: 'Crispy Lemon Pepper Chicken Wings with 5-Star Flavor Burst.jfif', bestSeller: false },
                 { id: 'p7', name: 'Spicy Cajun Wings', price: 130, category: 'wings', description: 'Southern-style spice that hits just right', img: 'Cajun Brown Sugar Chicken Wings – The Perfect Sweet & Spicy Snack.jfif', bestSeller: false },
-                { id: 'p8', name: 'K-Style Wings', price: 130, category: 'wings', description: 'Crispy wings coated in savory soy and garlic glaze.', img: 'korean.jfif', bestSeller: false },
+                { id: 'p8', name: 'K-Style Wings', price: 130, category: 'wings', description: 'Crispy wings coated in savory soy and garlic glaze', img: 'korean.jfif', bestSeller: false },
+                // Pizza
                 { id: 'p9', name: 'Cheesy Overload Pizza', price: 159, category: 'pizza', description: 'Triple cheese blend — gooey, melty, and comforting', img: 'cheese.jfif', bestSeller: false },
                 { id: 'p10', name: 'Pepperoni Rush Pizza', price: 169, category: 'pizza', description: 'Crispy pepperoni on rich tomato sauce and mozzarella', img: 'pepp.jfif', bestSeller: false },
                 { id: 'p11', name: 'Hawaiian Hype Pizza', price: 169, category: 'pizza', description: 'Ham, pineapple, and mozzarella for that sweet-savory love', img: 'Hawaiian Pizza Perfection_ 5 Tips for a Tropical Homemade Treat.jfif', bestSeller: false },
                 { id: 'p12', name: 'BBQ Chicken Pizza', price: 169, category: 'pizza', description: 'Smoked chicken, BBQ sauce, onions, and cheese', img: 'Classic BBQ Chicken Pizza.jfif', bestSeller: false },
+                // Burgers
                 { id: 'p13', name: 'Classic Cheeseburger', price: 60, category: 'burgers', description: 'Beef patty, cheese, lettuce, tomato, signature sauce', img: 'classic.jfif', bestSeller: false },
                 { id: 'p14', name: 'Cheesy Bacon Melt', price: 99, category: 'burgers', description: 'Bacon, cheese, and creamy sauce', img: 'chebac.jfif', bestSeller: false },
                 { id: 'p15', name: 'Spicy Chick Burger', price: 99, category: 'burgers', description: 'Crispy chicken fillet with spicy mayo', img: 'spichik.jfif', bestSeller: false },
+                // Sides
                 { id: 'p16', name: 'Regular Fries', price: 49, category: 'sides', description: 'Golden, crispy, lightly salted', img: 'reg.jfif', bestSeller: false },
-                { id: 'p17', name: 'Cheesy Fries', price: 69, category: 'sides', description: 'Drizzled with creamy cheese sauce.', img: 'chef.jfif', bestSeller: false },
+                { id: 'p17', name: 'Cheesy Fries', price: 69, category: 'sides', description: 'Drizzled with creamy cheese sauce', img: 'chef.jfif', bestSeller: false },
                 { id: 'p18', name: 'BBQ Fries', price: 69, category: 'sides', description: 'Smoky, tangy, and perfectly seasoned', img: 'bbqf.jfif', bestSeller: false },
                 { id: 'p19', name: 'Sour Cream Fries', price: 69, category: 'sides', description: 'Creamy, zesty, and addicting', img: 'sour.jfif', bestSeller: false },
-                { id: 'p20', name: 'Plain Rice', price: 12, category: 'sides', description: 'Golden, crispy, lightly salted', img: 'plain.jfif', bestSeller: false }
+                { id: 'p20', name: 'Plain Rice', price: 12, category: 'sides', description: 'Steamed, fluffy white rice — perfect with any wings', img: 'plain.jfif', bestSeller: false },
+                { id: 'p21', name: 'Garlic Rice', price: 20, category: 'sides', description: 'Savory and buttery upgrade', img: 'Garlic Butter Rice.jfif', bestSeller: false },
+                { id: 'p22', name: 'Potato Wedges', price: 59, category: 'sides', description: 'Chunky, crispy, seasoned fries', img: 'potwed.jfif', bestSeller: false },
+                { id: 'p23', name: 'Coleslaw', price: 40, category: 'sides', description: 'Fresh, tangy, and creamy veggies', img: 'cole.jfif', bestSeller: false },
+                { id: 'p24', name: 'Garlic Mayo Dip', price: 25, category: 'sides', description: 'Creamy, garlicky, all-time fave', img: 'gmd.jfif', bestSeller: false },
+                { id: 'p25', name: 'Ranch Dip', price: 25, category: 'sides', description: 'Cool, tangy, and herby', img: 'rd.jfif', bestSeller: false },
+                { id: 'p26', name: 'Cheese Dip', price: 25, category: 'sides', description: 'Smooth, rich, and cheesy', img: 'cd.jfif', bestSeller: false },
+                { id: 'p27', name: 'Honey Mustard Dip', price: 25, category: 'sides', description: 'Sweet and tangy balance', img: 'hmd.jfif', bestSeller: false },
+                { id: 'p28', name: 'Buffalo Dip', price: 25, category: 'sides', description: 'Spicy, tangy kick', img: 'bfdip.jfif', bestSeller: false },
+                // Drinks
+                { id: 'p29', name: 'Iced Tea', price: 30, category: 'drinks', description: 'Cool and refreshing', img: 'icedtea.jfif', bestSeller: false },
+                { id: 'p30', name: 'Coca Cola', price: 30, category: 'drinks', description: 'Classic, ice-cold soda', img: 'cola.jfif', bestSeller: false },
+                { id: 'p31', name: 'Blue Breeze', price: 30, category: 'drinks', description: 'Sweet and fruity refreshment', img: 'blue.jfif', bestSeller: false },
+                // Combo Meals
+                { id: 'p32', name: 'Combo A – Easy Wing Meal', price: 149, category: 'combo', description: '4 pcs wings + rice + drink', img: 'coma.png', bestSeller: false },
+                { id: 'p33', name: 'Combo B – Burger & Fries Meal', price: 149, category: 'combo', description: 'Burger + fries + drink', img: 'comb.png', bestSeller: false },
+                { id: 'p34', name: 'Combo C – Wing & Fries Meal', price: 169, category: 'combo', description: '6 pcs wings + fries + drink', img: 'comc.png', bestSeller: false },
+                { id: 'p35', name: 'Combo D – Duo Deal (for 2)', price: 299, category: 'combo', description: '12 pcs wings + 2 rice + 2 drinks', img: 'comd.png', bestSeller: false },
+                { id: 'p36', name: 'Combo E – Chicky Feast (for group)', price: 499, category: 'combo', description: '24 pcs wings + 4 rice + 4 drinks', img: 'come.png', bestSeller: false },
+                { id: 'p37', name: 'Combo F – Pizza & Wings', price: 279, category: 'combo', description: 'Personal pizza + 6 wings + drink', img: 'comf.png', bestSeller: false },
+                { id: 'p38', name: 'Combo G – Barkada Feast', price: 499, category: 'combo', description: 'Pizza + 12 wings + sides + drinks', img: 'comg.png', bestSeller: false },
+                { id: 'p39', name: 'Combo H – Ultimate Easy Box', price: 599, category: 'combo', description: '2 pizzas + 18 wings + sides + drinks', img: 'comh.png', bestSeller: false }
             ];
         }
 
         function renderProducts(products) {
+            console.log('🎨 renderProducts called with', products.length, 'products');
             const container = document.getElementById('productsContainer');
-            if (!container) return;
+            
+            if (!container) {
+                console.error('❌ productsContainer element not found!');
+                return;
+            }
+            
+            console.log('✅ productsContainer found:', container);
 
             if (products.length === 0) {
+                console.log('ℹ️ No products to display');
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">🍗</div>
@@ -1256,6 +1418,7 @@
                 return;
             }
 
+            console.log('📝 Generating HTML for products...');
             const productsHtml = products.map(product => `
                 <div class="product-card card-animate fade-in">
                     <img src="${product.img || 'https://via.placeholder.com/300x200?text=No+Image'}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
@@ -1271,7 +1434,18 @@
                 </div>
             `).join('');
 
+            console.log('📄 Generated HTML length:', productsHtml.length, 'characters');
             container.innerHTML = productsHtml;
+            console.log('✅ Products HTML inserted into container');
+            
+            // Add 'visible' class to dynamically generated product cards so they appear
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.product-card.fade-in');
+                console.log('🎭 Making', cards.length, 'product cards visible');
+                cards.forEach(card => {
+                    card.classList.add('visible');
+                });
+            }, 50);
         }
 
         function getCategoryName(category) {

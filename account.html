@@ -944,12 +944,41 @@
           <div class="order-footer">
             <div class="order-total">Total: ₱${(order.totals?.total || order.total || 0).toFixed(2)}</div>
             <div class="order-actions">
-              ${status !== 'completed' ? `<button class="track-btn" onclick="window.trackOrder('${order.orderId || order.id}')">Track Order</button>` : ''}
+              ${status !== 'completed' && status !== 'cancelled' ? `<button class="track-btn" onclick="window.trackOrder('${order.orderId || order.id}')">Track Order</button>` : ''}
               <button class="reorder-btn" onclick="window.reorderItems('${order.orderId || order.id}')">Order Again</button>
+              ${status !== 'completed' && status !== 'cancelled' ? `<button class="cancel-btn" onclick="window.cancelOrder('${order.orderId || order.id}')">Cancel Order</button>` : ''}
             </div>
           </div>
         </div>
       `;
+  // Cancel Order logic
+  window.cancelOrder = async function(orderId) {
+    if (!confirm('Are you sure you want to cancel this order?')) return;
+    // Update order status in localStorage
+    const orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+    const idx = orders.findIndex(o => (o.orderId || o.id) === orderId);
+    if (idx === -1) {
+      alert('Order not found.');
+      return;
+    }
+    if (orders[idx].status === 'completed' || orders[idx].status === 'cancelled') {
+      alert('This order cannot be cancelled.');
+      return;
+    }
+    orders[idx].status = 'cancelled';
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+    userOrders = orders;
+    renderOrders(userOrders);
+    // Sync to Firebase if order has firebaseId
+    if (orders[idx].firebaseId) {
+      try {
+        await firebase.firestore().collection('orders').doc(orders[idx].firebaseId).update({ status: 'cancelled' });
+      } catch (e) {
+        console.error('Failed to update order in Firebase:', e);
+      }
+    }
+    alert('Order cancelled.');
+  }
     }).join('');
 
     container.innerHTML = ordersHtml;
