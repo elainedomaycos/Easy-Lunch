@@ -373,11 +373,11 @@
     .navbar-content {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       width: 100%;
-      padding: 0 3rem;
+      padding: 0 2rem 0 1rem;
       height: 100%;
-      gap: 2rem;
+      gap: 1.2rem;
     }
     .logo-banner {
       display: flex;
@@ -397,12 +397,13 @@
     }
     .nav-center {
       display: flex;
-      gap: 2rem;
+      gap: 1.2rem;
       list-style: none;
       align-items: center;
-      flex: 1;
-      justify-content: center;
+      flex: 0 1 auto;
+      justify-content: flex-start;
       margin: 0;
+      min-width: 0;
     }
     .nav-center.open {
       display: flex !important;
@@ -490,21 +491,49 @@
       fill: #FFFFFF;
     }
     .search-box {
-      position: relative;
-      width: 0;
-      overflow: hidden;
-      transition: width 0.25s ease, padding 0.25s ease;
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 2rem;
-      display: flex;
-      align-items: center;
-      height: 3.6rem;
-      flex: 0 0 auto;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        overflow: hidden;
+        transition: width 0.25s ease, padding 0.25s ease;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 2rem;
+        display: flex;
+        align-items: center;
+        height: 3.6rem;
+        flex: 0 0 auto;
+        z-index: 1001;
     }
     .search-box.active {
-      width: 260px;
-      padding: 0 0.8rem 0 1.2rem;
+       width: 220px;
+       max-width: calc(100% - 120px);
+       padding: 0 0.8rem 0 1.2rem;
+       right: 5.5rem;
+       box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     }
+      /* On mobile, overlay search box above navbar links */
+      @media (max-width: 768px) {
+        .search-box {
+          position: fixed;
+          top: 6rem;
+          left: 0;
+          right: 0;
+          width: 0;
+          margin: 0 auto;
+          border-radius: 2rem;
+          z-index: 2000;
+        }
+        .search-box.active {
+         width: 90vw;
+         max-width: 320px;
+         left: 50%;
+         transform: translateX(-50%);
+         top: 6rem;
+         box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+        }
+      }
     .search-input {
       border: none;
       background: transparent;
@@ -528,6 +557,21 @@
       cursor: pointer;
       opacity: 0.85;
     }
+
+      /* Adjust nav link spacing when search is open (match index.html) */
+      .navbar-content.search-active .nav-center {
+        gap: 0.8rem;
+      }
+      .navbar-content.search-active .nav-center a {
+        padding: 0.6rem 1.2rem;
+        font-size: 1.3rem;
+      }
+      .navbar-content.search-active .nav-right {
+        gap: 0.8rem;
+      }
+      .navbar-content.search-active .logo-banner {
+        transform: scale(0.92);
+      }
 
     .hamburger {
       display: none;
@@ -554,6 +598,15 @@
     .hamburger:hover {
       transform: scale(1.1);
     }
+
+  .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        margin-left: auto;
+        position: relative;
+        z-index: 1002;
+  }
 
     @media (max-width: 768px) {
       .nav-center {

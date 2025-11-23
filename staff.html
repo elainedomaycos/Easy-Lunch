@@ -902,24 +902,32 @@
         }
 
         window.updateOrderStatus = function(orderId, newStatus) {
-            try {
-                const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
-                const orderIndex = orders.findIndex(o => (o.orderId || o.id) === orderId);
-                
-                if (orderIndex !== -1) {
-                    orders[orderIndex].status = newStatus;
-                    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
-                    renderOrders(orders);
-                    updateStats(orders);
-                    
-                    // Trigger event for other listeners
-                    window.dispatchEvent(new Event('orders-updated'));
-                    
-                    alert(`Order ${orderId} updated to ${newStatus}`);
+                try {
+                    // Update localStorage for local UI
+                    const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+                    const orderIndex = orders.findIndex(o => (o.orderId || o.id) === orderId);
+                    if (orderIndex !== -1) {
+                        orders[orderIndex].status = newStatus;
+                        localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+                        renderOrders(orders);
+                        updateStats(orders);
+                        window.dispatchEvent(new Event('orders-updated'));
+                    }
+
+                    // Update Firestore for real-time sync (completed, ready, cancel)
+                    if (["completed", "ready", "cancelled", "canceled", "cancel"].includes(newStatus)) {
+                        db.collection('orders').doc(orderId).update({ status: newStatus })
+                            .then(() => {
+                                alert(`Order ${orderId} updated to ${newStatus} (synced to admin)`);
+                            })
+                            .catch((e) => {
+                                console.error('Error updating order in Firestore:', e);
+                                alert('Error syncing order status to admin: ' + e.message);
+                            });
+                    }
+                } catch (e) {
+                    console.error('Error updating order:', e);
                 }
-            } catch (e) {
-                console.error('Error updating order:', e);
-            }
         };
 
         // Test function to add a sample order
