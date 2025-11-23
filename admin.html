@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script defer src="firestore-orders.js"></script>
     
     <style>
         :root {
@@ -1306,48 +1307,59 @@
             console.log('Admin dashboard fully initialized');
         }
 
-        // Listen to localStorage orders
+        // Listen to Firestore orders in real-time
+        let firestoreUnsubscribe = null;
+        
         function listenToLocalStorageOrders() {
+            console.log('🔄 Setting up Firestore real-time listener for orders...');
+            
+            // Use the firestore-orders.js function for real-time updates
+            if (typeof window.listenToAllOrders === 'function') {
+                firestoreUnsubscribe = window.listenToAllOrders((orders) => {
+                    console.log(`📦 Admin received ${orders.length} orders from Firestore`);
+                    
+                    // Sync to localStorage for backup
+                    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+                    
+                    // Update UI and analytics
+                    renderOrders(orders);
+                    updateStats(orders);
+                    updateProductTagsAndStats(orders);
+                });
+            } else {
+                console.warn('⚠️ Firestore orders module not loaded, falling back to localStorage');
+                fallbackToLocalStorage();
+            }
+        }
+        
+        // Fallback to localStorage if Firestore is not available
+        function fallbackToLocalStorage() {
             function updateOrdersFromLocalStorage() {
                 try {
                     const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
                     console.log('📦 Orders from localStorage:', orders.length, 'orders');
-                    if (orders.length > 0) {
-                        console.log('First order sample:', orders[0]);
-                    } else {
-                        console.log('ℹ️ No orders found. Place an order from the products page or click "Add Test Order"');
-                    }
                     renderOrders(orders);
                     updateStats(orders);
-                    
-                    // Update product tags and statistics in real-time
                     updateProductTagsAndStats(orders);
                 } catch (e) {
                     console.error('❌ Error reading orders:', e);
                 }
             }
 
-            // Initial load
-            console.log('🔄 Initializing order listener...');
             updateOrdersFromLocalStorage();
-
-            // Listen to storage events (from other tabs)
             window.addEventListener('storage', (e) => {
-                if (e.key === ORDERS_KEY) {
-                    console.log('🔔 Storage event detected for orders');
-                    updateOrdersFromLocalStorage();
-                }
+                if (e.key === ORDERS_KEY) updateOrdersFromLocalStorage();
             });
-
-            // Listen to custom event (from same tab)
-            window.addEventListener('orders-updated', () => {
-                console.log('🔔 Orders updated event triggered');
-                updateOrdersFromLocalStorage();
-            });
-
-            // Poll every 2 seconds for changes
+            window.addEventListener('orders-updated', updateOrdersFromLocalStorage);
             setInterval(updateOrdersFromLocalStorage, 2000);
         }
+        
+        // Clean up listener on page unload
+        window.addEventListener('beforeunload', () => {
+            if (firestoreUnsubscribe) {
+                firestoreUnsubscribe();
+            }
+        });
 
         // Listen to Firebase orders
         function listenToFirebaseOrders() {
@@ -1738,24 +1750,23 @@
             container.innerHTML = html;
         }
 
-        window.updateOrderStatus = function(orderId, newStatus) {
+        window.updateOrderStatus = async function(orderId, newStatus) {
             try {
-                const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
-                const orderIndex = orders.findIndex(o => (o.orderId || o.id) === orderId);
-                
-                if (orderIndex !== -1) {
-                    orders[orderIndex].status = newStatus;
-                    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
-                    renderOrders(orders);
-                    updateStats(orders);
-                    
-                    // Trigger event for other listeners
-                    window.dispatchEvent(new Event('orders-updated'));
-                    
-                    alert(`Order ${orderId} updated to ${newStatus}`);
+                // Use the Firestore update function from firestore-orders.js
+                if (typeof window.updateFirestoreOrderStatus === 'function') {
+                    await window.updateFirestoreOrderStatus(orderId, newStatus);
+                    alert(`✅ Order ${orderId} marked as ${newStatus}`);
+                } else {
+                    // Fallback to direct Firestore update
+                    await db.collection('orders').doc(orderId).update({ 
+                        status: newStatus,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    alert(`✅ Order ${orderId} updated to ${newStatus}`);
                 }
             } catch (e) {
-                console.error('Error updating order:', e);
+                console.error('❌ Error updating order:', e);
+                alert('Error updating order: ' + e.message);
             }
         };
 
