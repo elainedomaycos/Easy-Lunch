@@ -308,3 +308,139 @@
                 }
             });
         })();
+
+        // Authentication integration
+        (function() {
+            const userButton = document.getElementById('userButton');
+            const accountDropdown = document.getElementById('accountDropdown');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            if (!userButton) return;
+
+            // Function to update dropdown menu based on user role
+            function updateDropdownMenu(user) {
+                if (!accountDropdown) return;
+                
+                const ul = accountDropdown.querySelector('ul');
+                if (!ul) return;
+                
+                // Clear existing menu items
+                ul.innerHTML = '';
+                
+                if (user) {
+                    console.log('Updating menu for user:', user.email);
+                    const isAdmin = window.AuthModule && window.AuthModule.isAdminUser(user);
+                    const isStaff = window.AuthModule && window.AuthModule.isStaffUser(user);
+                    
+                    console.log('Is Admin?', isAdmin, '| Is Staff?', isStaff);
+                    
+                    // Add dashboard links for admin/staff
+                    if (isAdmin) {
+                        console.log('Adding Admin Dashboard link');
+                        ul.innerHTML += '<li><a href="admin.html" style="display:block; padding:0.8rem 1rem; color:#c0392b; font-weight:600; text-decoration:none;">Admin Dashboard</a></li>';
+                    }
+                    if (isStaff) {
+                        console.log('Adding Staff Dashboard link');
+                        ul.innerHTML += '<li><a href="staff.html" style="display:block; padding:0.8rem 1rem; color:#c0392b; font-weight:600; text-decoration:none;">Staff Dashboard</a></li>';
+                    }
+                    
+                    // Add My Account for all users
+                    ul.innerHTML += '<li><a href="account.html" style="display:block; padding:0.8rem 1rem; color:#c0392b; font-weight:600; text-decoration:none;">My Account</a></li>';
+                    
+                    // Add Logout button
+                    ul.innerHTML += '<li><a href="#" id="logoutBtn" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Logout</a></li>';
+                    
+                    // Re-attach logout event listener
+                    const newLogoutBtn = document.getElementById('logoutBtn');
+                    if (newLogoutBtn) {
+                        newLogoutBtn.addEventListener('click', async (e) => {
+                            e.preventDefault();
+                            if (window.AuthModule) {
+                                try {
+                                    await window.AuthModule.signOut();
+                                    if (accountDropdown) accountDropdown.style.display = 'none';
+                                    alert('Logged out successfully');
+                                    location.reload();
+                                } catch (err) {
+                                    console.error('Logout error:', err);
+                                    alert('Error logging out. Please try again.');
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+
+            // Toggle dropdown or show auth modal based on login status
+            userButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // Check if user is logged in
+                const currentUser = window.AuthModule ? window.AuthModule.getCurrentUser() : null;
+                
+                if (currentUser) {
+                    // Update dropdown menu before showing (in case it wasn't updated)
+                    updateDropdownMenu(currentUser);
+                    
+                    // User is logged in, toggle dropdown
+                    if (accountDropdown) {
+                        const isVisible = accountDropdown.style.display === 'block';
+                        accountDropdown.style.display = isVisible ? 'none' : 'block';
+                    }
+                } else {
+                    // User is not logged in, show auth modal
+                    if (window.AuthModule) {
+                        window.AuthModule.openModal();
+                    }
+                }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (accountDropdown && !userButton.contains(e.target) && !accountDropdown.contains(e.target)) {
+                    accountDropdown.style.display = 'none';
+                }
+            });
+
+            // Handle logout (initial setup)
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    if (window.AuthModule) {
+                        try {
+                            await window.AuthModule.signOut();
+                            if (accountDropdown) accountDropdown.style.display = 'none';
+                            alert('Logged out successfully');
+                            location.reload();
+                        } catch (err) {
+                            console.error('Logout error:', err);
+                            alert('Error logging out. Please try again.');
+                        }
+                    }
+                });
+            }
+
+            // Update UI based on auth state
+            if (window.AuthModule) {
+                window.AuthModule.onAuthStateChanged((user) => {
+                    // Update dropdown menu based on user role
+                    updateDropdownMenu(user);
+                    
+                    if (accountDropdown) {
+                        // Hide dropdown when auth state changes
+                        accountDropdown.style.display = 'none';
+                    }
+                    
+                    // Update user button appearance
+                    if (user && userButton) {
+                        userButton.style.background = 'linear-gradient(135deg, #8b0000, #c0392b)';
+                        userButton.querySelector('svg path').style.fill = 'white';
+                        userButton.title = 'Account';
+                    } else if (userButton) {
+                        userButton.style.background = '';
+                        userButton.querySelector('svg path').style.fill = '';
+                        userButton.title = 'Sign in';
+                    }
+                });
+            }
+        })();

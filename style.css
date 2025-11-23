@@ -1078,7 +1078,7 @@ body {
   color: #333;
 }
 .provider-btn.google { border-color: #e0e0e0; }
-.provider-btn.apple { border-color: #d0d0d0; }
+
 .provider-btn:hover { background: #fafafa; }
 .provider-icon {
   display: inline-flex;

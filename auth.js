@@ -1,27 +1,23 @@
-// Firebase Email/Password Auth (Compat)
-// Requires firebase-app-compat.js and firebase-auth-compat.js to be loaded, and firebase.initializeApp called in the page.
+// Firebase Email/Password Auth (Compat mode)
+// Requires firebase-app-compat.js and firebase-auth-compat.js
 (function () {
   const authStateListeners = [];
-
+  
   function getCurrentUser() {
     return (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
   }
-
-  // Admin and Staff configuration
+  
   const ADMIN_EMAIL = "domaycoselaine@gmail.com";
   const STAFF_EMAIL = "domaycoscollege@gmail.com";
-
-  // Check if user is admin
+  
   function isAdminUser(user) {
     return user && user.email === ADMIN_EMAIL;
   }
-
-  // Check if user is staff
+  
   function isStaffUser(user) {
     return user && user.email === STAFF_EMAIL;
   }
-
-  // UI helpers
+  
   function ensureAuthModal() {
     if (document.getElementById('authModal')) return;
     const modal = document.createElement('div');
@@ -35,10 +31,6 @@
           <button type="button" class="provider-btn google" id="googleSignIn">
             <span class="provider-icon">G</span>
             <span>Continue with Google</span>
-          </button>
-          <button type="button" class="provider-btn apple" id="appleSignIn">
-            <span class="provider-icon"></span>
-            <span>Continue with Apple</span>
           </button>
           <div class="provider-sep"><span>or</span></div>
         </div>
@@ -69,9 +61,8 @@
     const switchBtn = modal.querySelector('#authSwitchBtn');
     const switchText = modal.querySelector('#authSwitchText');
     const googleBtn = modal.querySelector('#googleSignIn');
-    const appleBtn = modal.querySelector('#appleSignIn');
     const forgotBtn = modal.querySelector('#authForgot');
-    let mode = 'signin'; // 'signin' | 'signup'
+    let mode = 'signin';
 
     switchBtn.addEventListener('click', () => {
       mode = mode === 'signin' ? 'signup' : 'signin';
@@ -94,16 +85,6 @@
       googleBtn.addEventListener('click', async () => {
         try {
           await signInWithGoogle();
-          closeModal();
-        } catch (err) {
-          handleAuthError(err);
-        }
-      });
-    }
-    if (appleBtn) {
-      appleBtn.addEventListener('click', async () => {
-        try {
-          await signInWithApple();
           closeModal();
         } catch (err) {
           handleAuthError(err);
@@ -157,273 +138,129 @@
     document.body.style.overflow = 'auto';
   }
 
-  // Firebase auth implementation
   async function signIn(email, password) {
     if (!firebase || !firebase.auth) throw new Error('Firebase not loaded');
     const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-    const user = userCredential.user;
-    
-    // Redirect admin to admin dashboard
-    if (user && user.email === ADMIN_EMAIL) {
-      setTimeout(() => {
-        window.location.href = 'admin.html';
-      }, 500);
-    }
-    // Redirect staff to staff dashboard
-    else if (user && user.email === STAFF_EMAIL) {
-      setTimeout(() => {
-        window.location.href = 'staff.html';
-      }, 500);
-    }
-    // Regular users stay on current page or can navigate normally
+    return userCredential.user;
   }
+
   async function signUp(email, password) {
     if (!firebase || !firebase.auth) throw new Error('Firebase not loaded');
-    const cred = await firebase.auth().createUserWithEmailAndPassword(email, password);
-    // Optionally set display name to email prefix
-    if (cred.user && !cred.user.displayName) {
-      await cred.user.updateProfile({ displayName: email.split('@')[0] });
-    }
-    // Redirect to account page after successful signup
-    setTimeout(() => {
-      window.location.href = 'account.html';
-    }, 500);
+    const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+    return userCredential.user;
   }
-  async function doSignOut() {
-    if (!firebase || !firebase.auth) return;
-    try {
-      await firebase.auth().signOut();
-      // Force refresh the page to ensure clean state
-      window.location.reload();
-    } catch (error) {
-      console.error('Sign out error:', error);
-      alert('Error signing out: ' + error.message);
-    }
-  }
+
   async function signInWithGoogle() {
+    if (!firebase || !firebase.auth) throw new Error('Firebase not loaded');
     const provider = new firebase.auth.GoogleAuthProvider();
-    const userCredential = await firebase.auth().signInWithPopup(provider);
-    const user = userCredential.user;
-    
-    // Redirect admin to admin dashboard
-    if (user && user.email === ADMIN_EMAIL) {
-      setTimeout(() => {
-        window.location.href = 'admin.html';
-      }, 500);
-    }
-    // Redirect staff to staff dashboard
-    else if (user && user.email === STAFF_EMAIL) {
-      setTimeout(() => {
-        window.location.href = 'staff.html';
-      }, 500);
-    }
-  }
-  async function signInWithApple() {
-    // Apple requires configuring Services ID and authorized domains in Firebase Console.
-    const provider = new firebase.auth.OAuthProvider('apple.com');
+    provider.addScope('profile');
     provider.addScope('email');
-    provider.addScope('name');
     const userCredential = await firebase.auth().signInWithPopup(provider);
-    const user = userCredential.user;
-    
-    // Redirect admin to admin dashboard
-    if (user && user.email === ADMIN_EMAIL) {
-      setTimeout(() => {
-        window.location.href = 'admin.html';
-      }, 500);
-    }
-    // Redirect staff to staff dashboard
-    else if (user && user.email === STAFF_EMAIL) {
-      setTimeout(() => {
-        window.location.href = 'staff.html';
-      }, 500);
-    }
+    return userCredential.user;
   }
+
   async function sendPasswordReset(email) {
     if (!firebase || !firebase.auth) throw new Error('Firebase not loaded');
     await firebase.auth().sendPasswordResetEmail(email);
   }
 
-  function handleAuthError(err) {
-    if (!err) { alert('Authentication failed.'); return; }
-    const code = err.code || '';
-    // Common friendly messages
-    const map = {
-      'auth/invalid-login-credentials': 'Wrong email or password. Check your credentials or sign up first.',
-      'auth/user-not-found': 'No account found for that email. Try signing up.',
-      'auth/wrong-password': 'Incorrect password. Please try again.',
-      'auth/email-already-in-use': 'Email already in use. Try signing in.',
-      'auth/popup-blocked': 'Popup blocked by the browser. Allow popups and try again.',
-      'auth/popup-closed-by-user': 'Popup closed before completing sign-in.',
-      'auth/account-exists-with-different-credential': 'An account exists with a different sign-in provider. Try that provider or reset your password.',
-      'auth/operation-not-supported-in-this-environment': 'This action needs to run on http or https with web storage enabled. Serve your site (not file://) and try again.'
+  async function signOut() {
+    if (!firebase || !firebase.auth) throw new Error('Firebase not loaded');
+    await firebase.auth().signOut();
+  }
+
+  function handleAuthError(error) {
+    console.error('Auth error:', error);
+    const msgMap = {
+      'auth/user-not-found': 'No account found with that email.',
+      'auth/wrong-password': 'Incorrect password.',
+      'auth/email-already-in-use': 'Email is already registered.',
+      'auth/invalid-email': 'Invalid email address.',
+      'auth/weak-password': 'Password must be at least 6 characters.',
+      'auth/network-request-failed': 'Network error. Check your connection.',
+      'auth/popup-closed-by-user': 'Sign-in popup closed. Please try again.',
+      'auth/cancelled-popup-request': 'Another popup is already open.',
+      'auth/popup-blocked': 'Popup blocked. Allow popups for this site.',
     };
-    const msg = map[code] || err.message || 'Authentication failed.';
-    alert(msg);
+    alert(msgMap[error.code] || error.message || 'An error occurred.');
   }
 
-  function initialsFromEmail(email) {
-    if (!email) return 'U';
-    const base = email.split('@')[0] || 'U';
-    return base.slice(0, 1).toUpperCase();
-  }
-
-  function ensureUserMenu() {
-    let menu = document.getElementById('userMenu');
-    if (menu) {
-      // Remove existing menu to recreate with updated state
-      menu.remove();
-    }
-    
-    const user = getCurrentUser();
-    const isAdmin = isAdminUser(user);
-    const isStaff = isStaffUser(user);
-    
-    menu = document.createElement('div');
-    menu.id = 'userMenu';
-    menu.className = 'user-menu';
-    menu.style.display = 'none';
-    menu.innerHTML = `
-      <button type="button" class="user-menu-item" id="myAccountBtn">My Account</button>
-      ${isAdmin ? '<button type="button" class="user-menu-item" id="adminBtn">Admin Dashboard</button>' : ''}
-      ${isStaff ? '<button type="button" class="user-menu-item" id="staffBtn">Staff Dashboard</button>' : ''}
-      <button type="button" class="user-menu-item" id="signOutBtn">Sign out</button>
-    `;
-    document.body.appendChild(menu);
-
-    // Event wiring
-    document.getElementById('myAccountBtn').addEventListener('click', () => {
-      hideUserMenu();
-      window.location.href = 'account.html';
-    });
-
-    if (isAdmin) {
-      document.getElementById('adminBtn').addEventListener('click', () => {
-        hideUserMenu();
-        window.location.href = 'admin.html';
-      });
-    }
-
-    if (isStaff) {
-      document.getElementById('staffBtn').addEventListener('click', () => {
-        hideUserMenu();
-        window.location.href = 'staff.html';
-      });
-    }
-
-    document.getElementById('signOutBtn').addEventListener('click', () => {
-      doSignOut();
-      hideUserMenu();
-    });
-
-    return menu;
-  }
-
-  function showUserMenu(button) {
-    const menu = ensureUserMenu();
-    positionMenu(button, menu);
-    menu.style.display = 'block';
-  }
-
-  function hideUserMenu() {
-    const menu = document.getElementById('userMenu');
-    if (menu) {
-      menu.style.display = 'none';
-    }
-  }
-
-  function positionMenu(button, menu) {
-    const rect = button.getBoundingClientRect();
-    menu.style.position = 'fixed';
-    menu.style.left = `${rect.left + window.scrollX}px`;
-    menu.style.top = `${rect.bottom + window.scrollY + 5}px`;
-    menu.style.zIndex = '1001';
-  }
-
-  function updateUserUi(user) {
-    const btn = document.getElementById('userButton');
-    if (!btn) return;
-    
-    // Remove any existing event listeners by cloning and replacing
-    const newBtn = btn.cloneNode(true);
-    btn.parentNode.replaceChild(newBtn, btn);
-    
-    if (user) {
-      // Show initial avatar
-      newBtn.innerHTML = `<div class="user-avatar">${initialsFromEmail(user.email)}</div>`;
-      newBtn.style.cursor = 'pointer';
-    } else {
-      // Restore default icon
-      newBtn.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-        </svg>
-      `;
-      newBtn.style.cursor = 'pointer';
-    }
-
-    // Add click event to new button
-    newBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const user = getCurrentUser();
-      if (!user) {
-        openModal();
-      } else {
-        const currentMenu = document.getElementById('userMenu');
-        if (currentMenu && currentMenu.style.display === 'block') {
-          hideUserMenu();
-        } else {
-          showUserMenu(newBtn);
-        }
-      }
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-      const menu = document.getElementById('userMenu');
-      if (menu && !menu.contains(e.target) && !newBtn.contains(e.target)) {
-        hideUserMenu();
-      }
-    });
-  }
-
-  // Public API
-  window.SimpleAuth = {
-    onAuthStateChanged(cb) {
-      authStateListeners.push(cb);
-      cb(getCurrentUser());
-    },
-    getCurrentUser,
-    openSignIn: openModal,
-    signOut: doSignOut,
-  };
-
-  // Init on DOM ready
-  function init() {
-    ensureAuthModal();
-    updateUserUi(getCurrentUser());
-    
-    // Hook Firebase auth state
+  function onAuthStateChanged(callback) {
+    if (!callback) return;
+    authStateListeners.push(callback);
     if (firebase && firebase.auth) {
-      firebase.auth().onAuthStateChanged((user) => {
-        console.log('Auth state changed:', user ? user.email : 'No user');
-        updateUserUi(user);
-        authStateListeners.forEach(cb => cb(user));
-        
-        // Recreate user menu to reflect admin status
-        if (user) {
-          ensureUserMenu();
-        } else {
-          hideUserMenu();
-        }
-      });
+      firebase.auth().onAuthStateChanged(callback);
     }
   }
-  
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-})();
 
+  function initAuthStateListener() {
+    if (!firebase || !firebase.auth) {
+      console.warn('Firebase not initialized yet');
+      return;
+    }
+    
+    firebase.auth().onAuthStateChanged(async (user) => {
+      const currentPath = window.location.pathname;
+      const isAdminPage = currentPath.includes('admin.html');
+      const isStaffPage = currentPath.includes('staff.html');
+
+      if (user) {
+        console.log('User signed in:', user.email);
+        
+        // Protect admin page - only admin can access
+        if (isAdminPage && !isAdminUser(user)) {
+          alert('Access denied. Admin only.');
+          await signOut();
+          window.location.href = 'index.html';
+          return;
+        }
+        
+        // Protect staff page - staff or admin can access
+        if (isStaffPage && !isStaffUser(user) && !isAdminUser(user)) {
+          alert('Access denied. Staff or Admin only.');
+          await signOut();
+          window.location.href = 'index.html';
+          return;
+        }
+        
+        // No automatic redirects for regular pages
+        // Admin/Staff will see dashboard links in the dropdown menu
+      } else {
+        console.log('User signed out');
+        
+        // Redirect to index if trying to access protected pages without login
+        if (isAdminPage || isStaffPage) {
+          window.location.href = 'index.html';
+        }
+      }
+
+      authStateListeners.forEach(listener => {
+        if (listener !== firebase.auth().onAuthStateChanged) {
+          listener(user);
+        }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuthStateListener);
+  } else {
+    initAuthStateListener();
+  }
+
+  window.AuthModule = {
+    openModal,
+    closeModal,
+    signIn,
+    signUp,
+    signInWithGoogle,
+    signOut,
+    sendPasswordReset,
+    getCurrentUser,
+    onAuthStateChanged,
+    isAdminUser,
+    isStaffUser,
+    ADMIN_EMAIL,
+    STAFF_EMAIL
+  };
+})();

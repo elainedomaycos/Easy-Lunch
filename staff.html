@@ -739,11 +739,8 @@
                 window.location.href = 'index.html';
             });
 
-            // Listen to localStorage orders
+            // Listen to Firestore orders in real-time
             listenToLocalStorageOrders();
-            
-            // Listen to Firebase orders
-            listenToFirebaseOrders();
             
             // Listen to chat sessions
             listenToChats();
@@ -815,20 +812,9 @@
         });
 
         // Listen to Firebase orders
-        function listenToFirebaseOrders() {
-            ordersListener = db.collection('orders')
-                .orderBy('timestamp', 'desc')
-                .limit(50)
-                .onSnapshot((snapshot) => {
-                    const orders = [];
-                    snapshot.forEach((doc) => {
-                        orders.push({ id: doc.id, ...doc.data() });
-                    });
-                    console.log('Firebase orders updated:', orders.length);
-                }, (error) => {
-                    console.error('Error listening to orders:', error);
-                });
-        }
+        // Note: listenToFirebaseOrders() has been removed
+        // We now use listenToLocalStorageOrders() which calls window.listenToAllOrders()
+        // from firestore-orders.js for proper real-time Firestore updates
 
         function renderOrders(orders) {
             console.log('🎨 renderOrders called with', orders.length, 'orders');
@@ -886,10 +872,10 @@
                         ${order.status !== 'cancelled' ? `
                             <div class="order-actions">
                                 ${order.status === 'pending' || !order.status ? `
-                                    <button class="btn btn-sm btn-secondary" onclick="updateOrderStatus('${order.orderId || order.id}', 'ready')">Mark as Ready</button>
+                                    <button class="btn btn-sm btn-secondary" onclick="updateOrderStatus('${order.id || order.orderId}', 'ready')">Mark as Ready</button>
                                 ` : ''}
                                 ${order.status === 'ready' || order.status === 'pending' || !order.status ? `
-                                    <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.orderId || order.id}', 'completed')">Mark as Completed</button>
+                                    <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.id || order.orderId}', 'completed')">Mark as Completed</button>
                                 ` : ''}
                             </div>
                         ` : ''}

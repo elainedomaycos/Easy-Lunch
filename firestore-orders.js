@@ -10,7 +10,7 @@ const auth = firebase.auth();
  * @param {Object} orderData - Order details (items, total, delivery info)
  * @returns {Promise<string>} - Returns the order ID
  */
-export async function createOrder(orderData) {
+async function createOrder(orderData) {
   try {
     // Get current authenticated user
     const user = auth.currentUser;
@@ -81,7 +81,7 @@ export async function createOrder(orderData) {
  * @param {Function} callback - Called when orders update
  * @returns {Function} - Unsubscribe function
  */
-export function listenToAllOrders(callback) {
+function listenToAllOrders(callback) {
   // Query all orders, sorted by creation date (newest first)
   const unsubscribe = db.collection('orders')
     .orderBy('timestamp', 'desc')
@@ -119,7 +119,7 @@ export function listenToAllOrders(callback) {
  * @param {Function} callback - Called when user's orders update
  * @returns {Function} - Unsubscribe function
  */
-export function listenToUserOrders(callback) {
+function listenToUserOrders(callback) {
   const user = auth.currentUser;
   
   if (!user) {
@@ -162,7 +162,7 @@ export function listenToUserOrders(callback) {
  * @param {string} newStatus - New status: 'pending', 'ready', 'completed', 'cancelled'
  * @returns {Promise<void>}
  */
-export async function updateOrderStatus(orderId, newStatus) {
+async function updateOrderStatus(orderId, newStatus) {
   try {
     // Reference to the specific order document
     const orderRef = db.collection('orders').doc(orderId);
@@ -189,7 +189,7 @@ export async function updateOrderStatus(orderId, newStatus) {
  * @param {string} orderId - The order document ID
  * @returns {Promise<Object>} - Order data
  */
-export async function getOrderById(orderId) {
+async function getOrderById(orderId) {
   try {
     const doc = await db.collection('orders').doc(orderId).get();
     

@@ -295,14 +295,24 @@
 
   async function saveOrderToFirebase(orderData) {
     try {
-      if(typeof firebase !== 'undefined' && firebase.firestore) {
-        const db = firebase.firestore();
-        const docRef = await db.collection('orders').add(orderData);
-        console.log('Order saved to Firestore:', docRef.id);
-        return { success: true, id: docRef.id };
+      // Use the centralized Firestore order creation function
+      if(typeof window.createFirestoreOrder === 'function') {
+        console.log('💾 Saving order to Firestore...');
+        const docId = await window.createFirestoreOrder(orderData);
+        console.log('✅ Order saved to Firestore:', docId);
+        return { success: true, id: docId };
+      } else {
+        console.warn('⚠️ createFirestoreOrder not available, using fallback');
+        // Fallback to direct Firestore if function not loaded
+        if(typeof firebase !== 'undefined' && firebase.firestore) {
+          const db = firebase.firestore();
+          const docRef = await db.collection('orders').add(orderData);
+          console.log('✅ Order saved to Firestore (fallback):', docRef.id);
+          return { success: true, id: docRef.id };
+        }
       }
     } catch(e) {
-      console.error('Firebase save error:', e);
+      console.error('❌ Firebase save error:', e);
     }
     return { success: false };
   }
