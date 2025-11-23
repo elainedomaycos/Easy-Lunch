@@ -1,3 +1,62 @@
+  <script>
+  // User button opens auth modal and dropdown
+
+      function updateDropdownMenu(user) {
+        let html = '<ul style="list-style:none; margin:0; padding:1rem;">';
+        if(user) {
+          html += '<li><a href="account.html" style="display:block; padding:0.8rem 1rem; color:#c0392b; font-weight:600; text-decoration:none;">My Account</a></li>';
+          if(window.AuthModule && window.AuthModule.isAdminUser && window.AuthModule.isAdminUser(user)) {
+            html += '<li><a href="admin.html" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Admin Dashboard</a></li>';
+          } else if(window.AuthModule && window.AuthModule.isStaffUser && window.AuthModule.isStaffUser(user)) {
+            html += '<li><a href="staff.html" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Staff Dashboard</a></li>';
+          }
+          html += '<li><a href="#" id="logoutBtn" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Logout</a></li>';
+        }
+        html += '</ul>';
+        accountDropdown.innerHTML = html;
+      }
+
+      function showDropdownIfLoggedIn() {
+        if(window.AuthModule && typeof window.AuthModule.getCurrentUser === 'function') {
+          const user = window.AuthModule.getCurrentUser();
+        }
+      }
+      </script>
+
+
+      
+<script>
+// Dropdown logic
+userButton.addEventListener('click', function(e) {
+  e.stopPropagation();
+  if(window.AuthModule && typeof window.AuthModule.getCurrentUser === 'function') {
+    const user = window.AuthModule.getCurrentUser();
+    if (user) {
+      updateDropdownMenu(user);
+      accountDropdown.style.display = accountDropdown.style.display === 'block' ? 'none' : 'block';
+    } else {
+      if(window.AuthModule && typeof window.AuthModule.openModal === 'function') window.AuthModule.openModal();
+      accountDropdown.style.display = 'none';
+    }
+  }
+});
+document.addEventListener('click', function(e) {
+  if(!accountDropdown.contains(e.target) && e.target !== userButton) {
+    accountDropdown.style.display = 'none';
+  }
+});
+accountDropdown.addEventListener('click', function(e) {
+  if(e.target.id === 'logoutBtn') {
+    if(window.AuthModule && typeof window.AuthModule.signOut === 'function') window.AuthModule.signOut();
+    accountDropdown.style.display = 'none';
+  }
+});
+if(window.AuthModule && typeof window.AuthModule.onAuthStateChanged === 'function') {
+  window.AuthModule.onAuthStateChanged(function(user) {
+    if(!user) accountDropdown.style.display = 'none';
+  });
+}
+</script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -670,6 +729,7 @@
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
               </svg>
             </div>
+            <div class="account-dropdown" id="accountDropdown" style="display:none; position:absolute; top:60px; right:0; background:white; border-radius:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.12); min-width:180px; z-index:999;"></div>
           </div>
         </div>
       </div>
@@ -1576,6 +1636,56 @@ For inquiries: contact@easylunch.com
               scrollBtn.style.transform = 'translateY(0) scale(1)';
           });
       })();
+        // User button opens auth modal and dropdown
+          
+        function updateDropdownMenu(user) {
+          if (!user) {
+            accountDropdown.innerHTML = '';
+            accountDropdown.style.display = 'none';
+            return;
+          }
+          let html = '<ul style="list-style:none; margin:0; padding:1rem;">';
+          html += '<li><a href="account.html" style="display:block; padding:0.8rem 1rem; color:#c0392b; font-weight:600; text-decoration:none;">My Account</a></li>';
+          if(window.AuthModule && window.AuthModule.isAdminUser && window.AuthModule.isAdminUser(user)) {
+            html += '<li><a href="admin.html" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Admin Dashboard</a></li>';
+          } else if(window.AuthModule && window.AuthModule.isStaffUser && window.AuthModule.isStaffUser(user)) {
+            html += '<li><a href="staff.html" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Staff Dashboard</a></li>';
+          }
+          html += '<li><a href="#" id="logoutBtn" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Logout</a></li>';
+          html += '</ul>';
+          accountDropdown.innerHTML = html;
+        }
+
+        userButton.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if(window.AuthModule && typeof window.AuthModule.getCurrentUser === 'function') {
+            const user = window.AuthModule.getCurrentUser();
+            if (user) {
+              updateDropdownMenu(user);
+              accountDropdown.style.display = accountDropdown.style.display === 'block' ? 'none' : 'block';
+            } else {
+              if(window.AuthModule && typeof window.AuthModule.openModal === 'function') window.AuthModule.openModal();
+              accountDropdown.style.display = 'none';
+            }
+          }
+        });
+        document.addEventListener('click', function(e) {
+          if(!accountDropdown.contains(e.target) && e.target !== userButton) {
+            accountDropdown.style.display = 'none';
+          }
+        });
+        accountDropdown.addEventListener('click', function(e) {
+          if(e.target.id === 'logoutBtn') {
+            if(window.AuthModule && typeof window.AuthModule.signOut === 'function') window.AuthModule.signOut();
+            accountDropdown.style.display = 'none';
+          }
+        });
+        if(window.AuthModule && typeof window.AuthModule.onAuthStateChanged === 'function') {
+          window.AuthModule.onAuthStateChanged(function(user) {
+            updateDropdownMenu(user);
+            if (!user) accountDropdown.style.display = 'none';
+          });
+        }
   </script>
 </body>
 </html>

@@ -247,10 +247,9 @@
           }]
         });
       },
-      onApprove: function(data, actions) {
-        return actions.order.capture().then(function(details) {
-          completeOrder('paypal', details.id, details);
-        });
+      onApprove: async function(data, actions) {
+        const details = await actions.order.capture();
+        await completeOrder('paypal', details.id, details);
       },
       onError: function(err) {
         console.error('PayPal error:', err);
@@ -298,7 +297,24 @@
       // Use the centralized Firestore order creation function
       if(typeof window.createFirestoreOrder === 'function') {
         console.log('💾 Saving order to Firestore...');
-        const docId = await window.createFirestoreOrder(orderData);
+        
+        // Transform orderData to match createFirestoreOrder's expected format
+        const transformedData = {
+          customerName: orderData.customer?.fullName || '',
+          email: orderData.customer?.email || '',
+          phone: orderData.customer?.contact || '',
+          address: orderData.customer?.address || '',
+          items: orderData.items || [],
+          total: orderData.totals?.total || 0,
+          subtotal: orderData.totals?.subtotal || 0,
+          deliveryFee: orderData.totals?.deliveryFee || 30,
+          discount: orderData.totals?.discount || 0,
+          paymentMethod: orderData.payment?.method || 'Cash on Delivery',
+          paymentReference: orderData.payment?.reference || '',
+          notes: orderData.notes || ''
+        };
+        
+        const docId = await window.createFirestoreOrder(transformedData);
         console.log('✅ Order saved to Firestore:', docId);
         return { success: true, id: docId };
       } else {
@@ -333,16 +349,21 @@
     }
   }
 
-  function completeOrder(paymentMethod, reference = null, details = null) {
+  async function completeOrder(paymentMethod, reference = null, details = null) {
     const orderData = getOrderData(paymentMethod, reference);
     
-    // Save to both Firebase and localStorage
-    saveOrderToFirebase(orderData).then(result => {
-      if(result.success) {
-        orderData.firebaseId = result.id;
-      }
-    });
+    // Save to Firebase first and get the document ID
+    const firebaseResult = await saveOrderToFirebase(orderData);
+    if(firebaseResult.success) {
+      // Store the Firestore document ID in the order data
+      orderData.id = firebaseResult.id;
+      orderData.firebaseId = firebaseResult.id;
+      console.log('📝 Order saved with Firestore ID:', firebaseResult.id);
+    } else {
+      console.warn('⚠️ Firebase save failed, order will only be in localStorage');
+    }
     
+    // Save to localStorage as backup
     saveOrderToLocalStorage(orderData);
     
     // Clear cart
@@ -388,6 +409,17 @@
       
       // Update order items
       updateConfirmationItems(orderData.items, orderData.totals);
+      
+        // Automatically mark order as completed in Firestore
+        if(orderData.id && window.updateFirestoreOrderStatus) {
+          window.updateFirestoreOrderStatus(orderData.id, 'completed')
+            .then(() => {
+              console.log('✅ Order automatically marked as completed in Firestore:', orderData.id);
+            })
+            .catch((err) => {
+              console.error('❌ Error auto-marking order as completed:', err);
+            });
+        }
     }
   }
 
@@ -505,7 +537,7 @@
     
     if(!placeOrderBtn) return;
     
-    placeOrderBtn.addEventListener('click', function() {
+    placeOrderBtn.addEventListener('click', async function() {
       // Double-check cart isn't empty
       const cart = loadCart();
       if(cart.length === 0) {
@@ -540,7 +572,7 @@
         // Legacy manual reference flow (if input present)
         const gcashRefInput = document.getElementById('gcashRef');
         if(gcashRefInput && gcashRefInput.value.trim()) {
-          completeOrder('gcash', gcashRefInput.value.trim());
+          await completeOrder('gcash', gcashRefInput.value.trim());
         } else if(paymongoBtn) {
           // Encourage using secure flow
           alert('Use the "Pay with GCash (Secure)" button to proceed with online payment.');
@@ -555,9 +587,9 @@
           alert('Please enter your Bank Transfer Reference Number.');
           return;
         }
-        completeOrder('bank', bankRef);
+        await completeOrder('bank', bankRef);
       } else if(method === 'cod') {
-        completeOrder('cod');
+        await completeOrder('cod');
       } else if(method === 'paypal') {
         alert('Please use the PayPal button below to complete payment.');
       }
@@ -582,7 +614,7 @@
           const j = await r.json();
           if(j.status === 'succeeded') {
             // Mark order as paid
-            completeOrder('gcash_paymongo', intentId);
+            await completeOrder('gcash_paymongo', intentId);
             // Clean URL
             window.history.replaceState({}, document.title, window.location.pathname);
           } else if(['processing','awaiting_payment_method','awaiting_next_action'].includes(j.status)) {

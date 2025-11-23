@@ -872,10 +872,10 @@
                         ${order.status !== 'cancelled' ? `
                             <div class="order-actions">
                                 ${order.status === 'pending' || !order.status ? `
-                                    <button class="btn btn-sm btn-secondary" onclick="updateOrderStatus('${order.id || order.orderId}', 'ready')">Mark as Ready</button>
+                                    <button class="btn btn-sm btn-secondary" onclick="updateOrderStatus('${order.id}', 'ready')">Mark as Ready</button>
                                 ` : ''}
                                 ${order.status === 'ready' || order.status === 'pending' || !order.status ? `
-                                    <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.id || order.orderId}', 'completed')">Mark as Completed</button>
+                                    <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.id}', 'completed')">Mark as Completed</button>
                                 ` : ''}
                             </div>
                         ` : ''}
