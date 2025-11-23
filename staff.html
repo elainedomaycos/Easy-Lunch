@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy Lunch - Staff Dashboard</title>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu:400,600,700&display=swap" rel="stylesheet">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
+    <style>
+        :root {
+            --primary: #c0392b;
+            --primary-dark: #8b0000;
+            --secondary: #f5deb3;
+            --bg: #fff8e7;
+            --card-bg: #ffffff;
+            --text: #333;
+            --text-light: #6e6e6e;
+            --border: #e0e0e0;
+            --success: #4CAF50;
+            --warning: #ff9800;
+            --danger: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 10px;
+        }
+
+        body {
+            font-family: 'Ubuntu', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1.4rem;
+        }
+
+        /* Loading and Access Denied Screens */
+        .fullscreen-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .message-content {
+            max-width: 400px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 2rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.4rem;
+            margin-top: 1rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+
+        /* Staff Dashboard Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 260px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem 0;
+            z-index: 100;
+        }
+
+        .logo-section {
+            text-align: center;
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .logo-section h1 {
+            font-size: 2.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-section p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 2rem 0;
+        }
+
+        .nav-item {
+            padding: 1.5rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-item.active {
+            background: rgba(255,255,255,0.2);
+            border-left: 4px solid white;
+        }
+
+        .nav-icon {
+            font-size: 2rem;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h2 {
+            color: var(--primary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.6rem;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--primary-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .dashboard-content {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 1.4rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+
+        .stat-card .value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        /* Order Items */
+        .order-item {
+            border-bottom: 1px solid #eee;
+            padding: 1.5rem 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .order-id {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.6rem;
+        }
+
+        .order-status {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-ready {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .order-customer {
+            margin-bottom: 1rem;
+            color: var(--text-light);
+        }
+
+        .order-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+
+        .order-item-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .order-item-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+
+        .order-item-details {
+            flex: 1;
+        }
+
+        .order-item-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .order-item-qty {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .order-item-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-sm {
+            padding: 0.6rem 1.2rem;
+            font-size: 1.2rem;
+            border-radius: 0.5rem;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 6rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Chat Styles */
+        .chat-session-card {
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .chat-session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .chat-session-id {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+
+        .chat-session-user {
+            color: var(--text-light);
+            font-size: 1.2rem;
+        }
+
+        .chat-session-time {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        .chat-human-request {
+            background: var(--danger);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 1.2rem;
+        }
+
+        .chat-messages-preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 0.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .chat-message {
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+        }
+
+        .chat-message strong {
+            color: var(--primary);
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide-in {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .slide-in.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .go-to-site {
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            right: 2rem;
+        }
+
+        .go-to-site button {
+            width: 100%;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fullscreen-message">
+        <div class="message-content">
+            <div class="loading-spinner"></div>
+            <h2>Loading Staff Dashboard...</h2>
+            <p>Verifying your credentials</p>
+        </div>
+    </div>
+
+    <!-- Access Denied Screen -->
+    <div id="accessDenied" class="fullscreen-message" style="display: none;">
+        <div class="message-content">
+            <h1 style="font-size: 5rem; margin-bottom: 1rem;">🚫</h1>
+            <h2>Access Denied</h2>
+            <p>You do not have permission to access the staff dashboard.</p>
+            <button class="btn btn-primary" onclick="window.location.href='index.html'">Go to Main Site</button>
+        </div>
+    </div>
+
+    <!-- Staff Dashboard -->
+    <div id="staffDashboard" style="display: none;">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-section">
+                <h1>🍗 Easy Lunch</h1>
+                <p>Staff Dashboard</p>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-section="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-section="orders">
+                    <span class="nav-icon">🛒</span>
+                    <span>Orders</span>
+                </li>
+                <li class="nav-item" data-section="chats">
+                    <span class="nav-icon">💬</span>
+                    <span>Live Chats</span>
+                </li>
+            </ul>
+            <div class="go-to-site">
+                <button class="btn btn-secondary" id="goToMainSite">Go to Main Site</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h2 id="pageTitle">Dashboard</h2>
+                <div class="user-info">
+                    <div class="user-avatar" id="staffAvatar">S</div>
+                    <button class="btn btn-secondary" id="logoutBtn">Logout</button>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active fade-in">
+                <div class="dashboard-content slide-in">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Total Orders</h3>
+                            <div class="value" id="totalOrders">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Pending Orders</h3>
+                            <div class="value" id="pendingOrders">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Completed Today</h3>
+                            <div class="value" id="completedToday">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Active Chats</h3>
+                            <div class="value" id="activeChats">0</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Welcome to Staff Dashboard</h3>
+                        </div>
+                        <p>You can view and manage orders, and respond to customer chats.</p>
+                        <p style="margin-top: 1rem; color: #999; font-size: 1.2rem;">
+                            <strong>Note:</strong> You have view-only access to products. Contact admin for product management.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Orders Section -->
+            <section id="orders" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Order Management</h3>
+                        <button class="btn btn-secondary btn-sm" onclick="addTestOrder()">+ Add Test Order</button>
+                    </div>
+                    <div id="ordersContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🛒</div>
+                            <p>No orders yet</p>
+                            <p style="font-size: 1.2rem; color: #999; margin-top: 1rem;">Orders will appear here when customers place orders</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chats Section -->
+            <section id="chats" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Live Chat Support</h3>
+                    </div>
+                    <div id="chatsContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💬</div>
+                            <p>No active chats</p>
+                            <p style="font-size: 1.2rem; color: #999; margin-top: 1rem;">Chat sessions will appear here when customers request human support</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1gn5zMy8sKJUfLc-vqOMkhDfR1s_2gAg",
+            authDomain: "easy-lunch-368cf.firebaseapp.com",
+            projectId: "easy-lunch-368cf",
+            storageBucket: "easy-lunch-368cf.firebasestorage.app",
+            messagingSenderId: "494805181477",
+            appId: "1:494805181477:web:cb96df42879af6ccd08bcc"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const rtdb = firebase.database();
+        const STAFF_EMAIL = "domaycoscollege@gmail.com";
+        const ORDERS_KEY = 'easy_lunch_orders_v1';
+
+        let ordersListener = null;
+        let chatsListener = null;
+
+        // Check authentication state
+        auth.onAuthStateChanged((user) => {
+            console.log('Auth state changed:', user ? user.email : 'No user');
+            
+            const isStaff = user && user.email === STAFF_EMAIL;
+            
+            if (isStaff) {
+                showStaffDashboard(user);
+            } else if (user) {
+                console.log('User is not staff:', user.email);
+                showAccessDenied();
+            } else {
+                console.log('No user logged in, redirecting to main site');
+                window.location.href = 'index.html';
+            }
+        });
+
+        function showStaffDashboard(user) {
+            console.log('Showing staff dashboard for:', user.email);
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('accessDenied').style.display = 'none';
+            document.getElementById('staffDashboard').style.display = 'block';
+            
+            if (user.email) {
+                document.getElementById('staffAvatar').textContent = user.email[0].toUpperCase();
+            }
+            
+            initStaffDashboard();
+        }
+
+        function showAccessDenied() {
+            console.log('Showing access denied');
+            document.getElementById('loadingScreen').style.display = 'none';
+            document.getElementById('staffDashboard').style.display = 'none';
+            document.getElementById('accessDenied').style.display = 'flex';
+        }
+
+        function initStaffDashboard() {
+            console.log('Initializing staff dashboard');
+            
+            // Setup logout button
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                }).catch((error) => {
+                    console.error('Logout error:', error);
+                });
+            });
+
+            // Setup navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    console.log('🔄 Navigation clicked:', item.dataset.section);
+                    
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    const section = item.dataset.section;
+                    const sectionEl = document.getElementById(section);
+                    sectionEl.classList.add('active');
+                    
+                    // Also add 'visible' class to make animations work
+                    setTimeout(() => {
+                        sectionEl.classList.add('visible');
+                        sectionEl.querySelectorAll('.card, .fade-in, .slide-in').forEach(el => {
+                            el.classList.add('visible');
+                        });
+                    }, 50);
+                    
+                    document.getElementById('pageTitle').textContent = 
+                        section.charAt(0).toUpperCase() + section.slice(1);
+                    
+                    console.log('✅ Switched to section:', section);
+                });
+            });
+
+            document.getElementById('goToMainSite').addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+
+            // Listen to localStorage orders
+            listenToLocalStorageOrders();
+            
+            // Listen to Firebase orders
+            listenToFirebaseOrders();
+            
+            // Listen to chat sessions
+            listenToChats();
+
+            // Make sure the active section is visible
+            setTimeout(() => {
+                const activeSection = document.querySelector('.section.active');
+                if (activeSection) {
+                    activeSection.classList.add('visible');
+                    activeSection.querySelectorAll('.card, .fade-in, .slide-in').forEach(el => {
+                        el.classList.add('visible');
+                    });
+                }
+            }, 100);
+
+            console.log('Staff dashboard fully initialized');
+        }
+
+        // Listen to localStorage orders
+        function listenToLocalStorageOrders() {
+            function updateOrdersFromLocalStorage() {
+                try {
+                    const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+                    console.log('📦 Orders from localStorage:', orders.length, 'orders');
+                    if (orders.length > 0) {
+                        console.log('First order sample:', orders[0]);
+                    } else {
+                        console.log('ℹ️ No orders found. Place an order from the products page or click "Add Test Order"');
+                    }
+                    renderOrders(orders);
+                    updateStats(orders);
+                } catch (e) {
+                    console.error('❌ Error reading orders:', e);
+                }
+            }
+
+            // Initial load
+            console.log('🔄 Initializing order listener...');
+            updateOrdersFromLocalStorage();
+
+            // Listen to storage events (from other tabs)
+            window.addEventListener('storage', (e) => {
+                if (e.key === ORDERS_KEY) {
+                    console.log('🔔 Storage event detected for orders');
+                    updateOrdersFromLocalStorage();
+                }
+            });
+
+            // Listen to custom event (from same tab)
+            window.addEventListener('orders-updated', () => {
+                console.log('🔔 Orders updated event triggered');
+                updateOrdersFromLocalStorage();
+            });
+
+            // Poll every 2 seconds for changes
+            setInterval(updateOrdersFromLocalStorage, 2000);
+        }
+
+        // Listen to Firebase orders
+        function listenToFirebaseOrders() {
+            ordersListener = db.collection('orders')
+                .orderBy('timestamp', 'desc')
+                .limit(50)
+                .onSnapshot((snapshot) => {
+                    const orders = [];
+                    snapshot.forEach((doc) => {
+                        orders.push({ id: doc.id, ...doc.data() });
+                    });
+                    console.log('Firebase orders updated:', orders.length);
+                }, (error) => {
+                    console.error('Error listening to orders:', error);
+                });
+        }
+
+        function renderOrders(orders) {
+            console.log('🎨 renderOrders called with', orders.length, 'orders');
+            const container = document.getElementById('ordersContainer');
+            if (!container) {
+                console.error('❌ ordersContainer element not found!');
+                return;
+            }
+
+            if (orders.length === 0) {
+                console.log('ℹ️ No orders to display');
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🛒</div>
+                        <p>No orders yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const ordersHtml = orders.map(order => {
+                const statusClass = `status-${order.status || 'pending'}`;
+                const itemsHtml = (order.items || []).map(item => `
+                    <div class="order-item-row">
+                        <img src="${item.img || ''}" alt="${item.name}" class="order-item-img">
+                        <div class="order-item-details">
+                            <div class="order-item-name">${item.name}</div>
+                            <div class="order-item-qty">Qty: ${item.quantity || 1}</div>
+                        </div>
+                        <div class="order-item-price">₱${((item.price || 0) * (item.quantity || 1)).toFixed(2)}</div>
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="order-item">
+                        <div class="order-header">
+                            <div>
+                                <div class="order-id">${order.orderId || order.id}</div>
+                                <div class="order-customer">
+                                    ${order.customer?.fullName || 'Guest'} • ${order.customer?.contact || ''}
+                                </div>
+                                <div style="font-size: 1.2rem; color: #999;">
+                                    ${new Date(order.timestamp || order.created_at).toLocaleString()}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="order-status ${statusClass}">${(order.status || 'pending').toUpperCase()}</div>
+                                <div style="text-align: right; margin-top: 0.5rem;">
+                                    <strong>₱${(order.totals?.total || order.total || 0).toFixed(2)}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="order-items-list">${itemsHtml}</div>
+                        ${order.customer?.address ? `<div style="color: #666; margin-top: 1rem;">📍 ${order.customer.address}</div>` : ''}
+                        ${order.status !== 'cancelled' ? `
+                            <div class="order-actions">
+                                ${order.status === 'pending' || !order.status ? `
+                                    <button class="btn btn-sm btn-secondary" onclick="updateOrderStatus('${order.orderId || order.id}', 'ready')">Mark as Ready</button>
+                                ` : ''}
+                                ${order.status === 'ready' || order.status === 'pending' || !order.status ? `
+                                    <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.orderId || order.id}', 'completed')">Mark as Completed</button>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = ordersHtml;
+        }
+
+        function updateStats(orders) {
+            const totalOrders = orders.length;
+            const pendingOrders = orders.filter(o => o.status === 'pending' || !o.status).length;
+            const today = new Date().toDateString();
+            const completedToday = orders.filter(o => 
+                o.status === 'completed' && 
+                new Date(o.timestamp || o.created_at).toDateString() === today
+            ).length;
+
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('pendingOrders').textContent = pendingOrders;
+            document.getElementById('completedToday').textContent = completedToday;
+        }
+
+        window.updateOrderStatus = function(orderId, newStatus) {
+            try {
+                const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+                const orderIndex = orders.findIndex(o => (o.orderId || o.id) === orderId);
+                
+                if (orderIndex !== -1) {
+                    orders[orderIndex].status = newStatus;
+                    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+                    renderOrders(orders);
+                    updateStats(orders);
+                    
+                    // Trigger event for other listeners
+                    window.dispatchEvent(new Event('orders-updated'));
+                    
+                    alert(`Order ${orderId} updated to ${newStatus}`);
+                }
+            } catch (e) {
+                console.error('Error updating order:', e);
+            }
+        };
+
+        // Test function to add a sample order
+        window.addTestOrder = function() {
+            try {
+                const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+                const testOrder = {
+                    orderId: 'TEST' + Date.now(),
+                    timestamp: new Date().toISOString(),
+                    status: 'pending',
+                    customer: {
+                        fullName: 'Test Customer',
+                        contact: '09123456789',
+                        address: '123 Test Street, Test City',
+                        email: 'test@example.com'
+                    },
+                    items: [
+                        {
+                            name: 'Buffalo Wings',
+                            price: 130,
+                            quantity: 2,
+                            img: 'buff.jfif'
+                        },
+                        {
+                            name: 'Regular Fries',
+                            price: 49,
+                            quantity: 1,
+                            img: 'reg.jfif'
+                        }
+                    ],
+                    totals: {
+                        subtotal: 309,
+                        deliveryFee: 50,
+                        total: 359
+                    },
+                    paymentMethod: 'gcash'
+                };
+
+                orders.push(testOrder);
+                localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+                renderOrders(orders);
+                updateStats(orders);
+                alert('Test order added successfully!');
+            } catch (e) {
+                console.error('Error adding test order:', e);
+                alert('Error adding test order: ' + e.message);
+            }
+        };
+
+        // Listen to chat sessions
+        function listenToChats() {
+            console.log('🔄 Initializing chat listener...');
+            
+            // Firestore chat sessions
+            db.collection('chat_sessions')
+                .orderBy('lastActiveAt', 'desc')
+                .limit(20)
+                .onSnapshot((snapshot) => {
+                    const sessions = [];
+                    snapshot.forEach((doc) => {
+                        sessions.push({ id: doc.id, ...doc.data() });
+                    });
+                    console.log('💬 Chat sessions from Firestore:', sessions.length, 'sessions');
+                    if (sessions.length > 0) {
+                        console.log('First chat sample:', sessions[0]);
+                    } else {
+                        console.log('ℹ️ No chat sessions found. Chats will appear when customers request human support');
+                    }
+                    renderChats(sessions);
+                    document.getElementById('activeChats').textContent = sessions.filter(s => s.humanRequested).length;
+                }, (error) => {
+                    console.error('❌ Error listening to chats:', error);
+                });
+
+            // Realtime Database chat sessions
+            rtdb.ref('chat_sessions').orderByChild('lastActiveAt').limitToLast(20).on('value', (snapshot) => {
+                const sessions = [];
+                snapshot.forEach((childSnapshot) => {
+                    sessions.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+                sessions.reverse();
+                renderChatsFromRTDB(sessions);
+            });
+        }
+
+        function renderChats(sessions) {
+            const container = document.getElementById('chatsContainer');
+            if (!container) return;
+
+            if (sessions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💬</div>
+                        <p>No active chats</p>
+                    </div>
+                `;
+                return;
+            }
+
+            Promise.all(sessions.map(async session => {
+                const messagesSnapshot = await db.collection('chat_sessions')
+                    .doc(session.id)
+                    .collection('messages')
+                    .orderBy('at', 'desc')
+                    .limit(5)
+                    .get();
+                
+                const messages = [];
+                messagesSnapshot.forEach(doc => {
+                    messages.push(doc.data());
+                });
+                messages.reverse();
+
+                return { ...session, messages };
+            })).then(sessionsWithMessages => {
+                const chatsHtml = sessionsWithMessages.map(session => {
+                    const messagesHtml = (session.messages || []).map(msg => `
+                        <div class="chat-message ${msg.sender}">
+                            <strong>${msg.sender}:</strong> ${msg.text}
+                        </div>
+                    `).join('');
+
+                    return `
+                        <div class="chat-session-card">
+                            <div class="chat-session-header">
+                                <div>
+                                    <div class="chat-session-id">Session: ${session.id}</div>
+                                    <div class="chat-session-user">
+                                        ${session.userEmail || 'Anonymous'} 
+                                        ${session.userUid ? `(${session.userUid.slice(0, 8)}...)` : ''}
+                                    </div>
+                                    <div class="chat-session-time">
+                                        Last active: ${session.lastActiveAt ? new Date(session.lastActiveAt.toDate()).toLocaleString() : 'Unknown'}
+                                    </div>
+                                </div>
+                                ${session.humanRequested ? '<div class="chat-human-request">🚨 Human Requested</div>' : ''}
+                            </div>
+                            ${messagesHtml ? `<div class="chat-messages-preview">${messagesHtml}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                container.innerHTML = chatsHtml;
+            });
+        }
+
+        function renderChatsFromRTDB(sessions) {
+            const container = document.getElementById('chatsContainer');
+            if (!container || sessions.length === 0) return;
+
+            const chatsHtml = sessions.map(session => {
+                const messages = session.messages ? Object.values(session.messages).sort((a, b) => a.at - b.at).slice(-5) : [];
+                const messagesHtml = messages.map(msg => `
+                    <div class="chat-message ${msg.sender}">
+                        <strong>${msg.sender}:</strong> ${msg.text}
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="chat-session-card">
+                        <div class="chat-session-header">
+                            <div>
+                                <div class="chat-session-id">Session: ${session.id}</div>
+                                <div class="chat-session-user">
+                                    ${session.userEmail || 'Anonymous'} 
+                                    ${session.userUid ? `(${session.userUid.slice(0, 8)}...)` : ''}
+                                </div>
+                                <div class="chat-session-time">
+                                    Last active: ${session.lastActiveAt ? new Date(session.lastActiveAt).toLocaleString() : 'Unknown'}
+                                </div>
+                            </div>
+                            ${session.humanRequested ? '<div class="chat-human-request">🚨 Human Requested</div>' : ''}
+                        </div>
+                        ${messagesHtml ? `<div class="chat-messages-preview">${messagesHtml}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = chatsHtml;
+        }
+
+        // Timeout redirect if auth doesn't resolve
+        setTimeout(() => {
+            if (document.getElementById('loadingScreen').style.display !== 'none') {
+                console.log('Timeout reached, redirecting to main site');
+                window.location.href = 'index.html';
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

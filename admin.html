@@ -36,11 +36,17 @@
             font-size: 10px;
         }
 
+        html {
+            height: 100%;
+        }
+
         body {
             font-family: 'Ubuntu', sans-serif;
             background: var(--bg);
             color: var(--text);
             font-size: 1.4rem;
+            min-height: 100%;
+            position: relative;
         }
 
         /* Loading and Access Denied Screens */
@@ -99,13 +105,34 @@
             position: fixed;
             left: 0;
             top: 0;
+            bottom: 0;
             width: 250px;
-            height: 100vh;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            height: 100%;
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
             padding: 2rem 0;
             z-index: 1000;
             overflow-y: auto;
+            box-shadow: 4px 0 15px rgba(192, 57, 43, 0.3);
+        }
+
+        /* Custom scrollbar for sidebar */
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
 
         .logo {
@@ -163,11 +190,15 @@
             align-items: center;
             margin-bottom: 3rem;
             padding-bottom: 2rem;
-            border-bottom: 2px solid var(--border);
+            border-bottom: 3px solid var(--primary);
+            background: linear-gradient(to right, rgba(192, 57, 43, 0.05) 0%, transparent 100%);
+            padding: 2rem;
+            border-radius: 1rem;
         }
 
         .header h2 {
             font-size: 2.8rem;
+            color: var(--primary);
             color: var(--primary);
         }
 
@@ -216,6 +247,169 @@
             color: var(--primary);
         }
 
+        /* Analytics Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .analytics-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 0;
+        }
+
+        .revenue-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .revenue-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 0.5rem;
+        }
+
+        .revenue-label {
+            font-size: 1.4rem;
+            color: var(--text-light);
+        }
+
+        .revenue-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .product-rank-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .product-rank-item:last-child {
+            border-bottom: none;
+        }
+
+        .rank-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 40px;
+        }
+
+        .rank-medal {
+            font-size: 2.5rem;
+            min-width: 40px;
+        }
+
+        .product-rank-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+        }
+
+        .product-rank-info {
+            flex: 1;
+        }
+
+        .product-rank-name {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 1.4rem;
+        }
+
+        .product-rank-category {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .product-rank-sales {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+
+        .category-bar-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .category-bar-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-bar-name {
+            font-weight: 600;
+            font-size: 1.4rem;
+            color: var(--text);
+        }
+
+        .category-bar-count {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+
+        .category-bar {
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .category-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 5px;
+            transition: width 0.6s ease;
+        }
+
+        .recent-order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .recent-order-item:last-child {
+            border-bottom: none;
+        }
+
+        .recent-order-info {
+            flex: 1;
+        }
+
+        .recent-order-id {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 1.3rem;
+        }
+
+        .recent-order-customer {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .recent-order-total {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
         /* Sections */
         .section {
             display: none;
@@ -239,12 +433,18 @@
             align-items: center;
             margin-bottom: 2rem;
             padding-bottom: 1rem;
-            border-bottom: 2px solid var(--border);
+            border-bottom: 3px solid var(--primary);
+            background: linear-gradient(to right, rgba(192, 57, 43, 0.05) 0%, transparent 100%);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: -1rem -1rem 2rem -1rem;
+            padding: 1.5rem;
         }
 
         .card-title {
             font-size: 2rem;
             color: var(--primary);
+            font-weight: 700;
         }
 
         /* Order Items */
@@ -385,17 +585,26 @@
         }
 
         .chat-session-card {
-            background: #f8f8f8;
+            background: white;
             padding: 1.5rem;
             border-radius: 1rem;
-            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .chat-session-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(192, 57, 43, 0.15);
         }
 
         .chat-session-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(192, 57, 43, 0.1);
         }
 
         .chat-session-id {
@@ -423,29 +632,56 @@
         }
 
         .chat-messages-preview {
-            max-height: 200px;
+            max-height: 300px;
             overflow-y: auto;
             margin-top: 1rem;
             padding: 1rem;
-            background: white;
-            border-radius: 0.5rem;
+            background: linear-gradient(to bottom, rgba(192, 57, 43, 0.02) 0%, transparent 100%);
+            border-radius: 0.8rem;
+            border: 1px solid rgba(192, 57, 43, 0.1);
         }
 
         .chat-message {
-            padding: 0.5rem 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: 0.5rem;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 0.8rem;
+            border-radius: 0.8rem;
             font-size: 1.3rem;
+            border-left: 3px solid transparent;
         }
 
         .chat-message.bot {
-            background: #fff1cc;
-            color: #5b2c00;
+            background: #e8f4f8;
+            color: #2980b9;
+            border-left-color: #2980b9;
         }
 
         .chat-message.user {
-            background: #f3f3f3;
-            color: #222;
+            background: #e8f5e9;
+            color: #27ae60;
+            border-left-color: #27ae60;
+        }
+
+        .chat-message.admin {
+            background: #ffe8e8;
+            color: #c0392b;
+            border-left-color: #c0392b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .btn-sm {
+            padding: 0.6rem 1.2rem;
+            font-size: 1.2rem;
         }
 
         /* Products Grid */
@@ -480,6 +716,50 @@
             font-size: 1.1rem;
             font-weight: 600;
             z-index: 10;
+        }
+
+        /* Product Tags */
+        .product-tags {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .product-tag {
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .tag-bestseller {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .tag-popular {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .tag-new {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+
+        .tag-trending {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
         }
 
         .product-image {
@@ -618,16 +898,6 @@
             transform: translateY(0);
         }
 
-        .slide-in {
-            opacity: 0;
-            transform: translateX(-20px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-
-        .slide-in.visible {
-            opacity: 1;
-            transform: translateX(0);
-        }
 
         /* Override for sections and cards */
         .section {
@@ -737,11 +1007,64 @@
                         </div>
                     </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Recent Activity</h3>
+                    <!-- Analytics Section -->
+                    <div class="analytics-grid">
+                        <!-- Revenue Card -->
+                        <div class="card analytics-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Revenue Overview</h3>
+                            </div>
+                            <div class="revenue-stats">
+                                <div class="revenue-item">
+                                    <span class="revenue-label">Total Revenue</span>
+                                    <span class="revenue-value" id="totalRevenue">₱0.00</span>
+                                </div>
+                                <div class="revenue-item">
+                                    <span class="revenue-label">Today's Revenue</span>
+                                    <span class="revenue-value" id="todayRevenue">₱0.00</span>
+                                </div>
+                                <div class="revenue-item">
+                                    <span class="revenue-label">Average Order Value</span>
+                                    <span class="revenue-value" id="avgOrderValue">₱0.00</span>
+                                </div>
+                            </div>
                         </div>
-                        <p>Welcome to your admin dashboard! Here you can manage orders and customer chats in real-time.</p>
+
+                        <!-- Best Selling Products -->
+                        <div class="card analytics-card">
+                            <div class="card-header">
+                                <h3 class="card-title">🏆 Best Selling Products</h3>
+                            </div>
+                            <div id="bestSellingContainer">
+                                <div class="empty-state" style="padding: 2rem;">
+                                    <p style="font-size: 1.3rem; color: #999;">No orders yet</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Popular Categories -->
+                        <div class="card analytics-card">
+                            <div class="card-header">
+                                <h3 class="card-title">📊 Popular Categories</h3>
+                            </div>
+                            <div id="categoriesContainer">
+                                <div class="empty-state" style="padding: 2rem;">
+                                    <p style="font-size: 1.3rem; color: #999;">No orders yet</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Orders -->
+                        <div class="card analytics-card">
+                            <div class="card-header">
+                                <h3 class="card-title">Recent Orders</h3>
+                            </div>
+                            <div id="recentOrdersContainer">
+                                <div class="empty-state" style="padding: 2rem;">
+                                    <p style="font-size: 1.3rem; color: #999;">No orders yet</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -996,6 +1319,9 @@
                     }
                     renderOrders(orders);
                     updateStats(orders);
+                    
+                    // Update product tags and statistics in real-time
+                    updateProductTagsAndStats(orders);
                 } catch (e) {
                     console.error('❌ Error reading orders:', e);
                 }
@@ -1033,8 +1359,15 @@
                     snapshot.forEach((doc) => {
                         orders.push({ id: doc.id, ...doc.data() });
                     });
-                    console.log('Firebase orders updated:', orders.length);
-                    // You can merge with localStorage orders if needed
+                    console.log('🔥 Firebase orders updated:', orders.length);
+                    
+                    // Update localStorage with Firebase orders
+                    const localOrders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+                    const mergedOrders = [...orders, ...localOrders];
+                    
+                    // Update product tags and statistics in real-time
+                    updateProductTagsAndStats(mergedOrders);
+                    
                 }, (error) => {
                     console.error('Error listening to orders:', error);
                 });
@@ -1120,6 +1453,289 @@
             document.getElementById('totalOrders').textContent = totalOrders;
             document.getElementById('pendingOrders').textContent = pendingOrders;
             document.getElementById('completedToday').textContent = completedToday;
+
+            // Update analytics
+            updateAnalytics(orders);
+        }
+
+        // Update product tags and stats when orders change
+        function updateProductTagsAndStats(orders) {
+            console.log('🔄 Updating product tags and stats based on', orders.length, 'orders');
+            
+            // Get current products
+            let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
+            
+            // Calculate tags
+            products = calculateProductTags(orders);
+            
+            // Save updated products
+            localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
+            
+            // Re-render products if we're on the products section
+            const currentSection = document.querySelector('.nav-item.active')?.getAttribute('data-section');
+            if (currentSection === 'products') {
+                console.log('🎨 Re-rendering products with updated tags');
+                renderProducts(products);
+            }
+            
+            // Update analytics
+            updateAnalytics(orders);
+            
+            console.log('✅ Product tags and stats updated');
+        }
+
+        // Calculate and assign tags to products based on order statistics
+        function calculateProductTags(orders) {
+            const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
+            const productStats = {};
+
+            // Calculate statistics for each product
+            orders.forEach(order => {
+                (order.items || []).forEach(item => {
+                    const productName = item.name;
+                    if (!productStats[productName]) {
+                        productStats[productName] = {
+                            totalOrders: 0,
+                            totalQuantity: 0,
+                            totalRevenue: 0,
+                            lastOrderDate: null
+                        };
+                    }
+                    productStats[productName].totalOrders++;
+                    productStats[productName].totalQuantity += item.quantity || 1;
+                    productStats[productName].totalRevenue += (item.price || 0) * (item.quantity || 1);
+                    
+                    const orderDate = new Date(order.timestamp || order.created_at);
+                    if (!productStats[productName].lastOrderDate || orderDate > productStats[productName].lastOrderDate) {
+                        productStats[productName].lastOrderDate = orderDate;
+                    }
+                });
+            });
+
+            // Sort products by different metrics
+            const sortedByQuantity = Object.entries(productStats)
+                .sort(([, a], [, b]) => b.totalQuantity - a.totalQuantity);
+            
+            const sortedByRevenue = Object.entries(productStats)
+                .sort(([, a], [, b]) => b.totalRevenue - a.totalRevenue);
+
+            // Recent orders (last 30 days)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const recentStats = {};
+            
+            orders.filter(o => new Date(o.timestamp || o.created_at) >= thirtyDaysAgo).forEach(order => {
+                (order.items || []).forEach(item => {
+                    recentStats[item.name] = (recentStats[item.name] || 0) + (item.quantity || 1);
+                });
+            });
+
+            const sortedByRecent = Object.entries(recentStats)
+                .sort(([, a], [, b]) => b - a);
+
+            // Assign tags to products
+            products.forEach(product => {
+                product.tags = [];
+                
+                // Check if product was created in last 14 days
+                const productDate = product.createdAt ? new Date(product.createdAt) : null;
+                const fourteenDaysAgo = new Date();
+                fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+                
+                if (productDate && productDate >= fourteenDaysAgo) {
+                    product.tags.push({ type: 'new', label: '✨ New' });
+                }
+
+                // Best Seller - Top 3 by quantity
+                const topThreeByQuantity = sortedByQuantity.slice(0, 3).map(([name]) => name);
+                if (topThreeByQuantity.includes(product.name)) {
+                    product.tags.push({ type: 'bestseller', label: '🏆 Best Seller' });
+                }
+
+                // Popular - Top 5 by recent orders (but not already best seller)
+                const topFiveRecent = sortedByRecent.slice(0, 5).map(([name]) => name);
+                if (topFiveRecent.includes(product.name) && !topThreeByQuantity.includes(product.name)) {
+                    product.tags.push({ type: 'popular', label: '🔥 Popular' });
+                }
+
+                // Trending - High recent activity
+                if (recentStats[product.name] >= 5 && !product.tags.some(t => t.type === 'bestseller' || t.type === 'popular')) {
+                    product.tags.push({ type: 'trending', label: '📈 Trending' });
+                }
+
+                // Store statistics on product for reference
+                product.stats = productStats[product.name] || {
+                    totalOrders: 0,
+                    totalQuantity: 0,
+                    totalRevenue: 0
+                };
+            });
+
+            return products;
+        }
+
+        function updateAnalytics(orders) {
+            // Calculate revenue
+            const totalRevenue = orders.reduce((sum, order) => {
+                return sum + (order.totals?.total || order.total || 0);
+            }, 0);
+
+            const today = new Date().toDateString();
+            const todayRevenue = orders
+                .filter(o => new Date(o.timestamp || o.created_at).toDateString() === today)
+                .reduce((sum, order) => sum + (order.totals?.total || order.total || 0), 0);
+
+            const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
+
+            document.getElementById('totalRevenue').textContent = '₱' + totalRevenue.toFixed(2);
+            document.getElementById('todayRevenue').textContent = '₱' + todayRevenue.toFixed(2);
+            document.getElementById('avgOrderValue').textContent = '₱' + avgOrderValue.toFixed(2);
+
+            // Calculate best selling products
+            const productSales = {};
+            orders.forEach(order => {
+                (order.items || []).forEach(item => {
+                    const key = item.name;
+                    if (!productSales[key]) {
+                        productSales[key] = {
+                            name: item.name,
+                            quantity: 0,
+                            revenue: 0,
+                            img: item.img,
+                            category: item.category || 'unknown'
+                        };
+                    }
+                    productSales[key].quantity += item.quantity || 1;
+                    productSales[key].revenue += (item.price || 0) * (item.quantity || 1);
+                });
+            });
+
+            const sortedProducts = Object.values(productSales)
+                .sort((a, b) => b.quantity - a.quantity)
+                .slice(0, 5);
+
+            renderBestSelling(sortedProducts);
+
+            // Calculate category popularity
+            const categorySales = {};
+            orders.forEach(order => {
+                (order.items || []).forEach(item => {
+                    const category = getCategoryFromItem(item);
+                    if (!categorySales[category]) {
+                        categorySales[category] = 0;
+                    }
+                    categorySales[category] += item.quantity || 1;
+                });
+            });
+
+            renderCategories(categorySales);
+
+            // Show recent orders
+            const recentOrders = orders.slice(-5).reverse();
+            renderRecentOrders(recentOrders);
+        }
+
+        function getCategoryFromItem(item) {
+            // Try to determine category from item
+            if (item.category) return item.category;
+            
+            // Try to match from product name
+            const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
+            const matchedProduct = products.find(p => p.name === item.name);
+            return matchedProduct ? matchedProduct.category : 'other';
+        }
+
+        function renderBestSelling(products) {
+            const container = document.getElementById('bestSellingContainer');
+            if (!container) return;
+
+            if (products.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 2rem;">
+                        <p style="font-size: 1.3rem; color: #999;">No orders yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const medals = ['🥇', '🥈', '🥉'];
+            const html = products.map((product, index) => `
+                <div class="product-rank-item">
+                    ${index < 3 ? 
+                        `<span class="rank-medal">${medals[index]}</span>` : 
+                        `<span class="rank-number">${index + 1}</span>`
+                    }
+                    <img src="${product.img || 'https://via.placeholder.com/50'}" alt="${product.name}" class="product-rank-img" onerror="this.src='https://via.placeholder.com/50'">
+                    <div class="product-rank-info">
+                        <div class="product-rank-name">${product.name}</div>
+                        <div class="product-rank-category">${getCategoryName(product.category)}</div>
+                    </div>
+                    <div class="product-rank-sales">${product.quantity} sold</div>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+        }
+
+        function renderCategories(categorySales) {
+            const container = document.getElementById('categoriesContainer');
+            if (!container) return;
+
+            const categories = Object.entries(categorySales);
+            if (categories.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 2rem;">
+                        <p style="font-size: 1.3rem; color: #999;">No orders yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const maxCount = Math.max(...categories.map(([_, count]) => count));
+            const sortedCategories = categories.sort((a, b) => b[1] - a[1]);
+
+            const html = sortedCategories.map(([category, count]) => {
+                const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                return `
+                    <div class="category-bar-item">
+                        <div class="category-bar-header">
+                            <span class="category-bar-name">${getCategoryName(category)}</span>
+                            <span class="category-bar-count">${count} orders</span>
+                        </div>
+                        <div class="category-bar">
+                            <div class="category-bar-fill" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function renderRecentOrders(orders) {
+            const container = document.getElementById('recentOrdersContainer');
+            if (!container) return;
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 2rem;">
+                        <p style="font-size: 1.3rem; color: #999;">No orders yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = orders.map(order => `
+                <div class="recent-order-item">
+                    <div class="recent-order-info">
+                        <div class="recent-order-id">${order.orderId || order.id}</div>
+                        <div class="recent-order-customer">${order.customer?.fullName || 'Guest'}</div>
+                    </div>
+                    <div class="recent-order-total">₱${(order.totals?.total || order.total || 0).toFixed(2)}</div>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
         }
 
         window.updateOrderStatus = function(orderId, newStatus) {
@@ -1194,35 +1810,44 @@
         function listenToChats() {
             console.log('🔄 Initializing chat listener...');
             
-            // Firestore chat sessions
-            db.collection('chat_sessions')
-                .orderBy('lastActiveAt', 'desc')
-                .limit(20)
-                .onSnapshot((snapshot) => {
-                    const sessions = [];
-                    snapshot.forEach((doc) => {
-                        sessions.push({ id: doc.id, ...doc.data() });
-                    });
-                    console.log('💬 Chat sessions from Firestore:', sessions.length, 'sessions');
-                    if (sessions.length > 0) {
-                        console.log('First chat sample:', sessions[0]);
-                    } else {
-                        console.log('ℹ️ No chat sessions found. Chats will appear when customers request human support');
-                    }
-                    renderChats(sessions);
-                    document.getElementById('activeChats').textContent = sessions.filter(s => s.humanRequested).length;
-                }, (error) => {
-                    console.error('❌ Error listening to chats:', error);
-                });
-
-            // Realtime Database chat sessions
-            rtdb.ref('chat_sessions').orderByChild('lastActiveAt').limitToLast(20).on('value', (snapshot) => {
+            // Primary: Use Realtime Database for chat sessions (real-time sync)
+            rtdb.ref('chat_sessions').on('value', (snapshot) => {
                 const sessions = [];
-                snapshot.forEach((childSnapshot) => {
-                    sessions.push({ id: childSnapshot.key, ...childSnapshot.val() });
-                });
-                sessions.reverse(); // Most recent first
+                const data = snapshot.val();
+                
+                if (data) {
+                    Object.entries(data).forEach(([sessionId, sessionData]) => {
+                        sessions.push({
+                            id: sessionId,
+                            ...sessionData
+                        });
+                    });
+                    
+                    // Sort by lastActiveAt (most recent first)
+                    sessions.sort((a, b) => {
+                        const timeA = a.lastActiveAt || 0;
+                        const timeB = b.lastActiveAt || 0;
+                        return timeB - timeA;
+                    });
+                }
+                
+                console.log('💬 Chat sessions from Realtime Database:', sessions.length, 'sessions');
+                if (sessions.length > 0) {
+                    console.log('First chat sample:', sessions[0]);
+                } else {
+                    console.log('ℹ️ No chat sessions found. Chats will appear when customers use the chat feature');
+                }
+                
                 renderChatsFromRTDB(sessions);
+                
+                // Update active chats count
+                const activeCount = sessions.filter(s => s.humanRequested).length;
+                const activeChatsEl = document.getElementById('activeChats');
+                if (activeChatsEl) {
+                    activeChatsEl.textContent = activeCount;
+                }
+            }, (error) => {
+                console.error('❌ Error listening to Realtime Database chats:', error);
             });
         }
 
@@ -1289,34 +1914,87 @@
         }
 
         function renderChatsFromRTDB(sessions) {
-            // Alternative rendering from Realtime Database
             const container = document.getElementById('chatsContainer');
-            if (!container || sessions.length === 0) return;
+            if (!container) return;
+
+            if (sessions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💬</div>
+                        <p>No active chats</p>
+                        <p style="font-size: 1.2rem; color: #999; margin-top: 1rem;">Chat sessions will appear when customers use the chat feature</p>
+                    </div>
+                `;
+                return;
+            }
 
             const chatsHtml = sessions.map(session => {
-                const messages = session.messages ? Object.values(session.messages).sort((a, b) => a.at - b.at).slice(-5) : [];
+                // Get messages and sort by timestamp
+                const messages = session.messages ? 
+                    Object.values(session.messages)
+                        .sort((a, b) => a.at - b.at)
+                        .slice(-5) : [];
+                
                 const messagesHtml = messages.map(msg => `
                     <div class="chat-message ${msg.sender}">
-                        <strong>${msg.sender}:</strong> ${msg.text}
+                        <strong style="color: ${msg.sender === 'bot' ? '#2980b9' : msg.sender === 'user' ? '#27ae60' : '#c0392b'};">
+                            ${msg.sender === 'bot' ? '🤖 Bot' : msg.sender === 'user' ? '👤 Customer' : '👨‍💼 Admin'}:
+                        </strong> 
+                        ${msg.text}
+                        <div style="font-size: 1rem; color: #999; margin-top: 0.3rem;">
+                            ${msg.at ? new Date(msg.at).toLocaleTimeString() : ''}
+                        </div>
                     </div>
                 `).join('');
 
+                // Format last active time
+                let lastActiveText = 'Unknown';
+                if (session.lastActiveAt) {
+                    const lastActiveDate = new Date(session.lastActiveAt);
+                    const now = new Date();
+                    const diffMinutes = Math.floor((now - lastActiveDate) / (1000 * 60));
+                    
+                    if (diffMinutes < 1) {
+                        lastActiveText = 'Just now';
+                    } else if (diffMinutes < 60) {
+                        lastActiveText = `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago`;
+                    } else {
+                        lastActiveText = lastActiveDate.toLocaleString();
+                    }
+                }
+
                 return `
-                    <div class="chat-session-card">
+                    <div class="chat-session-card" style="border-left: 4px solid ${session.humanRequested ? 'var(--danger)' : 'var(--primary)'};">
                         <div class="chat-session-header">
                             <div>
-                                <div class="chat-session-id">Session: ${session.id}</div>
+                                <div class="chat-session-id">
+                                    <strong>Session:</strong> ${session.id.substring(0, 8)}...
+                                </div>
                                 <div class="chat-session-user">
-                                    ${session.userEmail || 'Anonymous'} 
-                                    ${session.userUid ? `(${session.userUid.slice(0, 8)}...)` : ''}
+                                    <strong>User:</strong> ${session.userEmail || 'Anonymous'} 
+                                    ${session.userUid ? `(ID: ${session.userUid.slice(0, 8)}...)` : ''}
                                 </div>
                                 <div class="chat-session-time">
-                                    Last active: ${session.lastActiveAt ? new Date(session.lastActiveAt).toLocaleString() : 'Unknown'}
+                                    <strong>Last active:</strong> ${lastActiveText}
+                                </div>
+                                ${messages.length > 0 ? `
+                                    <div style="margin-top: 0.5rem; color: #666; font-size: 1.2rem;">
+                                        💬 ${messages.length} message${messages.length > 1 ? 's' : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            ${session.humanRequested ? '<div class="chat-human-request">🚨 Human Support Requested</div>' : ''}
+                        </div>
+                        ${messagesHtml ? `
+                            <div class="chat-messages-preview">
+                                ${messagesHtml}
+                                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
+                                    <button class="btn btn-sm btn-primary" onclick="openChatWindow('${session.id}')">
+                                        💬 Open Full Chat
+                                    </button>
                                 </div>
                             </div>
-                            ${session.humanRequested ? '<div class="chat-human-request">🚨 Human Requested</div>' : ''}
-                        </div>
-                        ${messagesHtml ? `<div class="chat-messages-preview">${messagesHtml}</div>` : ''}
+                        ` : '<p style="color: #999; padding: 1rem;">No messages yet</p>'}
                     </div>
                 `;
             }).join('');
@@ -1324,22 +2002,42 @@
             container.innerHTML = chatsHtml;
         }
 
+        // Function to open full chat window (placeholder for future implementation)
+        window.openChatWindow = function(sessionId) {
+            alert(`Opening full chat for session: ${sessionId}\n\nFull chat interface coming soon!`);
+            console.log('Opening chat session:', sessionId);
+            // Future: Open a modal or new page with full chat interface
+        };
+
         // ========== PRODUCT MANAGEMENT ==========
         function loadProducts() {
             console.log('🔄 Loading products...');
             try {
-                const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || getDefaultProducts();
+                let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || getDefaultProducts();
                 console.log('📦 Products loaded:', products.length, 'products');
                 
                 if (!localStorage.getItem(PRODUCTS_KEY)) {
                     console.log('💾 Initializing localStorage with default products');
+                    // Add createdAt timestamp to default products
+                    products = products.map(p => ({
+                        ...p,
+                        createdAt: p.createdAt || new Date().toISOString()
+                    }));
                     localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
                 }
+                
+                // Calculate tags based on order statistics
+                const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+                console.log('📊 Calculating product tags based on', orders.length, 'orders');
+                products = calculateProductTags(orders);
+                
+                // Update localStorage with tagged products
+                localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
                 
                 console.log('🎨 Rendering products...');
                 renderProducts(products);
                 updateProductCount(products.length);
-                console.log('✅ Products rendered successfully');
+                console.log('✅ Products rendered successfully with tags');
             } catch (e) {
                 console.error('❌ Error loading products:', e);
             }
@@ -1419,33 +2117,49 @@
             }
 
             console.log('📝 Generating HTML for products...');
-            const productsHtml = products.map(product => `
-                <div class="product-card card-animate fade-in">
-                    <img src="${product.img || 'https://via.placeholder.com/300x200?text=No+Image'}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
-                    ${product.bestSeller ? '<div class="badge">Best Seller</div>' : ''}
-                    <h3 class="product-name">${product.name}</h3>
-                    <div class="product-price">₱${parseFloat(product.price).toFixed(2)}</div>
-                    <span class="product-category">${getCategoryName(product.category)}</span>
-                    <p style="font-size: 1.3rem; color: #666; margin-bottom: 1rem;">${product.description || ''}</p>
-                    <div class="product-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="editProduct('${product.id}')">Edit</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}', '${product.name}')">Delete</button>
+            const productsHtml = products.map(product => {
+                // Generate tags HTML
+                const tagsHtml = product.tags && product.tags.length > 0 
+                    ? `<div class="product-tags">
+                        ${product.tags.map(tag => `
+                            <span class="product-tag tag-${tag.type}">${tag.label}</span>
+                        `).join('')}
+                    </div>`
+                    : '';
+
+                // Generate stats badge if available
+                const statsHtml = product.stats && product.stats.totalQuantity > 0
+                    ? `<div class="badge" style="background: rgba(0,0,0,0.7);">📊 ${product.stats.totalQuantity} sold</div>`
+                    : '';
+
+                return `
+                    <div class="product-card card-animate">
+                        <img src="${product.img || 'https://via.placeholder.com/300x200?text=No+Image'}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                        ${tagsHtml}
+                        ${statsHtml}
+                        <h3 class="product-name">${product.name}</h3>
+                        <div class="product-price">₱${parseFloat(product.price).toFixed(2)}</div>
+                        <span class="product-category">${getCategoryName(product.category)}</span>
+                        <p style="font-size: 1.3rem; color: #666; margin-bottom: 1rem;">${product.description || ''}</p>
+                        ${product.stats && product.stats.totalRevenue > 0 ? `
+                            <div style="font-size: 1.2rem; color: #27ae60; margin-bottom: 1rem; font-weight: 600;">
+                                💰 Total Revenue: ₱${product.stats.totalRevenue.toFixed(2)}
+                            </div>
+                        ` : ''}
+                        <div class="product-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editProduct('${product.id}')">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}', '${product.name}')">Delete</button>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
             console.log('📄 Generated HTML length:', productsHtml.length, 'characters');
             container.innerHTML = productsHtml;
             console.log('✅ Products HTML inserted into container');
             
             // Add 'visible' class to dynamically generated product cards so they appear
-            setTimeout(() => {
-                const cards = document.querySelectorAll('.product-card.fade-in');
-                console.log('🎭 Making', cards.length, 'product cards visible');
-                cards.forEach(card => {
-                    card.classList.add('visible');
-                });
-            }, 50);
+            // No fade-in effect; products appear instantly
         }
 
         function getCategoryName(category) {

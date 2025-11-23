@@ -279,6 +279,50 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
+    /* Product Tags */
+    .product-tags {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 10;
+    }
+
+    .product-tag {
+      padding: 0.5rem 1.2rem;
+      border-radius: 2rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .tag-bestseller {
+      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+      color: white;
+    }
+
+    .tag-popular {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      color: white;
+    }
+
+    .tag-new {
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      color: white;
+    }
+
+    .tag-trending {
+      background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+      color: white;
+    }
+
     .badge.new {
       background-color: #4CAF50;
       color: white;
@@ -1350,7 +1394,48 @@ For inquiries: contact@easylunch.com
     }
 
     // Hamburger menu toggle for mobile
+    // Add dynamic product tags based on order statistics
+    function addProductTags() {
+      const PRODUCTS_KEY = 'easy_lunch_products_v1';
+      const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
+      
+      // For each product card, check if it has tags in localStorage
+      document.querySelectorAll('.product-card').forEach(card => {
+        const productName = card.getAttribute('data-name');
+        const product = products.find(p => p.name === productName);
+        
+        if (product && product.tags && product.tags.length > 0) {
+          // Remove existing badge if tags exist
+          const existingBadge = card.querySelector('.badge');
+          
+          // Create tags container
+          const tagsContainer = document.createElement('div');
+          tagsContainer.className = 'product-tags';
+          
+          product.tags.forEach(tag => {
+            const tagEl = document.createElement('span');
+            tagEl.className = `product-tag tag-${tag.type}`;
+            tagEl.textContent = tag.label;
+            tagsContainer.appendChild(tagEl);
+          });
+          
+          // Insert tags at the beginning of the card
+          card.insertBefore(tagsContainer, card.firstChild);
+          
+          // Optionally hide old badge if we have tags
+          if (existingBadge && product.tags.some(t => t.type === 'bestseller')) {
+            existingBadge.style.display = 'none';
+          }
+        }
+      });
+      
+      console.log('✨ Product tags loaded from localStorage');
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+      // Load product tags
+      addProductTags();
+      
       var hamburger = document.getElementById('hamburgerBtn');
       var navMenu = document.getElementById('navMenu');
       function isMobile() {

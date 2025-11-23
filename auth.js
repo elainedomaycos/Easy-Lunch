@@ -7,12 +7,18 @@
     return (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
   }
 
-  // Admin configuration
+  // Admin and Staff configuration
   const ADMIN_EMAIL = "domaycoselaine@gmail.com";
+  const STAFF_EMAIL = "domaycoscollege@gmail.com";
 
   // Check if user is admin
   function isAdminUser(user) {
     return user && user.email === ADMIN_EMAIL;
+  }
+
+  // Check if user is staff
+  function isStaffUser(user) {
+    return user && user.email === STAFF_EMAIL;
   }
 
   // UI helpers
@@ -154,9 +160,22 @@
   // Firebase auth implementation
   async function signIn(email, password) {
     if (!firebase || !firebase.auth) throw new Error('Firebase not loaded');
-    await firebase.auth().signInWithEmailAndPassword(email, password);
-    // Optionally redirect to account page after login (only from home/product pages)
-    // Users can navigate back if they want
+    const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+    const user = userCredential.user;
+    
+    // Redirect admin to admin dashboard
+    if (user && user.email === ADMIN_EMAIL) {
+      setTimeout(() => {
+        window.location.href = 'admin.html';
+      }, 500);
+    }
+    // Redirect staff to staff dashboard
+    else if (user && user.email === STAFF_EMAIL) {
+      setTimeout(() => {
+        window.location.href = 'staff.html';
+      }, 500);
+    }
+    // Regular users stay on current page or can navigate normally
   }
   async function signUp(email, password) {
     if (!firebase || !firebase.auth) throw new Error('Firebase not loaded');
@@ -183,14 +202,42 @@
   }
   async function signInWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    await firebase.auth().signInWithPopup(provider);
+    const userCredential = await firebase.auth().signInWithPopup(provider);
+    const user = userCredential.user;
+    
+    // Redirect admin to admin dashboard
+    if (user && user.email === ADMIN_EMAIL) {
+      setTimeout(() => {
+        window.location.href = 'admin.html';
+      }, 500);
+    }
+    // Redirect staff to staff dashboard
+    else if (user && user.email === STAFF_EMAIL) {
+      setTimeout(() => {
+        window.location.href = 'staff.html';
+      }, 500);
+    }
   }
   async function signInWithApple() {
     // Apple requires configuring Services ID and authorized domains in Firebase Console.
     const provider = new firebase.auth.OAuthProvider('apple.com');
     provider.addScope('email');
     provider.addScope('name');
-    await firebase.auth().signInWithPopup(provider);
+    const userCredential = await firebase.auth().signInWithPopup(provider);
+    const user = userCredential.user;
+    
+    // Redirect admin to admin dashboard
+    if (user && user.email === ADMIN_EMAIL) {
+      setTimeout(() => {
+        window.location.href = 'admin.html';
+      }, 500);
+    }
+    // Redirect staff to staff dashboard
+    else if (user && user.email === STAFF_EMAIL) {
+      setTimeout(() => {
+        window.location.href = 'staff.html';
+      }, 500);
+    }
   }
   async function sendPasswordReset(email) {
     if (!firebase || !firebase.auth) throw new Error('Firebase not loaded');
@@ -230,6 +277,7 @@
     
     const user = getCurrentUser();
     const isAdmin = isAdminUser(user);
+    const isStaff = isStaffUser(user);
     
     menu = document.createElement('div');
     menu.id = 'userMenu';
@@ -238,6 +286,7 @@
     menu.innerHTML = `
       <button type="button" class="user-menu-item" id="myAccountBtn">My Account</button>
       ${isAdmin ? '<button type="button" class="user-menu-item" id="adminBtn">Admin Dashboard</button>' : ''}
+      ${isStaff ? '<button type="button" class="user-menu-item" id="staffBtn">Staff Dashboard</button>' : ''}
       <button type="button" class="user-menu-item" id="signOutBtn">Sign out</button>
     `;
     document.body.appendChild(menu);
@@ -252,6 +301,13 @@
       document.getElementById('adminBtn').addEventListener('click', () => {
         hideUserMenu();
         window.location.href = 'admin.html';
+      });
+    }
+
+    if (isStaff) {
+      document.getElementById('staffBtn').addEventListener('click', () => {
+        hideUserMenu();
+        window.location.href = 'staff.html';
       });
     }
 

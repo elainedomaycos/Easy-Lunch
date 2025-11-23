@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy Lunch - Staff Registration</title>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu:400,600,700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Ubuntu', sans-serif;
+            background: linear-gradient(135deg, #2980b9 0%, #1a5490 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: white;
+            padding: 4rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2980b9;
+            margin-bottom: 1rem;
+            font-size: 2.8rem;
+        }
+
+        p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 3rem;
+            font-size: 1.4rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 600;
+            font-size: 1.4rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: 0.5rem;
+            font-size: 1.4rem;
+            font-family: 'Ubuntu', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2980b9;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1.5rem;
+            background: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1.6rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-bottom: 1rem;
+        }
+
+        .btn:hover {
+            background: #1a5490;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .message {
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            font-size: 1.3rem;
+            color: #004085;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍗 Easy Lunch</h1>
+        <p>Staff Account Registration</p>
+
+        <div class="info-box">
+            <strong>Staff Credentials:</strong>
+            Email: domaycoscollege@gmail.com<br>
+            Password: staff123
+        </div>
+
+        <div id="message"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" value="domaycoscollege@gmail.com" readonly>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" value="staff123" readonly>
+            </div>
+            <button type="submit" class="btn">Create Staff Account</button>
+        </form>
+
+        <button class="btn btn-secondary" onclick="window.location.href='staff.html'">Go to Staff Dashboard</button>
+    </div>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1gn5zMy8sKJUfLc-vqOMkhDfR1s_2gAg",
+            authDomain: "easy-lunch-368cf.firebaseapp.com",
+            projectId: "easy-lunch-368cf",
+            storageBucket: "easy-lunch-368cf.firebasestorage.app",
+            messagingSenderId: "494805181477",
+            appId: "1:494805181477:web:cb96df42879af6ccd08bcc"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+
+            try {
+                messageDiv.innerHTML = '<div class="message">Creating account...</div>';
+                
+                // Create the staff user
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                
+                messageDiv.innerHTML = '<div class="message success">✅ Staff account created successfully!</div>';
+                console.log('Staff user created:', userCredential.user);
+                
+                // Auto redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = 'staff.html';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error creating staff account:', error);
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    messageDiv.innerHTML = '<div class="message success">✅ Staff account already exists! You can proceed to login.</div>';
+                    setTimeout(() => {
+                        window.location.href = 'staff.html';
+                    }, 2000);
+                } else {
+                    messageDiv.innerHTML = `<div class="message error">❌ Error: ${error.message}</div>`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
