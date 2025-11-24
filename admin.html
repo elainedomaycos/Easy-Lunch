@@ -767,28 +767,33 @@
             background: rgba(0,0,0,0.6);
             z-index: 2000;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
+            overflow-y: auto;
+            padding: 1rem 0;
         }
 
         .product-modal-content {
             background: white;
-            padding: 3rem;
             border-radius: 1rem;
             width: 90%;
             max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
+            max-height: calc(100vh - 2rem);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin: 0 auto;
         }
 
         .product-modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            padding: 2rem 2.5rem 1.5rem;
+            flex-shrink: 0;
         }
 
         .product-modal-title {
-            font-size: 2.4rem;
+            font-size: 2.2rem;
             color: var(--primary);
         }
 
@@ -800,8 +805,21 @@
             color: var(--text-light);
         }
 
+        #productForm {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .form-scroll-area {
+            overflow-y: auto;
+            padding: 0 2.5rem;
+            flex: 1;
+        }
+
         .form-group {
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-group label {
@@ -831,6 +849,11 @@
             display: flex;
             gap: 1rem;
             justify-content: flex-end;
+            padding: 1.5rem 2.5rem;
+            background: white;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+            margin-top: auto;
         }
 
         .btn-cancel {
@@ -888,6 +911,55 @@
         .card.visible {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        /* Responsive styles for product modal */
+        @media (max-width: 768px) {
+            .product-modal-content {
+                width: 95%;
+                max-height: 95vh;
+            }
+
+            .product-modal-header {
+                padding: 2rem 2rem 1.5rem;
+            }
+
+            .form-scroll-area {
+                padding: 0 2rem;
+            }
+
+            .form-actions {
+                padding: 1.5rem 2rem;
+            }
+
+            .product-modal-title {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-modal-content {
+                width: 100%;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+
+            .product-modal-header {
+                padding: 1.5rem;
+            }
+
+            .form-scroll-area {
+                padding: 0 1.5rem;
+            }
+
+            .form-actions {
+                padding: 1.5rem;
+                flex-direction: column;
+            }
+
+            .form-actions button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -1097,40 +1169,42 @@
                 <button class="close-modal" id="closeProductModal">&times;</button>
             </div>
             <form id="productForm">
-                <input type="hidden" id="productId">
-                <div class="form-group">
-                    <label for="productName">Product Name *</label>
-                    <input type="text" id="productName" required>
-                </div>
-                <div class="form-group">
-                    <label for="productPrice">Price (₱) *</label>
-                    <input type="number" id="productPrice" step="0.01" min="0" required>
-                </div>
-                <div class="form-group">
-                    <label for="productCategory">Category *</label>
-                    <select id="productCategory" required>
-                        <option value="">Select Category</option>
-                        <option value="wings">Chicken Wings</option>
-                        <option value="pizza">Pizza</option>
-                        <option value="burgers">Burgers</option>
-                        <option value="sides">Sides</option>
-                        <option value="drinks">Drinks</option>
-                        <option value="combo">Combo Meals</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="productDescription">Description</label>
-                    <textarea id="productDescription"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="productImage">Image URL</label>
-                    <input type="text" id="productImage" placeholder="e.g., buff.jfif">
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="productBestSeller">
-                        Best Seller
-                    </label>
+                <div class="form-scroll-area">
+                    <input type="hidden" id="productId">
+                    <div class="form-group">
+                        <label for="productName">Product Name *</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">Price (₱) *</label>
+                        <input type="number" id="productPrice" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Category *</label>
+                        <select id="productCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="wings">Chicken Wings</option>
+                            <option value="pizza">Pizza</option>
+                            <option value="burgers">Burgers</option>
+                            <option value="sides">Sides</option>
+                            <option value="drinks">Drinks</option>
+                            <option value="combo">Combo Meals</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="productDescription">Description</label>
+                        <textarea id="productDescription"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="productImage">Image URL</label>
+                        <input type="text" id="productImage" placeholder="e.g., buff.jfif">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="productBestSeller">
+                            Best Seller
+                        </label>
+                    </div>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-cancel" id="cancelProductBtn">Cancel</button>

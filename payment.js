@@ -266,6 +266,12 @@
     const cart = loadCart();
     const inputs = document.querySelectorAll('.checkout-section input');
     
+    // Get current user from Firebase Auth
+    let userUid = null, userEmail = '';
+    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+      userUid = firebase.auth().currentUser.uid;
+      userEmail = firebase.auth().currentUser.email;
+    }
     const orderData = {
       orderId: 'EL' + Date.now(),
       timestamp: new Date().toISOString(),
@@ -273,7 +279,7 @@
         fullName: inputs[0]?.value?.trim() || '',
         address: inputs[1]?.value?.trim() || '',
         contact: inputs[2]?.value?.trim() || '',
-        email: inputs[3]?.value?.trim() || ''
+        email: inputs[3]?.value?.trim() || userEmail
       },
       items: cart,
       totals: {
@@ -287,9 +293,10 @@
         reference: reference,
         status: paymentMethod === 'paypal' ? 'paid' : (paymentMethod === 'cod' ? 'pending' : 'awaiting_verification')
       },
-      status: 'pending'
+      status: 'pending',
+      userUid,
+      userEmail
     };
-    
     return orderData;
   }
 
@@ -315,6 +322,10 @@
       
       // Trigger custom event for same-tab listeners
       window.dispatchEvent(new Event('orders-updated'));
+      // If account page is open, reload order history
+      if (window.loadUserOrders) {
+        try { window.loadUserOrders({ email: orderData.userEmail, uid: orderData.userUid }); } catch(e) {}
+      }
       
       return { success: true };
     } catch(e) {
@@ -331,51 +342,57 @@
       if(result.success) {
         orderData.firebaseId = result.id;
       }
+      // Debug log: show orderData after saving
+      console.log('Order placed:', orderData);
+      // If account page is open, reload order history
+      if (window.loadUserOrders) {
+        try { window.loadUserOrders({ email: orderData.userEmail, uid: orderData.userUid }); } catch(e) { console.error('Order history reload error:', e); }
+      }
     });
-    
+
     saveOrderToLocalStorage(orderData);
-    
+
     // Clear cart
     clearCart();
     renderCart();
-    
+
     // Close checkout modal
     const checkoutModal = document.getElementById('checkoutModal');
     if(checkoutModal) {
       checkoutModal.style.display = 'none';
       document.body.style.overflow = 'auto';
     }
-    
+
     // Show confirmation modal
     const confirmationModal = document.getElementById('confirmationModal');
     if(confirmationModal) {
       confirmationModal.style.display = 'flex';
-      
+
       // Update order info
       const orderInfoBar = confirmationModal.querySelector('.order-info-bar');
       if(orderInfoBar) {
         // Clear existing dynamic info
         const dynamicInfo = orderInfoBar.querySelectorAll('div:not(:first-child):not(:last-child)');
         dynamicInfo.forEach(el => el.remove());
-        
+
         // Add payment info
         const paymentDiv = document.createElement('div');
         paymentDiv.innerHTML = `<strong>Payment:</strong> ${paymentMethod.toUpperCase()}`;
         orderInfoBar.insertBefore(paymentDiv, orderInfoBar.lastElementChild);
-        
+
         if(reference) {
           const refDiv = document.createElement('div');
           refDiv.innerHTML = `<strong>Ref:</strong> ${reference}`;
           orderInfoBar.insertBefore(refDiv, orderInfoBar.lastElementChild);
         }
-        
+
         // Update order ID
         const orderIdDiv = orderInfoBar.querySelector('div:first-child');
         if(orderIdDiv) {
           orderIdDiv.innerHTML = `<strong>Order ID:</strong> ${orderData.orderId}`;
         }
       }
-      
+
       // Update order items
       updateConfirmationItems(orderData.items, orderData.totals);
     }
@@ -495,7 +512,10 @@
     
     if(!placeOrderBtn) return;
     
-    placeOrderBtn.addEventListener('click', function() {
+    placeOrderBtn.addEventListener('click', function(e) {
+      // Prevent default behavior
+      e.preventDefault();
+      
       // Double-check cart isn't empty
       const cart = loadCart();
       if(cart.length === 0) {
@@ -508,9 +528,30 @@
       const address = inputs[1]?.value?.trim();
       const contact = inputs[2]?.value?.trim();
       
-      // Validate delivery info
-      if(!fullName || !address || !contact) {
-        alert('Please complete your delivery information.');
+      // Strict validation for delivery info with specific error messages
+      if(!fullName || fullName.length < 2) {
+        alert('Please enter your full name (at least 2 characters).');
+        inputs[0]?.focus();
+        return;
+      }
+      
+      if(!address || address.length < 10) {
+        alert('Please enter a complete delivery address (at least 10 characters).');
+        inputs[1]?.focus();
+        return;
+      }
+      
+      if(!contact || contact.length < 10) {
+        alert('Please enter a valid contact number (at least 10 digits).');
+        inputs[2]?.focus();
+        return;
+      }
+      
+      // Validate contact number format (must contain numbers)
+      const contactDigits = contact.replace(/\D/g, '');
+      if(contactDigits.length < 10) {
+        alert('Please enter a valid contact number with at least 10 digits.');
+        inputs[2]?.focus();
         return;
       }
       
@@ -519,38 +560,116 @@
       const selectedMethod = Array.from(methodRadios).find(r => r.checked);
       
       if(!selectedMethod) {
-        alert('Please select a payment method.');
+        alert('Please select a payment method before placing your order.');
         return;
       }
       
       const method = selectedMethod.value;
       
-      // Handle different payment methods
+      // Handle different payment methods with strict validation
       if(method === 'gcash') {
         // Legacy manual reference flow (if input present)
         const gcashRefInput = document.getElementById('gcashRef');
-        if(gcashRefInput && gcashRefInput.value.trim()) {
-          completeOrder('gcash', gcashRefInput.value.trim());
+        const gcashRefValue = gcashRefInput?.value?.trim();
+        
+        if(gcashRefValue && gcashRefValue.length >= 6) {
+          completeOrder('gcash', gcashRefValue);
         } else if(paymongoBtn) {
           // Encourage using secure flow
           alert('Use the "Pay with GCash (Secure)" button to proceed with online payment.');
           return;
         } else {
-          alert('GCash reference required or use secure payment button.');
+          alert('GCash reference number required (at least 6 characters) or use secure payment button.');
+          gcashRefInput?.focus();
           return;
         }
       } else if(method === 'bank') {
-        const bankRef = document.getElementById('bankRef')?.value?.trim();
-        if(!bankRef) {
-          alert('Please enter your Bank Transfer Reference Number.');
+        const bankRefInput = document.getElementById('bankRef');
+        const bankRef = bankRefInput?.value?.trim();
+        
+        if(!bankRef || bankRef.length < 6) {
+          alert('Please enter a valid Bank Transfer Reference Number (at least 6 characters).');
+          bankRefInput?.focus();
           return;
         }
         completeOrder('bank', bankRef);
       } else if(method === 'cod') {
+        // COD requires no additional fields but confirm the order
         completeOrder('cod');
       } else if(method === 'paypal') {
         alert('Please use the PayPal button below to complete payment.');
+        return;
+      } else {
+        alert('Invalid payment method selected. Please choose a valid payment option.');
+        return;
       }
+    });
+  }
+
+  // ========== REAL-TIME VALIDATION ==========
+  function addInputValidation() {
+    const inputs = document.querySelectorAll('.checkout-section input[type="text"]');
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    
+    // Add validation styling
+    const style = document.createElement('style');
+    style.textContent = `
+      .checkout-section input.invalid {
+        border-color: #e74c3c !important;
+        background-color: #fee !important;
+      }
+      .checkout-section input.valid {
+        border-color: #27ae60 !important;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Validate individual input
+    function validateInput(input, index) {
+      const value = input.value.trim();
+      let isValid = false;
+      
+      if(index === 0) { // Full Name
+        isValid = value.length >= 2;
+      } else if(index === 1) { // Address
+        isValid = value.length >= 10;
+      } else if(index === 2) { // Contact
+        const digits = value.replace(/\D/g, '');
+        isValid = digits.length >= 10;
+      }
+      
+      if(value.length > 0) {
+        input.classList.toggle('invalid', !isValid);
+        input.classList.toggle('valid', isValid);
+      } else {
+        input.classList.remove('invalid', 'valid');
+      }
+      
+      return isValid;
+    }
+    
+    // Validate all inputs
+    function validateAllInputs() {
+      let allValid = true;
+      inputs.forEach((input, index) => {
+        if(!validateInput(input, index)) {
+          allValid = false;
+        }
+      });
+      return allValid;
+    }
+    
+    // Add input listeners
+    inputs.forEach((input, index) => {
+      input.addEventListener('input', () => {
+        validateInput(input, index);
+      });
+      
+      input.addEventListener('blur', () => {
+        if(input.value.trim().length > 0) {
+          validateInput(input, index);
+        }
+      });
     });
   }
 
@@ -559,6 +678,7 @@
     renderCart();
     initPaymentMethods();
     initCheckout();
+    addInputValidation();
 
     // If returning from PayMongo (GCash) redirect
     const urlParams = new URLSearchParams(window.location.search);

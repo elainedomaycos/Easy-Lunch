@@ -506,16 +506,15 @@
             transform: translateY(0);
         }
 
-        .slide-in {
-            opacity: 0;
-            transform: translateX(-20px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-        }
-
-        .slide-in.visible {
-            opacity: 1;
-            transform: translateX(0);
-        }
+    .fade-in {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+    .fade-in.visible {
+      opacity: 1 !important;
+      transform: none !important;
+    }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -704,7 +703,6 @@
     </div>
 
     <script src="chat.js"></script>
-    <script src="account.js"></script>
 
     <script>
         // Account Page Logic - account.js
@@ -929,6 +927,14 @@
         </div>
       `).join('');
 
+      // Cancel button logic with 'cancel in process' state
+      let cancelBtnHtml = '';
+      if (status === 'cancel_in_process') {
+        cancelBtnHtml = `<button class="cancel-btn" disabled>Cancel in process...</button>`;
+      } else if (status !== 'completed' && status !== 'cancelled') {
+        cancelBtnHtml = `<button class="cancel-btn" onclick="window.cancelOrder('${order.orderId || order.id}', this)">Cancel Order</button>`;
+      }
+
       return `
         <div class="order-card card-animate fade-in">
           <div class="order-header">
@@ -936,48 +942,61 @@
               <div class="order-id">${order.orderId || order.id}</div>
               <div class="order-date">${date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
             </div>
-            <span class="order-status ${statusClass}">${status.toUpperCase()}</span>
+            <span class="order-status ${statusClass}">${status === 'cancel_in_process' ? 'CANCEL IN PROCESS' : status.toUpperCase()}</span>
           </div>
-          
           <div class="order-items">${itemsHtml}</div>
-          
           <div class="order-footer">
             <div class="order-total">Total: ₱${(order.totals?.total || order.total || 0).toFixed(2)}</div>
             <div class="order-actions">
-              ${status !== 'completed' && status !== 'cancelled' ? `<button class="track-btn" onclick="window.trackOrder('${order.orderId || order.id}')">Track Order</button>` : ''}
+              ${status !== 'completed' && status !== 'cancelled' && status !== 'cancel_in_process' ? `<button class="track-btn" onclick="window.trackOrder('${order.orderId || order.id}')">Track Order</button>` : ''}
               <button class="reorder-btn" onclick="window.reorderItems('${order.orderId || order.id}')">Order Again</button>
-              ${status !== 'completed' && status !== 'cancelled' ? `<button class="cancel-btn" onclick="window.cancelOrder('${order.orderId || order.id}')">Cancel Order</button>` : ''}
+              ${cancelBtnHtml}
             </div>
           </div>
         </div>
       `;
   // Cancel Order logic
-  window.cancelOrder = async function(orderId) {
+  window.cancelOrder = async function(orderId, btn) {
     if (!confirm('Are you sure you want to cancel this order?')) return;
-    // Update order status in localStorage
+    btn.disabled = true;
+    btn.textContent = 'Cancel in process...';
+    // Update order status to 'cancel_in_process' in localStorage
     const orders = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
     const idx = orders.findIndex(o => (o.orderId || o.id) === orderId);
     if (idx === -1) {
       alert('Order not found.');
+      btn.disabled = false;
+      btn.textContent = 'Cancel Order';
       return;
     }
     if (orders[idx].status === 'completed' || orders[idx].status === 'cancelled') {
       alert('This order cannot be cancelled.');
+      btn.disabled = false;
+      btn.textContent = 'Cancel Order';
       return;
     }
-    orders[idx].status = 'cancelled';
+    orders[idx].status = 'cancel_in_process';
     localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
     userOrders = orders;
     renderOrders(userOrders);
-    // Sync to Firebase if order has firebaseId
-    if (orders[idx].firebaseId) {
-      try {
-        await firebase.firestore().collection('orders').doc(orders[idx].firebaseId).update({ status: 'cancelled' });
-      } catch (e) {
-        console.error('Failed to update order in Firebase:', e);
+    // Simulate async cancel process
+    setTimeout(async () => {
+      orders[idx].status = 'cancelled';
+      localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+      userOrders = orders;
+      renderOrders(userOrders);
+      // Sync to Firebase if order has firebaseId
+      if (orders[idx].firebaseId) {
+        try {
+          await firebase.firestore().collection('orders').doc(orders[idx].firebaseId).update({ status: 'cancelled' });
+        } catch (e) {
+          console.error('Failed to update order in Firebase:', e);
+        }
       }
-    }
-    alert('Order cancelled.');
+      btn.disabled = false;
+      btn.textContent = 'Cancelled';
+      alert('Order cancelled.');
+    }, 1500);
   }
     }).join('');
 
@@ -985,95 +1004,112 @@
   }
 
   // ========== ORDER TRACKING ==========
-  function loadOrderTracking() {
+  function loadOrderTracking(orderId) {
     const container = document.getElementById('trackingContainer');
     if (!container) return;
 
-    // Find active orders (not completed)
-    const activeOrders = userOrders.filter(o => o.status !== 'completed');
+    // If no orderId, show all active orders with buttons
+    if (!orderId) {
+      const activeOrders = userOrders.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+      if (activeOrders.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🚚</div>
+            <p class="empty-text">No active orders to track</p>
+            <a href="product.html" class="browse-btn">Order Now</a>
+          </div>
+        `;
+        return;
+      }
+      container.innerHTML = activeOrders.map(order => `
+        <div class="tracking-list-card">
+          <div class="tracking-list-header">
+            <div><strong>Order:</strong> ${order.orderId || order.id}</div>
+            <div><strong>Status:</strong> ${order.status.toUpperCase()}</div>
+          </div>
+          <button class="track-btn" onclick="window.trackOrder('${order.orderId || order.id}')">Track This Order</button>
+        </div>
+      `).join('');
+      return;
+    }
 
-    if (activeOrders.length === 0) {
+    // Find the order by ID
+    const order = userOrders.find(o => (o.orderId || o.id) === orderId);
+    if (!order) {
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">🚚</div>
-          <p class="empty-text">No active orders to track</p>
+          <p class="empty-text">Order not found or already completed</p>
           <a href="product.html" class="browse-btn">Order Now</a>
         </div>
       `;
       return;
     }
 
-    const trackingHtml = activeOrders.map(order => {
-      const status = order.status || 'pending';
-      const orderTime = new Date(order.timestamp || order.created_at);
-      const now = new Date();
-      const estimatedDelivery = new Date(orderTime.getTime() + 45 * 60000); // 45 minutes
+    const status = order.status || 'pending';
+    const orderTime = new Date(order.timestamp || order.created_at);
+    const estimatedDelivery = new Date(orderTime.getTime() + 45 * 60000); // 45 minutes
 
-      return `
-        <div class="tracking-info">
-          <div class="tracking-header">
-            <div class="tracking-id">Order: ${order.orderId || order.id}</div>
-            <div class="tracking-status">Status: ${status.toUpperCase()}</div>
-          </div>
-
-          <div class="tracking-timeline">
-            <div class="tracking-step completed">
-              <div class="tracking-dot"></div>
-              <div class="tracking-title">Order Placed</div>
-              <div class="tracking-time">${orderTime.toLocaleString()}</div>
-            </div>
-
-            <div class="tracking-step ${status === 'confirmed' || status === 'ready' || status === 'out_for_delivery' ? 'completed' : status === 'pending' ? 'active' : ''}">
-              <div class="tracking-dot"></div>
-              <div class="tracking-title">Order Confirmed</div>
-              <div class="tracking-time">${status === 'pending' ? 'Processing...' : 'Confirmed'}</div>
-            </div>
-
-            <div class="tracking-step ${status === 'ready' || status === 'out_for_delivery' ? 'completed' : status === 'confirmed' ? 'active' : ''}">
-              <div class="tracking-dot"></div>
-              <div class="tracking-title">Preparing Your Food</div>
-              <div class="tracking-time">${status === 'ready' || status === 'out_for_delivery' ? 'Ready!' : status === 'confirmed' ? 'Cooking...' : 'Waiting'}</div>
-            </div>
-
-            <div class="tracking-step ${status === 'out_for_delivery' ? 'active' : ''}">
-              <div class="tracking-dot"></div>
-              <div class="tracking-title">Out for Delivery</div>
-              <div class="tracking-time">${status === 'out_for_delivery' ? 'On the way!' : 'Not yet'}</div>
-            </div>
-
-            <div class="tracking-step">
-              <div class="tracking-dot"></div>
-              <div class="tracking-title">Delivered</div>
-              <div class="tracking-time">Estimated: ${estimatedDelivery.toLocaleTimeString()}</div>
-            </div>
-          </div>
-
-          ${order.customer?.address ? `
-            <div style="margin-top: 2rem; padding: 1.5rem; background: white; border-radius: 1rem;">
-              <strong style="display: block; margin-bottom: 0.5rem;">Delivery Address:</strong>
-              <p style="color: #6e6e6e;">${order.customer.address}</p>
-            </div>
-          ` : ''}
+    const trackingHtml = `
+      <div class="tracking-info">
+        <div class="tracking-header">
+          <div class="tracking-id">Order: ${order.orderId || order.id}</div>
+          <div class="tracking-status">Status: ${status.toUpperCase()}</div>
         </div>
-      `;
-    }).join('');
+
+        <div class="tracking-timeline">
+          <div class="tracking-step completed">
+            <div class="tracking-dot"></div>
+            <div class="tracking-title">Order Placed</div>
+            <div class="tracking-time">${orderTime.toLocaleString()}</div>
+          </div>
+
+          <div class="tracking-step ${status === 'confirmed' || status === 'ready' || status === 'out_for_delivery' ? 'completed' : status === 'pending' ? 'active' : ''}">
+            <div class="tracking-dot"></div>
+            <div class="tracking-title">Order Confirmed</div>
+            <div class="tracking-time">${status === 'pending' ? 'Processing...' : 'Confirmed'}</div>
+          </div>
+
+          <div class="tracking-step ${status === 'ready' || status === 'out_for_delivery' ? 'completed' : status === 'confirmed' ? 'active' : ''}">
+            <div class="tracking-dot"></div>
+            <div class="tracking-title">Preparing Your Food</div>
+            <div class="tracking-time">${status === 'ready' || status === 'out_for_delivery' ? 'Ready!' : status === 'confirmed' ? 'Cooking...' : 'Waiting'}</div>
+          </div>
+
+          <div class="tracking-step ${status === 'out_for_delivery' ? 'active' : ''}">
+            <div class="tracking-dot"></div>
+            <div class="tracking-title">Out for Delivery</div>
+            <div class="tracking-time">${status === 'out_for_delivery' ? 'On the way!' : 'Not yet'}</div>
+          </div>
+
+          <div class="tracking-step">
+            <div class="tracking-dot"></div>
+            <div class="tracking-title">Delivered</div>
+            <div class="tracking-time">Estimated: ${estimatedDelivery.toLocaleTimeString()}</div>
+          </div>
+        </div>
+
+        ${order.customer?.address ? `
+          <div style="margin-top: 2rem; padding: 1.5rem; background: white; border-radius: 1rem;">
+            <strong style="display: block; margin-bottom: 0.5rem;">Delivery Address:</strong>
+            <p style="color: #6e6e6e;">${order.customer.address}</p>
+          </div>
+        ` : ''}
+      </div>
+    `;
 
     container.innerHTML = trackingHtml;
   }
 
   // ========== GLOBAL FUNCTIONS ==========
   window.trackOrder = function(orderId) {
-    // Switch to tracking section
-    document.querySelectorAll('.account-nav-item').forEach(item => item.classList.remove('active'));
-    document.querySelectorAll('.account-section').forEach(section => section.classList.remove('active'));
-    
-    document.querySelector('[data-section="tracking"]').classList.add('active');
-    document.getElementById('tracking').classList.add('active');
-    
-    loadOrderTracking();
-    
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Switch to tracking section
+  document.querySelectorAll('.account-nav-item').forEach(item => item.classList.remove('active'));
+  document.querySelectorAll('.account-section').forEach(section => section.classList.remove('active'));
+  document.querySelector('[data-section="tracking"]').classList.add('active');
+  document.getElementById('tracking').classList.add('active');
+  loadOrderTracking(orderId || null);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   window.reorderItems = function(orderId) {
@@ -1115,17 +1151,19 @@
     navItems.forEach(item => {
       item.addEventListener('click', () => {
         const section = item.dataset.section;
-        
+
         // Update active states
         navItems.forEach(i => i.classList.remove('active'));
         item.classList.add('active');
-        
+
         document.querySelectorAll('.account-section').forEach(s => s.classList.remove('active'));
         document.getElementById(section).classList.add('active');
-        
+
         // Load section-specific data
         if (section === 'orders') {
+          // Always force show orders
           renderOrders(userOrders);
+          document.getElementById('ordersContainer').style.display = 'block';
         } else if (section === 'tracking') {
           loadOrderTracking();
         }

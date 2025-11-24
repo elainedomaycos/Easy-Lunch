@@ -155,13 +155,7 @@
           document.body.style.overflow = "auto";
         });
 
-        // Checkout -> Confirmation
-        placeOrderBtn.addEventListener("click", () => {
-          checkoutModal.classList.remove("active");
-          checkoutModal.style.display = "none";
-          confirmationModal.classList.add("active");
-          confirmationModal.style.display = "flex";
-        });
+        // Note: Place Order button is handled in payment.js with full validation
 
         // Close Confirmation Modal
         closeConfirmation.addEventListener("click", () => {

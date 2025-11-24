@@ -70,6 +70,7 @@
       sendInvoiceEmail(toEmail, invoiceText);
     });
   </script>
+  <script defer src="config.js"></script>
   <script defer src="auth.js"></script>
   <script defer src="chat.js"></script>
   <script defer src="https://www.paypal.com/sdk/js?client-id=AbPwfLlPjLyG41Tmn0Zf34rfdT4pj9ddG_P6FX3yEPSLXrlRD6p1gVhiwcNRrZRNWudfVHV8IqAnYLLb&currency=PHP"></script>
@@ -985,10 +986,17 @@
       <h2 class="checkout-title">Checkout</h2>
       <div class="checkout-section">
   <h3>Delivery Information</h3>
-  <input type="text" placeholder="Full Name">
-  <input type="text" placeholder="Address">
-  <input type="text" placeholder="Contact Number">
+  <input type="text" placeholder="Full Name *" required minlength="2">
+  <input type="text" placeholder="Address *" required minlength="10">
+  <input type="text" placeholder="Contact Number *" required minlength="10">
   <input type="email" placeholder="Email Address" id="customerEmail" required style="margin-top: 0.5rem;">
+  <div class="security-note">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      <path d="M9 12l2 2 4-4"></path>
+    </svg>
+    <span>Your information is secure and will only be used for delivery purposes. We never share your personal data.</span>
+  </div>
       </div>
       <div class="checkout-section">
         <h3>Payment Method</h3>
@@ -1032,7 +1040,39 @@
         <hr>
         <div class="summary-total"><span>Total</span><span>₱30</span></div>
       </div>
+      
+      <div class="trust-badges">
+        <div class="trust-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>Fast Delivery</span>
+        </div>
+        <div class="trust-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <span>Secure Payment</span>
+        </div>
+        <div class="trust-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Privacy Protected</span>
+        </div>
+        <div class="trust-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>100% Satisfaction</span>
+        </div>
+      </div>
+      
       <button id="placeOrderBtn" class="place-order-btn">Place Order</button>
+      <p class="order-note">By placing an order, you agree to our terms of service and confirm that all information provided is accurate.</p>
     </div>
   </div>
 

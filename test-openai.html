@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #c0392b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #a02a20;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            border-left: 4px solid #27ae60;
+        }
+        .error {
+            border-left: 4px solid #e74c3c;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 OpenAI Integration Test</h1>
+    
+    <div class="test-section">
+        <h3>1. Check Configuration</h3>
+        <button onclick="testConfig()">Test Config</button>
+        <div id="configResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Test OpenAI API</h3>
+        <input type="text" id="testMessage" placeholder="Enter a test message" value="Hello, how are you?">
+        <button onclick="testOpenAI()">Send to OpenAI</button>
+        <div id="apiResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Browser Console</h3>
+        <p>Open your browser console (F12) to see detailed logs.</p>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="chat.js"></script>
+    
+    <script>
+        function testConfig() {
+            const resultDiv = document.getElementById('configResult');
+            resultDiv.style.display = 'block';
+            
+            let result = 'Configuration Check:\n\n';
+            
+            if (window.OPENAI_CONFIG) {
+                result += '✅ window.OPENAI_CONFIG exists\n';
+                result += `✅ API Key: ${window.OPENAI_CONFIG.apiKey ? 'Set' : 'Missing'}\n`;
+                if (window.OPENAI_CONFIG.apiKey) {
+                    result += `   Key starts with: ${window.OPENAI_CONFIG.apiKey.substring(0, 10)}...\n`;
+                    result += `   Key length: ${window.OPENAI_CONFIG.apiKey.length} characters\n`;
+                }
+                result += `✅ Model: ${window.OPENAI_CONFIG.model || 'Not set'}\n`;
+                result += `✅ Max Tokens: ${window.OPENAI_CONFIG.maxTokens || 'Not set'}\n`;
+                
+                if (typeof window.sendMessageToOpenAI === 'function') {
+                    result += '✅ sendMessageToOpenAI function is available\n';
+                } else {
+                    result += '❌ sendMessageToOpenAI function is NOT available\n';
+                }
+                
+                resultDiv.className = 'result success';
+            } else {
+                result += '❌ window.OPENAI_CONFIG is missing!\n';
+                result += 'Make sure config.js is loaded.\n';
+                resultDiv.className = 'result error';
+            }
+            
+            resultDiv.textContent = result;
+        }
+        
+        async function testOpenAI() {
+            const resultDiv = document.getElementById('apiResult');
+            const message = document.getElementById('testMessage').value;
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Sending request to OpenAI...\n';
+            resultDiv.className = 'result';
+            
+            try {
+                if (!window.sendMessageToOpenAI) {
+                    throw new Error('sendMessageToOpenAI function not found. Make sure chat.js is loaded.');
+                }
+                
+                const reply = await window.sendMessageToOpenAI(message);
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ Success!\n\nYour message: "${message}"\n\nAI Response:\n"${reply}"`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Error:\n\n${error.message}\n\nCheck the browser console (F12) for more details.`;
+                console.error('Test error:', error);
+            }
+        }
+        
+        // Auto-test config on load
+        window.addEventListener('load', () => {
+            setTimeout(testConfig, 500);
+        });
+    </script>
+</body>
+</html>
