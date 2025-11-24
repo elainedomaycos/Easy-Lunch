@@ -364,7 +364,7 @@ body {
 
 .tagline {
     color: #c0392b;
-    font-size: 1.6rem;
+    font-size: 1.9rem;
     font-weight: 600;
     margin-bottom: 1rem;
     text-transform: uppercase;
@@ -372,7 +372,7 @@ body {
 }
 
 .hero-title {
-    font-size: 5rem;
+    font-size: 7rem;
     font-weight: 700;
     color: #333;
     margin-bottom: 2rem;
@@ -380,7 +380,7 @@ body {
 }
 
 .hero-description {
-    font-size: 1.8rem;
+    font-size: 2rem;
     color: #6e6e6e;
     margin-bottom: 2rem;
     line-height: 1.6;
