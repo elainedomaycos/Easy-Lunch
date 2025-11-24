@@ -27,7 +27,6 @@
         }
     </script>
     <script defer src="auth.js"></script>
-    <script defer src="firestore-orders.js"></script>
     <script defer src="chat.js"></script>
     <script defer src="https://www.paypal.com/sdk/js?client-id=AbPwfLlPjLyG41Tmn0Zf34rfdT4pj9ddG_P6FX3yEPSLXrlRD6p1gVhiwcNRrZRNWudfVHV8IqAnYLLb&currency=PHP"></script>
     <script defer src="payment.js"></script>
@@ -51,36 +50,11 @@
                     </div>
                     
                     <ul class="nav-center">
-                        <li class="nav-item nav-home">
-                            <a href="#hero" class="nav-link" data-section="menu">
-                                <span class="nav-icon" aria-label="Home" style="display:none;"><svg width="24" height="24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span>
-                                <span class="nav-text">HOME</span>
-                            </a>
-                        </li>
-                        <li class="nav-item nav-products">
-                            <a href="product.html" class="nav-link" data-section="products">
-                                <span class="nav-icon" aria-label="Products" style="display:none;"><svg width="24" height="24" fill="currentColor"><path d="M12 2l-5.5 9h11zM2 13h20v9H2z"/></svg></span>
-                                <span class="nav-text">PRODUCTS</span>
-                            </a>
-                        </li>
-                        <li class="nav-item nav-about">
-                            <a href="about-us.html" class="nav-link" data-section="story">
-                                <span class="nav-icon" aria-label="About" style="display:none;"><svg width="24" height="24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></span>
-                                <span class="nav-text">ABOUT US</span>
-                            </a>
-                        </li>
-                        <li class="nav-item nav-ratings">
-                            <a href="#testimony" class="nav-link" data-section="about">
-                                <span class="nav-icon" aria-label="Ratings" style="display:none;"><svg width="24" height="24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span>
-                                <span class="nav-text">RATINGS</span>
-                            </a>
-                        </li>
-                        <li class="nav-item nav-contact">
-                            <a href="#contact" class="nav-link" data-section="contact">
-                                <span class="nav-icon" aria-label="Contact" style="display:none;"><svg width="24" height="24" fill="currentColor"><path d="M21 8V7l-3 2.29V8c0-1.1-.9-2-2-2H8C6.9 6 6 6.9 6 8v8c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2v-1.29L21 17v-1l-3-2.29V16c0 1.1-.9 2-2 2H8c-1.1 0-2-.9-2-2V8c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v1.29L21 8z"/></svg></span>
-                                <span class="nav-text">CONTACT US</span>
-                            </a>
-                        </li>
+                        <li><a href="#hero" class="nav-link" data-section="menu">HOME</a></li>
+                        <li><a href="product.html" class="nav-link" data-section="products">PRODUCTS</a></li>
+                        <li><a href="about-us.html" class="nav-link" data-section="story">ABOUT US</a></li>
+                        <li><a href="#testimony" class="nav-link" data-section="about">RATINGS</a></li>
+                        <li><a href="#contact" class="nav-link" data-section="contact">CONTACT US</a></li>
                     </ul>
                     
                     <div class="nav-right">
@@ -102,12 +76,6 @@
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                             </svg>
-                        </div>
-                        <div class="account-dropdown" id="accountDropdown" style="display:none; position:absolute; top:60px; right:0; background:white; border-radius:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.12); min-width:180px; z-index:999;">
-                            <ul style="list-style:none; margin:0; padding:1rem;">
-                                <li><a href="account.html" style="display:block; padding:0.8rem 1rem; color:#c0392b; font-weight:600; text-decoration:none;">My Account</a></li>
-                                <li><a href="#" id="logoutBtn" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Logout</a></li>
-                            </ul>
                         </div>
                     </div>
                 </div>
@@ -708,22 +676,6 @@
       document.addEventListener('DOMContentLoaded', loadRecommendationsIndex);
 
       // ========== INVOICE DOWNLOAD FOR INDEX.HTML ==========
-        // ========== FADE-IN ON SCROLL ========== 
-        document.addEventListener('DOMContentLoaded', function() {
-          const fadeEls = document.querySelectorAll('.fade-in');
-          const observer = new IntersectionObserver((entries, obs) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                obs.unobserve(entry.target);
-              }
-            });
-          }, { threshold: 0.15 });
-          fadeEls.forEach(el => {
-            el.classList.remove('visible');
-            observer.observe(el);
-          });
-        });
       document.getElementById('downloadInvoiceBtnIndex')?.addEventListener('click', () => {
         // Get the last order from localStorage
         const orders = JSON.parse(localStorage.getItem('easy_lunch_orders_v1') || '[]');
@@ -874,19 +826,5 @@ For inquiries: contact@easylunch.com
         })();
     </script>
     
-    <script>
-// Responsive navbar icons for mobile
-function updateNavbarIcons() {
-    var isMobile = window.innerWidth <= 768;
-    document.querySelectorAll('.nav-icon').forEach(function(icon) {
-        icon.style.display = isMobile ? 'inline-block' : 'none';
-    });
-    document.querySelectorAll('.nav-text').forEach(function(text) {
-        text.style.display = isMobile ? 'none' : 'inline';
-    });
-}
-window.addEventListener('resize', updateNavbarIcons);
-document.addEventListener('DOMContentLoaded', updateNavbarIcons);
-</script>
   </body>
 </html>

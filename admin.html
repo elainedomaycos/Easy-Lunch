@@ -10,7 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script defer src="firestore-orders.js"></script>
     
     <style>
         :root {
@@ -719,50 +718,6 @@
             z-index: 10;
         }
 
-        /* Product Tags */
-        .product-tags {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            z-index: 10;
-        }
-
-        .product-tag {
-            padding: 0.4rem 1rem;
-            border-radius: 2rem;
-            font-size: 1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .tag-bestseller {
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-            color: white;
-        }
-
-        .tag-popular {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            color: white;
-        }
-
-        .tag-new {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            color: white;
-        }
-
-        .tag-trending {
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-            color: white;
-        }
-
         .product-image {
             width: 100%;
             height: 180px;
@@ -899,6 +854,16 @@
             transform: translateY(0);
         }
 
+        .slide-in {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .slide-in.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
 
         /* Override for sections and cards */
         .section {
@@ -1280,8 +1245,11 @@
                 window.location.href = 'index.html';
             });
 
-            // Listen to Firestore orders in real-time
+            // Listen to localStorage orders (from payment.js)
             listenToLocalStorageOrders();
+            
+            // Listen to Firebase orders (if you decide to save them there too)
+            listenToFirebaseOrders();
             
             // Listen to chat sessions
             listenToChats();
@@ -1304,63 +1272,62 @@
             console.log('Admin dashboard fully initialized');
         }
 
-        // Listen to Firestore orders in real-time
-        let firestoreUnsubscribe = null;
-        
+        // Listen to localStorage orders
         function listenToLocalStorageOrders() {
-            console.log('🔄 Setting up Firestore real-time listener for orders...');
-            
-            // Use the firestore-orders.js function for real-time updates
-            if (typeof window.listenToAllOrders === 'function') {
-                firestoreUnsubscribe = window.listenToAllOrders((orders) => {
-                    console.log(`📦 Admin received ${orders.length} orders from Firestore`);
-                    
-                    // Sync to localStorage for backup
-                    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
-                    
-                    // Update UI and analytics
-                    renderOrders(orders);
-                    updateStats(orders);
-                    updateProductTagsAndStats(orders);
-                });
-            } else {
-                console.warn('⚠️ Firestore orders module not loaded, falling back to localStorage');
-                fallbackToLocalStorage();
-            }
-        }
-        
-        // Fallback to localStorage if Firestore is not available
-        function fallbackToLocalStorage() {
             function updateOrdersFromLocalStorage() {
                 try {
                     const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
                     console.log('📦 Orders from localStorage:', orders.length, 'orders');
+                    if (orders.length > 0) {
+                        console.log('First order sample:', orders[0]);
+                    } else {
+                        console.log('ℹ️ No orders found. Place an order from the products page or click "Add Test Order"');
+                    }
                     renderOrders(orders);
                     updateStats(orders);
-                    updateProductTagsAndStats(orders);
                 } catch (e) {
                     console.error('❌ Error reading orders:', e);
                 }
             }
 
+            // Initial load
+            console.log('🔄 Initializing order listener...');
             updateOrdersFromLocalStorage();
+
+            // Listen to storage events (from other tabs)
             window.addEventListener('storage', (e) => {
-                if (e.key === ORDERS_KEY) updateOrdersFromLocalStorage();
+                if (e.key === ORDERS_KEY) {
+                    console.log('🔔 Storage event detected for orders');
+                    updateOrdersFromLocalStorage();
+                }
             });
-            window.addEventListener('orders-updated', updateOrdersFromLocalStorage);
+
+            // Listen to custom event (from same tab)
+            window.addEventListener('orders-updated', () => {
+                console.log('🔔 Orders updated event triggered');
+                updateOrdersFromLocalStorage();
+            });
+
+            // Poll every 2 seconds for changes
             setInterval(updateOrdersFromLocalStorage, 2000);
         }
-        
-        // Clean up listener on page unload
-        window.addEventListener('beforeunload', () => {
-            if (firestoreUnsubscribe) {
-                firestoreUnsubscribe();
-            }
-        });
 
-        // Note: listenToFirebaseOrders() has been removed
-        // We now use listenToLocalStorageOrders() which calls window.listenToAllOrders()
-        // from firestore-orders.js for proper real-time Firestore updates
+        // Listen to Firebase orders
+        function listenToFirebaseOrders() {
+            ordersListener = db.collection('orders')
+                .orderBy('timestamp', 'desc')
+                .limit(50)
+                .onSnapshot((snapshot) => {
+                    const orders = [];
+                    snapshot.forEach((doc) => {
+                        orders.push({ id: doc.id, ...doc.data() });
+                    });
+                    console.log('Firebase orders updated:', orders.length);
+                    // You can merge with localStorage orders if needed
+                }, (error) => {
+                    console.error('Error listening to orders:', error);
+                });
+        }
 
         function renderOrders(orders) {
             console.log('renderOrders called with', orders.length, 'orders');
@@ -1417,10 +1384,10 @@
                         ${order.customer?.address ? `<div style="color: #666; margin-top: 1rem;">📍 ${order.customer.address}</div>` : ''}
                         <div class="order-actions">
                             ${order.status === 'pending' || !order.status ? `
-                                <button class="btn btn-sm btn-secondary" onclick="updateOrderStatus('${order.id}', 'ready')">Mark as Ready</button>
+                                <button class="btn btn-sm btn-secondary" onclick="updateOrderStatus('${order.orderId || order.id}', 'ready')">Mark as Ready</button>
                             ` : ''}
                             ${order.status === 'ready' || order.status === 'pending' || !order.status ? `
-                                <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.id}', 'completed')">Mark as Completed</button>
+                                <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.orderId || order.id}', 'completed')">Mark as Completed</button>
                             ` : ''}
                         </div>
                     </div>
@@ -1445,122 +1412,6 @@
 
             // Update analytics
             updateAnalytics(orders);
-        }
-
-        // Update product tags and stats when orders change
-        function updateProductTagsAndStats(orders) {
-            console.log('🔄 Updating product tags and stats based on', orders.length, 'orders');
-            
-            // Get current products
-            let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
-            
-            // Calculate tags
-            products = calculateProductTags(orders);
-            
-            // Save updated products
-            localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
-            
-            // Re-render products if we're on the products section
-            const currentSection = document.querySelector('.nav-item.active')?.getAttribute('data-section');
-            if (currentSection === 'products') {
-                console.log('🎨 Re-rendering products with updated tags');
-                renderProducts(products);
-            }
-            
-            // Update analytics
-            updateAnalytics(orders);
-            
-            console.log('✅ Product tags and stats updated');
-        }
-
-        // Calculate and assign tags to products based on order statistics
-        function calculateProductTags(orders) {
-            const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
-            const productStats = {};
-
-            // Calculate statistics for each product
-            orders.forEach(order => {
-                (order.items || []).forEach(item => {
-                    const productName = item.name;
-                    if (!productStats[productName]) {
-                        productStats[productName] = {
-                            totalOrders: 0,
-                            totalQuantity: 0,
-                            totalRevenue: 0,
-                            lastOrderDate: null
-                        };
-                    }
-                    productStats[productName].totalOrders++;
-                    productStats[productName].totalQuantity += item.quantity || 1;
-                    productStats[productName].totalRevenue += (item.price || 0) * (item.quantity || 1);
-                    
-                    const orderDate = new Date(order.timestamp || order.created_at);
-                    if (!productStats[productName].lastOrderDate || orderDate > productStats[productName].lastOrderDate) {
-                        productStats[productName].lastOrderDate = orderDate;
-                    }
-                });
-            });
-
-            // Sort products by different metrics
-            const sortedByQuantity = Object.entries(productStats)
-                .sort(([, a], [, b]) => b.totalQuantity - a.totalQuantity);
-            
-            const sortedByRevenue = Object.entries(productStats)
-                .sort(([, a], [, b]) => b.totalRevenue - a.totalRevenue);
-
-            // Recent orders (last 30 days)
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            const recentStats = {};
-            
-            orders.filter(o => new Date(o.timestamp || o.created_at) >= thirtyDaysAgo).forEach(order => {
-                (order.items || []).forEach(item => {
-                    recentStats[item.name] = (recentStats[item.name] || 0) + (item.quantity || 1);
-                });
-            });
-
-            const sortedByRecent = Object.entries(recentStats)
-                .sort(([, a], [, b]) => b - a);
-
-            // Assign tags to products
-            products.forEach(product => {
-                product.tags = [];
-                
-                // Check if product was created in last 14 days
-                const productDate = product.createdAt ? new Date(product.createdAt) : null;
-                const fourteenDaysAgo = new Date();
-                fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-                
-                if (productDate && productDate >= fourteenDaysAgo) {
-                    product.tags.push({ type: 'new', label: '✨ New' });
-                }
-
-                // Best Seller - Top 3 by quantity
-                const topThreeByQuantity = sortedByQuantity.slice(0, 3).map(([name]) => name);
-                if (topThreeByQuantity.includes(product.name)) {
-                    product.tags.push({ type: 'bestseller', label: '🏆 Best Seller' });
-                }
-
-                // Popular - Top 5 by recent orders (but not already best seller)
-                const topFiveRecent = sortedByRecent.slice(0, 5).map(([name]) => name);
-                if (topFiveRecent.includes(product.name) && !topThreeByQuantity.includes(product.name)) {
-                    product.tags.push({ type: 'popular', label: '🔥 Popular' });
-                }
-
-                // Trending - High recent activity
-                if (recentStats[product.name] >= 5 && !product.tags.some(t => t.type === 'bestseller' || t.type === 'popular')) {
-                    product.tags.push({ type: 'trending', label: '📈 Trending' });
-                }
-
-                // Store statistics on product for reference
-                product.stats = productStats[product.name] || {
-                    totalOrders: 0,
-                    totalQuantity: 0,
-                    totalRevenue: 0
-                };
-            });
-
-            return products;
         }
 
         function updateAnalytics(orders) {
@@ -1727,23 +1578,24 @@
             container.innerHTML = html;
         }
 
-        window.updateOrderStatus = async function(orderId, newStatus) {
+        window.updateOrderStatus = function(orderId, newStatus) {
             try {
-                // Use the Firestore update function from firestore-orders.js
-                if (typeof window.updateFirestoreOrderStatus === 'function') {
-                    await window.updateFirestoreOrderStatus(orderId, newStatus);
-                    alert(`✅ Order ${orderId} marked as ${newStatus}`);
-                } else {
-                    // Fallback to direct Firestore update
-                    await db.collection('orders').doc(orderId).update({ 
-                        status: newStatus,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    alert(`✅ Order ${orderId} updated to ${newStatus}`);
+                const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
+                const orderIndex = orders.findIndex(o => (o.orderId || o.id) === orderId);
+                
+                if (orderIndex !== -1) {
+                    orders[orderIndex].status = newStatus;
+                    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+                    renderOrders(orders);
+                    updateStats(orders);
+                    
+                    // Trigger event for other listeners
+                    window.dispatchEvent(new Event('orders-updated'));
+                    
+                    alert(`Order ${orderId} updated to ${newStatus}`);
                 }
             } catch (e) {
-                console.error('❌ Error updating order:', e);
-                alert('Error updating order: ' + e.message);
+                console.error('Error updating order:', e);
             }
         };
 
@@ -2001,31 +1853,18 @@
         function loadProducts() {
             console.log('🔄 Loading products...');
             try {
-                let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || getDefaultProducts();
+                const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || getDefaultProducts();
                 console.log('📦 Products loaded:', products.length, 'products');
                 
                 if (!localStorage.getItem(PRODUCTS_KEY)) {
                     console.log('💾 Initializing localStorage with default products');
-                    // Add createdAt timestamp to default products
-                    products = products.map(p => ({
-                        ...p,
-                        createdAt: p.createdAt || new Date().toISOString()
-                    }));
                     localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
                 }
-                
-                // Calculate tags based on order statistics
-                const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
-                console.log('📊 Calculating product tags based on', orders.length, 'orders');
-                products = calculateProductTags(orders);
-                
-                // Update localStorage with tagged products
-                localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
                 
                 console.log('🎨 Rendering products...');
                 renderProducts(products);
                 updateProductCount(products.length);
-                console.log('✅ Products rendered successfully with tags');
+                console.log('✅ Products rendered successfully');
             } catch (e) {
                 console.error('❌ Error loading products:', e);
             }
@@ -2105,49 +1944,33 @@
             }
 
             console.log('📝 Generating HTML for products...');
-            const productsHtml = products.map(product => {
-                // Generate tags HTML
-                const tagsHtml = product.tags && product.tags.length > 0 
-                    ? `<div class="product-tags">
-                        ${product.tags.map(tag => `
-                            <span class="product-tag tag-${tag.type}">${tag.label}</span>
-                        `).join('')}
-                    </div>`
-                    : '';
-
-                // Generate stats badge if available
-                const statsHtml = product.stats && product.stats.totalQuantity > 0
-                    ? `<div class="badge" style="background: rgba(0,0,0,0.7);">📊 ${product.stats.totalQuantity} sold</div>`
-                    : '';
-
-                return `
-                    <div class="product-card card-animate">
-                        <img src="${product.img || 'https://via.placeholder.com/300x200?text=No+Image'}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
-                        ${tagsHtml}
-                        ${statsHtml}
-                        <h3 class="product-name">${product.name}</h3>
-                        <div class="product-price">₱${parseFloat(product.price).toFixed(2)}</div>
-                        <span class="product-category">${getCategoryName(product.category)}</span>
-                        <p style="font-size: 1.3rem; color: #666; margin-bottom: 1rem;">${product.description || ''}</p>
-                        ${product.stats && product.stats.totalRevenue > 0 ? `
-                            <div style="font-size: 1.2rem; color: #27ae60; margin-bottom: 1rem; font-weight: 600;">
-                                💰 Total Revenue: ₱${product.stats.totalRevenue.toFixed(2)}
-                            </div>
-                        ` : ''}
-                        <div class="product-actions">
-                            <button class="btn btn-secondary btn-sm" onclick="editProduct('${product.id}')">Edit</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}', '${product.name}')">Delete</button>
-                        </div>
+            const productsHtml = products.map(product => `
+                <div class="product-card card-animate fade-in">
+                    <img src="${product.img || 'https://via.placeholder.com/300x200?text=No+Image'}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                    ${product.bestSeller ? '<div class="badge">Best Seller</div>' : ''}
+                    <h3 class="product-name">${product.name}</h3>
+                    <div class="product-price">₱${parseFloat(product.price).toFixed(2)}</div>
+                    <span class="product-category">${getCategoryName(product.category)}</span>
+                    <p style="font-size: 1.3rem; color: #666; margin-bottom: 1rem;">${product.description || ''}</p>
+                    <div class="product-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="editProduct('${product.id}')">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}', '${product.name}')">Delete</button>
                     </div>
-                `;
-            }).join('');
+                </div>
+            `).join('');
 
             console.log('📄 Generated HTML length:', productsHtml.length, 'characters');
             container.innerHTML = productsHtml;
             console.log('✅ Products HTML inserted into container');
             
             // Add 'visible' class to dynamically generated product cards so they appear
-            // No fade-in effect; products appear instantly
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.product-card.fade-in');
+                console.log('🎭 Making', cards.length, 'product cards visible');
+                cards.forEach(card => {
+                    card.classList.add('visible');
+                });
+            }, 50);
         }
 
         function getCategoryName(category) {

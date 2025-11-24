@@ -1,62 +1,3 @@
-  <script>
-  // User button opens auth modal and dropdown
-
-      function updateDropdownMenu(user) {
-        let html = '<ul style="list-style:none; margin:0; padding:1rem;">';
-        if(user) {
-          html += '<li><a href="account.html" style="display:block; padding:0.8rem 1rem; color:#c0392b; font-weight:600; text-decoration:none;">My Account</a></li>';
-          if(window.AuthModule && window.AuthModule.isAdminUser && window.AuthModule.isAdminUser(user)) {
-            html += '<li><a href="admin.html" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Admin Dashboard</a></li>';
-          } else if(window.AuthModule && window.AuthModule.isStaffUser && window.AuthModule.isStaffUser(user)) {
-            html += '<li><a href="staff.html" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Staff Dashboard</a></li>';
-          }
-          html += '<li><a href="#" id="logoutBtn" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Logout</a></li>';
-        }
-        html += '</ul>';
-        accountDropdown.innerHTML = html;
-      }
-
-      function showDropdownIfLoggedIn() {
-        if(window.AuthModule && typeof window.AuthModule.getCurrentUser === 'function') {
-          const user = window.AuthModule.getCurrentUser();
-        }
-      }
-      </script>
-
-
-      
-<script>
-// Dropdown logic
-userButton.addEventListener('click', function(e) {
-  e.stopPropagation();
-  if(window.AuthModule && typeof window.AuthModule.getCurrentUser === 'function') {
-    const user = window.AuthModule.getCurrentUser();
-    if (user) {
-      updateDropdownMenu(user);
-      accountDropdown.style.display = accountDropdown.style.display === 'block' ? 'none' : 'block';
-    } else {
-      if(window.AuthModule && typeof window.AuthModule.openModal === 'function') window.AuthModule.openModal();
-      accountDropdown.style.display = 'none';
-    }
-  }
-});
-document.addEventListener('click', function(e) {
-  if(!accountDropdown.contains(e.target) && e.target !== userButton) {
-    accountDropdown.style.display = 'none';
-  }
-});
-accountDropdown.addEventListener('click', function(e) {
-  if(e.target.id === 'logoutBtn') {
-    if(window.AuthModule && typeof window.AuthModule.signOut === 'function') window.AuthModule.signOut();
-    accountDropdown.style.display = 'none';
-  }
-});
-if(window.AuthModule && typeof window.AuthModule.onAuthStateChanged === 'function') {
-  window.AuthModule.onAuthStateChanged(function(user) {
-    if(!user) accountDropdown.style.display = 'none';
-  });
-}
-</script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -130,7 +71,6 @@ if(window.AuthModule && typeof window.AuthModule.onAuthStateChanged === 'functio
     });
   </script>
   <script defer src="auth.js"></script>
-  <script defer src="firestore-orders.js"></script>
   <script defer src="chat.js"></script>
   <script defer src="https://www.paypal.com/sdk/js?client-id=AbPwfLlPjLyG41Tmn0Zf34rfdT4pj9ddG_P6FX3yEPSLXrlRD6p1gVhiwcNRrZRNWudfVHV8IqAnYLLb&currency=PHP"></script>
   <script defer src="payment.js"></script>
@@ -339,50 +279,6 @@ if(window.AuthModule && typeof window.AuthModule.onAuthStateChanged === 'functio
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    /* Product Tags */
-    .product-tags {
-      position: absolute;
-      top: 1rem;
-      left: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      z-index: 10;
-    }
-
-    .product-tag {
-      padding: 0.5rem 1.2rem;
-      border-radius: 2rem;
-      font-size: 1.1rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .tag-bestseller {
-      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-      color: white;
-    }
-
-    .tag-popular {
-      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-      color: white;
-    }
-
-    .tag-new {
-      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-      color: white;
-    }
-
-    .tag-trending {
-      background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-      color: white;
-    }
-
     .badge.new {
       background-color: #4CAF50;
       color: white;
@@ -433,11 +329,11 @@ if(window.AuthModule && typeof window.AuthModule.onAuthStateChanged === 'functio
     .navbar-content {
       display: flex;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: space-between;
       width: 100%;
-      padding: 0 2rem 0 1rem;
+      padding: 0 3rem;
       height: 100%;
-      gap: 1.2rem;
+      gap: 2rem;
     }
     .logo-banner {
       display: flex;
@@ -457,13 +353,12 @@ if(window.AuthModule && typeof window.AuthModule.onAuthStateChanged === 'functio
     }
     .nav-center {
       display: flex;
-      gap: 1.2rem;
+      gap: 2rem;
       list-style: none;
       align-items: center;
-      flex: 0 1 auto;
-      justify-content: flex-start;
+      flex: 1;
+      justify-content: center;
       margin: 0;
-      min-width: 0;
     }
     .nav-center.open {
       display: flex !important;
@@ -551,49 +446,21 @@ if(window.AuthModule && typeof window.AuthModule.onAuthStateChanged === 'functio
       fill: #FFFFFF;
     }
     .search-box {
-        position: absolute;
-        right: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 0;
-        overflow: hidden;
-        transition: width 0.25s ease, padding 0.25s ease;
-        background: rgba(255, 255, 255, 0.12);
-        border-radius: 2rem;
-        display: flex;
-        align-items: center;
-        height: 3.6rem;
-        flex: 0 0 auto;
-        z-index: 1001;
+      position: relative;
+      width: 0;
+      overflow: hidden;
+      transition: width 0.25s ease, padding 0.25s ease;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 2rem;
+      display: flex;
+      align-items: center;
+      height: 3.6rem;
+      flex: 0 0 auto;
     }
     .search-box.active {
-       width: 220px;
-       max-width: calc(100% - 120px);
-       padding: 0 0.8rem 0 1.2rem;
-       right: 5.5rem;
-       box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      width: 260px;
+      padding: 0 0.8rem 0 1.2rem;
     }
-      /* On mobile, overlay search box above navbar links */
-      @media (max-width: 768px) {
-        .search-box {
-          position: fixed;
-          top: 6rem;
-          left: 0;
-          right: 0;
-          width: 0;
-          margin: 0 auto;
-          border-radius: 2rem;
-          z-index: 2000;
-        }
-        .search-box.active {
-         width: 90vw;
-         max-width: 320px;
-         left: 50%;
-         transform: translateX(-50%);
-         top: 6rem;
-         box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-        }
-      }
     .search-input {
       border: none;
       background: transparent;
@@ -617,21 +484,6 @@ if(window.AuthModule && typeof window.AuthModule.onAuthStateChanged === 'functio
       cursor: pointer;
       opacity: 0.85;
     }
-
-      /* Adjust nav link spacing when search is open (match index.html) */
-      .navbar-content.search-active .nav-center {
-        gap: 0.8rem;
-      }
-      .navbar-content.search-active .nav-center a {
-        padding: 0.6rem 1.2rem;
-        font-size: 1.3rem;
-      }
-      .navbar-content.search-active .nav-right {
-        gap: 0.8rem;
-      }
-      .navbar-content.search-active .logo-banner {
-        transform: scale(0.92);
-      }
 
     .hamburger {
       display: none;
@@ -658,15 +510,6 @@ if(window.AuthModule && typeof window.AuthModule.onAuthStateChanged === 'functio
     .hamburger:hover {
       transform: scale(1.1);
     }
-
-  .nav-right {
-        display: flex;
-        align-items: center;
-        gap: 1.2rem;
-        margin-left: auto;
-        position: relative;
-        z-index: 1002;
-  }
 
     @media (max-width: 768px) {
       .nav-center {
@@ -729,7 +572,6 @@ if(window.AuthModule && typeof window.AuthModule.onAuthStateChanged === 'functio
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
               </svg>
             </div>
-            <div class="account-dropdown" id="accountDropdown" style="display:none; position:absolute; top:60px; right:0; background:white; border-radius:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.12); min-width:180px; z-index:999;"></div>
           </div>
         </div>
       </div>
@@ -1508,48 +1350,7 @@ For inquiries: contact@easylunch.com
     }
 
     // Hamburger menu toggle for mobile
-    // Add dynamic product tags based on order statistics
-    function addProductTags() {
-      const PRODUCTS_KEY = 'easy_lunch_products_v1';
-      const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
-      
-      // For each product card, check if it has tags in localStorage
-      document.querySelectorAll('.product-card').forEach(card => {
-        const productName = card.getAttribute('data-name');
-        const product = products.find(p => p.name === productName);
-        
-        if (product && product.tags && product.tags.length > 0) {
-          // Remove existing badge if tags exist
-          const existingBadge = card.querySelector('.badge');
-          
-          // Create tags container
-          const tagsContainer = document.createElement('div');
-          tagsContainer.className = 'product-tags';
-          
-          product.tags.forEach(tag => {
-            const tagEl = document.createElement('span');
-            tagEl.className = `product-tag tag-${tag.type}`;
-            tagEl.textContent = tag.label;
-            tagsContainer.appendChild(tagEl);
-          });
-          
-          // Insert tags at the beginning of the card
-          card.insertBefore(tagsContainer, card.firstChild);
-          
-          // Optionally hide old badge if we have tags
-          if (existingBadge && product.tags.some(t => t.type === 'bestseller')) {
-            existingBadge.style.display = 'none';
-          }
-        }
-      });
-      
-      console.log('✨ Product tags loaded from localStorage');
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
-      // Load product tags
-      addProductTags();
-      
       var hamburger = document.getElementById('hamburgerBtn');
       var navMenu = document.getElementById('navMenu');
       function isMobile() {
@@ -1636,56 +1437,6 @@ For inquiries: contact@easylunch.com
               scrollBtn.style.transform = 'translateY(0) scale(1)';
           });
       })();
-        // User button opens auth modal and dropdown
-          
-        function updateDropdownMenu(user) {
-          if (!user) {
-            accountDropdown.innerHTML = '';
-            accountDropdown.style.display = 'none';
-            return;
-          }
-          let html = '<ul style="list-style:none; margin:0; padding:1rem;">';
-          html += '<li><a href="account.html" style="display:block; padding:0.8rem 1rem; color:#c0392b; font-weight:600; text-decoration:none;">My Account</a></li>';
-          if(window.AuthModule && window.AuthModule.isAdminUser && window.AuthModule.isAdminUser(user)) {
-            html += '<li><a href="admin.html" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Admin Dashboard</a></li>';
-          } else if(window.AuthModule && window.AuthModule.isStaffUser && window.AuthModule.isStaffUser(user)) {
-            html += '<li><a href="staff.html" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Staff Dashboard</a></li>';
-          }
-          html += '<li><a href="#" id="logoutBtn" style="display:block; padding:0.8rem 1rem; color:#8b0000; font-weight:600; text-decoration:none;">Logout</a></li>';
-          html += '</ul>';
-          accountDropdown.innerHTML = html;
-        }
-
-        userButton.addEventListener('click', function(e) {
-          e.stopPropagation();
-          if(window.AuthModule && typeof window.AuthModule.getCurrentUser === 'function') {
-            const user = window.AuthModule.getCurrentUser();
-            if (user) {
-              updateDropdownMenu(user);
-              accountDropdown.style.display = accountDropdown.style.display === 'block' ? 'none' : 'block';
-            } else {
-              if(window.AuthModule && typeof window.AuthModule.openModal === 'function') window.AuthModule.openModal();
-              accountDropdown.style.display = 'none';
-            }
-          }
-        });
-        document.addEventListener('click', function(e) {
-          if(!accountDropdown.contains(e.target) && e.target !== userButton) {
-            accountDropdown.style.display = 'none';
-          }
-        });
-        accountDropdown.addEventListener('click', function(e) {
-          if(e.target.id === 'logoutBtn') {
-            if(window.AuthModule && typeof window.AuthModule.signOut === 'function') window.AuthModule.signOut();
-            accountDropdown.style.display = 'none';
-          }
-        });
-        if(window.AuthModule && typeof window.AuthModule.onAuthStateChanged === 'function') {
-          window.AuthModule.onAuthStateChanged(function(user) {
-            updateDropdownMenu(user);
-            if (!user) accountDropdown.style.display = 'none';
-          });
-        }
   </script>
 </body>
 </html>
