@@ -6,6 +6,11 @@
   const ORDERS_KEY = 'easy_lunch_orders_v1';
   // Optional: If a PayMongo Checkout Link is provided, we'll use it for GCash
   const PAYMONGO_CHECKOUT_LINK = 'https://pm.link/org-YYuT3fHYmvyjQQJi7X2PTu1Z/Mdw4Spr';
+  
+  // Backend URL for order notifications (auto-detects localhost vs production)
+  const BACKEND_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:3000'
+    : window.location.origin;
 
   // ========== CART MANAGEMENT ==========
   function loadCart() {
@@ -314,6 +319,32 @@
     return { success: false };
   }
 
+  // Send COD order notification to backend
+  async function sendCODOrderEmail(orderData) {
+    try {
+      const response = await fetch(`${BACKEND_URL}/order/cod`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          orderId: orderData.orderId,
+          customer: orderData.customer,
+          amount: orderData.totals.total,
+          items: orderData.items
+        })
+      });
+      
+      if (response.ok) {
+        console.log('COD order notification sent successfully');
+      } else {
+        console.error('Failed to send COD order notification:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error sending COD order notification:', error);
+    }
+  }
+
   function saveOrderToLocalStorage(orderData) {
     try {
       const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
@@ -336,6 +367,11 @@
 
   function completeOrder(paymentMethod, reference = null, details = null) {
     const orderData = getOrderData(paymentMethod, reference);
+    
+    // Send email notification for COD orders
+    if (paymentMethod === 'cod') {
+      sendCODOrderEmail(orderData);
+    }
     
     // Save to both Firebase and localStorage
     saveOrderToFirebase(orderData).then(result => {
@@ -433,6 +469,44 @@
     }
   }
 
+  // ========== CHECKOUT AUTHENTICATION CHECK ==========
+  function checkAuthBeforeCheckout() {
+    // Check if user is signed in
+    if (!firebase || !firebase.auth || !firebase.auth().currentUser) {
+      alert('You must be signed in to checkout. Please sign in or create an account.');
+      // Open auth modal if available
+      if (window.SimpleAuth && window.SimpleAuth.openSignIn) {
+        window.SimpleAuth.openSignIn();
+      } else if (window.openAuthModal) {
+        window.openAuthModal();
+      } else if (typeof openAuthModal === 'function') {
+        openAuthModal();
+      } else {
+        window.location.href = 'login.html';
+      }
+      return false;
+    }
+    
+    // Check if email is verified
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser.emailVerified) {
+      const shouldVerify = confirm('Your email is not verified yet. Please verify your email to checkout for security purposes. Check your inbox or click OK to resend verification email.');
+      if (shouldVerify) {
+        currentUser.sendEmailVerification()
+          .then(() => {
+            alert('Verification email sent! Please check your inbox and verify your email, then refresh this page.');
+          })
+          .catch((error) => {
+            console.error('Error sending verification email:', error);
+            alert('Error sending verification email. Please go to your account page to resend.');
+          });
+      }
+      return false;
+    }
+    
+    return true;
+  }
+
   // ========== PLACE ORDER HANDLER ==========
   function initCheckout() {
     const placeOrderBtn = document.getElementById('placeOrderBtn');
@@ -515,6 +589,11 @@
     placeOrderBtn.addEventListener('click', function(e) {
       // Prevent default behavior
       e.preventDefault();
+      
+      // Check authentication and phone verification first
+      if (!checkAuthBeforeCheckout()) {
+        return;
+      }
       
       // Double-check cart isn't empty
       const cart = loadCart();

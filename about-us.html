@@ -33,6 +33,57 @@
             box-sizing: border-box;
         }
 
+                /* MOBILE NAVBAR ICONS - ABOUT US PAGE */
+                @media (max-width: 768px) {
+                    html body .navbar-content .hamburger span,
+                    html body .navbar-content .icon-button svg,
+                    html body .navbar-content .search-icon,
+                    html body .nav-right .icon-button svg,
+                    html body .nav-right .search-icon {
+                        background: #fff !important;
+                        fill: #fff !important;
+                        color: #fff !important;
+                        stroke: #fff !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                    }
+                    .icon-button {
+                        background: #c0392b !important;
+                        border-radius: 50% !important;
+                        width: 3.5rem !important;
+                        height: 3.5rem !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                    }
+                    .icon-button svg {
+                        fill: #fff !important;
+                        color: #fff !important;
+                        width: 2.2rem !important;
+                        height: 2.2rem !important;
+                    }
+                    .hamburger {
+                        display: flex !important;
+                        flex-direction: column !important;
+                        justify-content: center !important;
+                        align-items: center !important;
+                        width: 3.5rem !important;
+                        height: 3.5rem !important;
+                        background: #c0392b !important;
+                        border-radius: 12px !important;
+                        border: none !important;
+                        gap: 5px !important;
+                    }
+                    .hamburger span {
+                        display: block !important;
+                        width: 2.2rem !important;
+                        height: 4px !important;
+                        background: #fff !important;
+                        border-radius: 4px !important;
+                    }
+                }
         html {
             font-size: 62.5%;
             scroll-behavior: smooth;
@@ -553,6 +604,13 @@
                         </svg>
                     </div>
                 </div>
+
+                <!-- Hamburger Menu for Mobile -->
+                <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" tabindex="0">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
     </nav>

@@ -504,6 +504,171 @@
                 grid-template-columns: 1fr;
             }
         }
+            /* MOBILE RESPONSIVE OVERRIDES */
+            @media (max-width: 768px) {
+                .sidebar {
+                    position: fixed;
+                    left: -100vw !important;
+                    top: 0;
+                    bottom: 0;
+                    width: 80vw;
+                    max-width: 320px;
+                    min-width: 180px;
+                    height: 100vh;
+                    z-index: 2001;
+                    transition: left 0.3s ease;
+                    box-shadow: 4px 0 15px rgba(192, 57, 43, 0.3);
+                    background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+                    overflow-y: auto;
+                    display: none !important;
+                }
+                .sidebar.active {
+                    left: 0 !important;
+                    display: block !important;
+                }
+                .hamburger-btn {
+                    width: 36px;
+                    height: 36px;
+                }
+                .product-image {
+                    width: 100px;
+                    height: 100px;
+                    object-fit: cover;
+                    border-radius: 0.7rem;
+                    margin: 0 auto 1rem auto;
+                    display: block;
+                }
+                .product-modal-content {
+                    width: 92vw;
+                    max-width: 350px;
+                    min-width: 0;
+                    border-radius: 1rem;
+                    padding: 1.2rem 1rem;
+                    margin: 0 auto;
+                }
+                .product-modal-header {
+                    padding: 1rem 0.5rem;
+                    margin-bottom: 0.7rem;
+                }
+                .form-scroll-area {
+                    padding: 0 1.2rem;
+                }
+                .form-group {
+                    margin-bottom: 1.2rem;
+                }
+                .form-actions {
+                    padding: 1.2rem 1rem;
+                    flex-direction: column;
+                    gap: 0.8rem;
+                }
+                .form-actions button {
+                    width: 100%;
+                    margin-bottom: 0.5rem;
+                }
+                .nav-menu {
+                    padding: 0;
+                }
+                .nav-item {
+                    padding: 1.2rem 1.5rem;
+                    font-size: 1.2rem;
+                    gap: 0.9rem;
+                    margin-bottom: 0.5rem;
+                }
+                .nav-icon {
+                    font-size: 1.6rem;
+                }
+                .logo-section h1 {
+                    font-size: 1.4rem;
+                    margin-bottom: 0.3rem;
+                }
+                .logo-section p {
+                    font-size: 1.1rem;
+                    margin-bottom: 0.3rem;
+                }
+                .main-content {
+                    margin-left: 0 !important;
+                    width: 100vw !important;
+                    max-width: 100vw !important;
+                    box-sizing: border-box;
+                    padding: 2rem !important;
+                    min-height: 100vh !important;
+                }
+                .header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    padding: 1.5rem 1rem 1.2rem 1rem;
+                    border-radius: 1rem;
+                    width: 100%;
+                    margin-bottom: 1.2rem;
+                }
+                .header h2 {
+                    font-size: 2.2rem;
+                    width: 100%;
+                    margin-bottom: 0.5rem;
+                }
+                .user-info {
+                    gap: 1.2rem;
+                    width: 100%;
+                    justify-content: flex-end;
+                    margin-top: 0.5rem;
+                }
+                .user-avatar {
+                    width: 40px;
+                    height: 40px;
+                    font-size: 1.3rem;
+                }
+                .stats-grid {
+                    grid-template-columns: 1fr;
+                    gap: 1.5rem;
+                    margin-bottom: 1.5rem;
+                }
+                .dashboard-content {
+                    gap: 1.5rem;
+                }
+                .card {
+                    padding: 1.5rem 1.2rem;
+                    margin-bottom: 1.5rem;
+                    width: 100%;
+                    box-sizing: border-box;
+                    border-radius: 1.2rem;
+                }
+                .card-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    padding: 1.2rem 1rem;
+                    width: 100%;
+                    margin-bottom: 0.8rem;
+                }
+                .card-title {
+                    font-size: 1.4rem;
+                    margin-bottom: 0.5rem;
+                }
+                .order-item-img {
+                    width: 40px;
+                    height: 40px;
+                    margin-right: 0.8rem;
+                }
+                .nav-menu {
+                    padding: 0;
+                }
+                .nav-item {
+                    padding: 1.2rem 1.5rem;
+                    font-size: 1.2rem;
+                    gap: 0.9rem;
+                    margin-bottom: 0.5rem;
+                }
+                .nav-icon {
+                    font-size: 1.6rem;
+                }
+                .logo-section h1 {
+                    font-size: 1.4rem;
+                    margin-bottom: 0.3rem;
+                }
+                .logo-section p {
+                    font-size: 1.1rem;
+                    margin-bottom: 0.3rem;
+                }
+            }
     </style>
 </head>
 <body>
@@ -528,6 +693,12 @@
 
     <!-- Staff Dashboard -->
     <div id="staffDashboard" style="display: none;">
+        <!-- Hamburger Button for Mobile -->
+        <button class="hamburger-btn" id="hamburgerBtn" style="display:none;position:fixed;top:1.5rem;left:1.5rem;z-index:3000;background:transparent;border:none;cursor:pointer;">
+            <span style="display:inline-block;width:36px;height:36px;background:white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:center;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+            </span>
+        </button>
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo-section">
@@ -553,6 +724,8 @@
             </div>
         </aside>
 
+        <!-- Sidebar Overlay for Mobile -->
+        <div id="sidebarOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);z-index:2000;"></div>
         <!-- Main Content -->
         <main class="main-content">
             <!-- Header -->
@@ -634,6 +807,36 @@
     </div>
 
     <script>
+    // Hamburger & Sidebar Logic for Mobile
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
+    function showSidebar() {
+        document.querySelector('.sidebar').style.display = 'block';
+        document.querySelector('.sidebar').classList.add('active');
+        document.getElementById('sidebarOverlay').style.display = 'block';
+    }
+    function hideSidebar() {
+        document.querySelector('.sidebar').style.display = 'none';
+        document.querySelector('.sidebar').classList.remove('active');
+        document.getElementById('sidebarOverlay').style.display = 'none';
+    }
+    function setupMobileUI() {
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        if (isMobile()) {
+            hamburgerBtn.style.display = 'block';
+            hideSidebar();
+        } else {
+            hamburgerBtn.style.display = 'none';
+            document.querySelector('.sidebar').style.display = 'block';
+            document.getElementById('sidebarOverlay').style.display = 'none';
+        }
+        hamburgerBtn.onclick = showSidebar;
+        sidebarOverlay.onclick = hideSidebar;
+        window.addEventListener('resize', setupMobileUI);
+    }
+    window.addEventListener('DOMContentLoaded', setupMobileUI);
         // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyC1gn5zMy8sKJUfLc-vqOMkhDfR1s_2gAg",

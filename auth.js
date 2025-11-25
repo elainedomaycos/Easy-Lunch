@@ -179,12 +179,26 @@
   }
   async function signUp(email, password) {
     if (!firebase || !firebase.auth) throw new Error('Firebase not loaded');
+    
+    // Create account first
     const cred = await firebase.auth().createUserWithEmailAndPassword(email, password);
     // Optionally set display name to email prefix
     if (cred.user && !cred.user.displayName) {
       await cred.user.updateProfile({ displayName: email.split('@')[0] });
     }
-    // Redirect to account page after successful signup
+    
+    // Send email verification
+    if (cred.user) {
+      try {
+        await cred.user.sendEmailVerification();
+        alert('Account created! Please check your email to verify your account before checking out.');
+      } catch (error) {
+        console.error('Error sending verification email:', error);
+        alert('Account created, but failed to send verification email. You can resend it from your account page.');
+      }
+    }
+    
+    // Redirect to account page
     setTimeout(() => {
       window.location.href = 'account.html';
     }, 500);

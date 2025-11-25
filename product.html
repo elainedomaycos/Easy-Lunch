@@ -91,6 +91,76 @@
     }
 
     .section-subtitle {
+    /* MOBILE NAVBAR ICONS - PRODUCT PAGE */
+    @media (max-width: 768px) {
+      /* Force hamburger icon background and border to white on mobile */
+      .navbar-bar .navbar-content .hamburger {
+        background: #fff !important;
+        border: none !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
+        border-radius: 50% !important;
+      }
+      .navbar-bar .navbar-content .hamburger span {
+        background: #fff !important;
+        color: #fff !important;
+        fill: #fff !important;
+        stroke: #fff !important;
+      }
+      /* Force hamburger icon to white on mobile */
+      .navbar-bar .navbar-content .hamburger span,
+      .navbar-bar .navbar-content .hamburger svg {
+        color: #fff !important;
+        fill: #fff !important;
+        stroke: #fff !important;
+      }
+      /* Force navbar icons to white on mobile, override all styles */
+      .navbar-bar .navbar-content .icon-button svg,
+      .navbar-bar .navbar-content .search-icon,
+      .navbar-bar .nav-right .icon-button svg,
+      .navbar-bar .nav-right .search-icon,
+      .navbar-bar .navbar-content .hamburger span,
+      .navbar-bar .nav-center a,
+      .navbar-bar .nav-center a.active {
+        color: #fff !important;
+        fill: #fff !important;
+        stroke: #fff !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+      }
+      /* Restore nav-center active background for mobile */
+      .navbar-bar .nav-center a.active {
+        background: #f5deb3 !important;
+        color: #8b0000 !important;
+      }
+      .navbar-bar {
+        display: none !important;
+      }
+      .navbar-bar {
+        display: none !important;
+      }
+      /* Force navbar icons to be white on mobile, with high specificity */
+      .navbar-bar .navbar-content .hamburger span,
+      .navbar-bar .navbar-content .icon-button svg,
+      .navbar-bar .navbar-content .search-icon,
+      .navbar-bar .nav-right .icon-button svg,
+      .navbar-bar .nav-right .search-icon {
+        color: #fff !important;
+        fill: #fff !important;
+        stroke: #fff !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        filter: none !important;
+      }
+      /* Product grid: 2 columns on mobile */
+      .product-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1rem !important;
+      }
+    }
       color: #666;
       font-weight: 600;
       margin-top: 20px;
@@ -508,6 +578,21 @@
       border-radius: 2px;
     }
 
+    @media (max-width: 768px) {
+      /* Force hamburger bars to white on mobile, override all styles */
+      .navbar-bar .navbar-content .hamburger span,
+      .navbar-bar .hamburger span,
+      .hamburger span {
+        background: #fff !important;
+        color: #fff !important;
+        fill: #fff !important;
+        stroke: #fff !important;
+        box-shadow: none !important;
+        border: none !important;
+        filter: none !important;
+      }
+    }
+
     .hamburger:hover {
       transform: scale(1.1);
     }
@@ -534,6 +619,27 @@
     }
   </style>
 </head>
+<style>
+@media (max-width: 768px) {
+  .navbar-bar .nav-center a {
+    color: #fff !important;
+    fill: #fff !important;
+    stroke: #fff !important;
+  }
+  .navbar-bar .nav-center a.active {
+    background: #f5deb3 !important;
+    color: #8b0000 !important;
+  }
+  .navbar-bar .icon-button svg,
+  .navbar-bar .search-icon,
+  .navbar-bar .nav-right .icon-button svg,
+  .navbar-bar .nav-right .search-icon {
+    color: #fff !important;
+    fill: #fff !important;
+    stroke: #fff !important;
+  }
+}
+</style>
 
 <body onload="document.getElementById('main-content').classList.add('visible')">
 
@@ -543,6 +649,11 @@
     <nav class="navbar-awning">
       <div class="navbar-bar">
         <div class="navbar-content">
+          <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" tabindex="0">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
           <div class="logo-banner" onclick="window.location.href='index.html'">
             <img src="El Pollo - Logo - Création de l'identité visuelle du restaurant fast food mexicain.png" alt="Bossing's Wings" class="logo-img">
           </div>
@@ -580,7 +691,7 @@
 
     <!-- Hero Section with Rounded Banner -->
     <section class="hero-section">
-      <div class="hero-banner">
+  <div class="hero-banner" id="productHeroBanner">
         <img src="50 (1).png" alt="Bossing's Wings" class="hero-image">
       </div>
     </section>
@@ -1478,5 +1589,6 @@ For inquiries: contact@easylunch.com
           });
       })();
   </script>
+
 </body>
 </html>

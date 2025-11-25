@@ -1,0 +1,319 @@
+<!-- Phone Verification Modal Component -->
+<!-- Add this to your HTML page where you want phone verification -->
+<style>
+  .phone-verify-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .phone-verify-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 3rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    position: relative;
+  }
+  
+  .phone-verify-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 2.5rem;
+    color: #999;
+    cursor: pointer;
+    padding: 0.5rem;
+    line-height: 1;
+  }
+  
+  .phone-verify-close:hover {
+    color: #c0392b;
+  }
+  
+  .phone-verify-title {
+    color: #c0392b;
+    font-size: 2.4rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  
+  .phone-verify-subtitle {
+    color: #666;
+    margin-bottom: 2rem;
+    font-size: 1.4rem;
+  }
+  
+  .phone-verify-input {
+    width: 100%;
+    padding: 1.2rem;
+    border: 2px solid #ddd;
+    border-radius: 0.8rem;
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+    font-family: 'Ubuntu', sans-serif;
+    transition: border-color 0.3s;
+  }
+  
+  .phone-verify-input:focus {
+    outline: none;
+    border-color: #c0392b;
+  }
+  
+  .phone-verify-btn {
+    width: 100%;
+    padding: 1.4rem;
+    background: #c0392b;
+    color: white;
+    border: none;
+    border-radius: 0.8rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Ubuntu', sans-serif;
+  }
+  
+  .phone-verify-btn:hover:not(:disabled) {
+    background: #8b0000;
+    transform: translateY(-2px);
+  }
+  
+  .phone-verify-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .phone-verify-hint {
+    color: #999;
+    font-size: 1.3rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .phone-verify-success {
+    background: #27ae60;
+    color: white;
+    padding: 1.5rem;
+    border-radius: 0.8rem;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  
+  .phone-verify-error {
+    background: #e74c3c;
+    color: white;
+    padding: 1.5rem;
+    border-radius: 0.8rem;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  
+  #recaptcha-container {
+    margin: 1.5rem 0;
+  }
+</style>
+
+<div id="phoneVerifyModal" class="phone-verify-modal">
+  <div class="phone-verify-card">
+    <button class="phone-verify-close" onclick="closePhoneVerify()">&times;</button>
+    <h2 class="phone-verify-title">📱 Verify Your Phone Number</h2>
+    <p class="phone-verify-subtitle">For security purposes, please verify your phone number to continue.</p>
+    
+    <div id="phoneVerifyMessage"></div>
+    
+    <div id="phoneInputStep">
+      <label for="phoneNumber" style="font-weight: 600; font-size: 1.5rem; color: #333; display: block; margin-bottom: 0.5rem;">Phone Number</label>
+      <input 
+        type="tel" 
+        id="phoneNumber" 
+        class="phone-verify-input" 
+        placeholder="+63 XXX XXX XXXX"
+        value="+63"
+      />
+      <p class="phone-verify-hint">Format: +63XXXXXXXXXX (Philippines)</p>
+      <div id="recaptcha-container"></div>
+      <button id="sendOtpBtn" class="phone-verify-btn" onclick="handleSendOTP()">
+        Send Verification Code
+      </button>
+    </div>
+    
+    <div id="otpInputStep" style="display: none;">
+      <label for="otpCode" style="font-weight: 600; font-size: 1.5rem; color: #333; display: block; margin-bottom: 0.5rem;">Verification Code</label>
+      <input 
+        type="text" 
+        id="otpCode" 
+        class="phone-verify-input" 
+        placeholder="Enter 6-digit code"
+        maxlength="6"
+      />
+      <p class="phone-verify-hint">Enter the code sent to your phone</p>
+      <button id="verifyOtpBtn" class="phone-verify-btn" onclick="handleVerifyOTP()">
+        Verify Code
+      </button>
+      <button 
+        class="phone-verify-btn" 
+        onclick="resendOTP()" 
+        style="background: #3498db; margin-top: 1rem;"
+      >
+        Resend Code
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Make functions available globally
+  window.openPhoneVerify = function() {
+    const modal = document.getElementById('phoneVerifyModal');
+    if (!modal) {
+      console.error('❌ Phone verify modal not found in DOM');
+      return;
+    }
+    
+    console.log('📱 Opening phone verification modal...');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    // Reset form
+    document.getElementById('phoneInputStep').style.display = 'block';
+    document.getElementById('otpInputStep').style.display = 'none';
+    document.getElementById('phoneVerifyMessage').innerHTML = '';
+    
+    // Initialize reCAPTCHA after modal is visible
+    if (window.phoneAuth && window.phoneAuth.initRecaptcha) {
+      console.log('🔄 Initializing reCAPTCHA...');
+      setTimeout(() => {
+        try {
+          window.phoneAuth.initRecaptcha();
+        } catch (error) {
+          console.error('❌ Error initializing reCAPTCHA:', error);
+          showMessage('Error initializing security verification. Please refresh the page.', true);
+        }
+      }, 500); // Increased delay to ensure DOM is ready
+    } else {
+      console.error('❌ phoneAuth module not loaded');
+      showMessage('Phone authentication module not loaded. Please refresh the page.', true);
+    }
+  };
+  
+  window.closePhoneVerify = function() {
+    const modal = document.getElementById('phoneVerifyModal');
+    if (modal) {
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+  };
+  
+  function showMessage(message, isError = false) {
+    const messageDiv = document.getElementById('phoneVerifyMessage');
+    messageDiv.innerHTML = `<div class="phone-verify-${isError ? 'error' : 'success'}">${message}</div>`;
+    setTimeout(() => {
+      messageDiv.innerHTML = '';
+    }, 5000);
+  }
+  
+  async function handleSendOTP() {
+    const phoneInput = document.getElementById('phoneNumber');
+    const phoneNumber = phoneInput.value.trim();
+    const sendBtn = document.getElementById('sendOtpBtn');
+    
+    if (!phoneNumber || phoneNumber === '+63') {
+      showMessage('Please enter your phone number', true);
+      return;
+    }
+    
+    // Validate format
+    if (!phoneNumber.match(/^\+63\d{10}$/)) {
+      showMessage('Please use format: +63XXXXXXXXXX (10 digits after +63)', true);
+      return;
+    }
+    
+    try {
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending...';
+      
+      const result = await window.phoneAuth.sendOTP(phoneNumber);
+      
+      if (result.success) {
+        showMessage('✅ ' + result.message);
+        document.getElementById('phoneInputStep').style.display = 'none';
+        document.getElementById('otpInputStep').style.display = 'block';
+      } else {
+        showMessage(result.message, true);
+      }
+    } catch (error) {
+      showMessage('Error: ' + error.message, true);
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Send Verification Code';
+    }
+  }
+  
+  async function handleVerifyOTP() {
+    const otpInput = document.getElementById('otpCode');
+    const otpCode = otpInput.value.trim();
+    const verifyBtn = document.getElementById('verifyOtpBtn');
+    
+    if (!otpCode || otpCode.length !== 6) {
+      showMessage('Please enter the 6-digit code', true);
+      return;
+    }
+    
+    try {
+      verifyBtn.disabled = true;
+      verifyBtn.textContent = 'Verifying...';
+      
+      const result = await window.phoneAuth.verifyOTP(otpCode);
+      
+      if (result.success) {
+        showMessage('✅ Phone number verified successfully!');
+        localStorage.removeItem('phoneVerificationRequired');
+        
+        setTimeout(() => {
+          closePhoneVerify();
+          location.reload();
+        }, 2000);
+      } else {
+        showMessage(result.message, true);
+      }
+    } catch (error) {
+      showMessage('Error: ' + error.message, true);
+    } finally {
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = 'Verify Code';
+    }
+  }
+  
+  function resendOTP() {
+    document.getElementById('otpInputStep').style.display = 'none';
+    document.getElementById('phoneInputStep').style.display = 'block';
+    document.getElementById('otpCode').value = '';
+    showMessage('Please request a new code');
+  }
+  
+  // Auto-open if phone verification is required
+  window.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const shouldVerify = urlParams.get('verify') === 'phone';
+    const required = localStorage.getItem('phoneVerificationRequired') === 'true';
+    
+    if (shouldVerify || required) {
+      setTimeout(() => {
+        openPhoneVerify();
+      }, 500);
+    }
+  });
+</script>

@@ -302,3 +302,34 @@
                 }
             });
         })();
+
+        // Mobile Menu Toggle
+        (function() {
+            const hamburger = document.getElementById('hamburgerBtn');
+            const navCenter = document.getElementById('navCenter');
+            
+            if (hamburger && navCenter) {
+                hamburger.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    hamburger.classList.toggle('open');
+                    navCenter.classList.toggle('open');
+                });
+                
+                // Close menu when clicking on a nav link
+                const navLinks = navCenter.querySelectorAll('a');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        hamburger.classList.remove('open');
+                        navCenter.classList.remove('open');
+                    });
+                });
+                
+                // Close menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!navCenter.contains(e.target) && !hamburger.contains(e.target)) {
+                        hamburger.classList.remove('open');
+                        navCenter.classList.remove('open');
+                    }
+                });
+            }
+        })();

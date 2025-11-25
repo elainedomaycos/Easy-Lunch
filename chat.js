@@ -60,6 +60,9 @@
       saveMessage(who, text);
     }
 
+    // Track conversation history for context
+    let conversationHistory = [];
+
     async function botReply(userText) {
       // Show typing indicator
       const typingDiv = document.createElement('div');
@@ -69,49 +72,47 @@
       messages.scrollTop = messages.scrollHeight;
 
       try {
-        console.log('botReply called with:', userText);
-        console.log('Config available:', !!window.OPENAI_CONFIG);
-        console.log('API key set:', window.OPENAI_CONFIG?.apiKey ? 'Yes' : 'No');
-        console.log('sendMessageToOpenAI function:', typeof window.sendMessageToOpenAI);
+        console.log('🤖 Sending message to AI backend:', userText);
         
-        // Check if OpenAI is configured
-        if (window.OPENAI_CONFIG && window.OPENAI_CONFIG.apiKey && 
-            !window.OPENAI_CONFIG.apiKey.includes('YOUR_') &&
-            typeof window.sendMessageToOpenAI === 'function') {
+        // Determine API endpoint (works for both localhost and production)
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:3000'
+          : window.location.origin;
+        
+        console.log('API endpoint:', `${API_BASE}/api/chat`);
+        
+        // Call backend AI endpoint
+        const response = await fetch(`${API_BASE}/api/chat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: userText,
+            conversationHistory: conversationHistory.slice(-10) // Keep last 10 messages for context
+          })
+        });
+
+        if (typingDiv.parentNode) {
+          messages.removeChild(typingDiv);
+        }
+
+        if (response.ok) {
+          const data = await response.json();
+          const reply = data.response;
           
-          console.log('Calling OpenAI...');
-          const reply = await window.sendMessageToOpenAI(userText);
-          console.log('Got reply:', reply);
+          console.log('✅ AI response received:', reply);
           
-          if (typingDiv.parentNode) {
-            messages.removeChild(typingDiv);
-          }
+          // Update conversation history
+          conversationHistory.push({ role: 'user', content: userText });
+          conversationHistory.push({ role: 'assistant', content: reply });
+          
           appendMessage(reply, 'bot');
         } else {
-          // Fallback to rule-based responses if no API key
-          console.log('Using fallback responses');
-          if (typingDiv.parentNode) {
-            messages.removeChild(typingDiv);
-          }
-          const t = userText.toLowerCase();
-          let reply = "Thanks! A human agent will follow up shortly.";
-          if (t.includes('price') || t.includes('cost') || t.includes('how much')) {
-            reply = "You can view prices in the Products page. What item are you looking for?";
-          } else if (t.includes('order') || t.includes('deliver') || t.includes('pickup')) {
-            reply = "We offer delivery and pickup. Could you share your location and preferred time?";
-          } else if (t.includes('menu') || t.includes('product')) {
-            reply = "Browse our full menu on the Products page. Need help finding something?";
-          } else if (t.includes('hours') || t.includes('open')) {
-            reply = "We're typically open 10am–9pm. Special hours may apply on holidays.";
-          } else if (t.includes('promo') || t.includes('discount') || t.includes('coupon')) {
-            reply = "Subscribe to our newsletter for promos, or ask me for current deals!";
-          }
-          setTimeout(() => appendMessage(reply, 'bot'), 500);
+          throw new Error(`API error: ${response.status}`);
         }
       } catch (error) {
-        console.error('Chat error details:', error);
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
+        console.error('❌ AI Chat error:', error);
         
         if (typingDiv.parentNode) {
           messages.removeChild(typingDiv);
