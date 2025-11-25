@@ -39,13 +39,5 @@
       "src": "/(.*)",
       "dest": "/$1"
     }
-  ],
-  "env": {
-    "PAYMONGO_SECRET": "@paymongo_secret",
-    "EMAIL_USER": "@email_user",
-    "EMAIL_PASS": "@email_pass",
-    "EMAIL_TO": "@email_to",
-    "OPENAI_API_KEY": "@openai_api_key",
-    "RETURN_URL_BASE": "@return_url_base"
-  }
+  ]
 }
