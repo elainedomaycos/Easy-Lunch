@@ -45,6 +45,17 @@
         <form id="authForm" class="auth-form">
           <input type="email" id="authEmail" class="auth-input" placeholder="Email" required />
           <input type="password" id="authPassword" class="auth-input" placeholder="Password" required />
+          <div id="passwordPolicy" class="password-policy" style="display:none;">
+            <ul id="passwordRules">
+              <li data-rule="length">At least 10 characters</li>
+              <li data-rule="upper">Contains an uppercase letter (A-Z)</li>
+              <li data-rule="lower">Contains a lowercase letter (a-z)</li>
+              <li data-rule="number">Contains a number (0-9)</li>
+              <li data-rule="special">Contains a special character (!@#$%^&*-_?)</li>
+            </ul>
+              <div class="password-strength"><div id="passwordStrengthBar"></div></div>
+              <div class="password-strength-label" id="passwordStrengthLabel">Strength: —</div>
+          </div>
           <div class="auth-row">
             <button type="button" class="auth-link small" id="authForgot">Forgot password?</button>
           </div>
@@ -57,6 +68,29 @@
       </div>
     `;
     document.body.appendChild(modal);
+
+    // Inject minimal styles once for password policy if not present
+    if (!document.getElementById('passwordPolicyStyles')) {
+      const style = document.createElement('style');
+      style.id = 'passwordPolicyStyles';
+      style.textContent = `
+        .password-policy { margin-top:8px; font-size:12px; color:#555; }
+        .password-policy ul { list-style:none; padding:0; margin:0 0 6px; }
+        .password-policy li { margin:2px 0; padding-left:20px; position:relative; transition:color .25s, transform .25s; }
+        .password-policy li::before { content:"✖"; position:absolute; left:0; color:#e74c3c; transition:color .25s, transform .25s; }
+        .password-policy li.ok { color:#2ecc71; }
+        .password-policy li.ok::before { content:"✓"; color:#2ecc71; transform:scale(1.05); }
+        .password-strength { height:6px; background:#eee; border-radius:3px; overflow:hidden; }
+        #passwordStrengthBar { height:100%; width:0; background:#e74c3c; transition:width .25s, background .25s; }
+        .password-strength-label { font-size:11px; font-weight:600; margin-top:4px; }
+        .password-strength-label.weak { color:#e74c3c; }
+        .password-strength-label.fair { color:#f39c12; }
+        .password-strength-label.strong { color:#27ae60; }
+        .password-strength-label.excellent { color:#2ecc71; }
+        button.auth-submit:disabled { opacity:0.6; cursor:not-allowed; }
+      `;
+      document.head.appendChild(style);
+    }
 
     const closeBtn = modal.querySelector('#authClose');
     closeBtn.addEventListener('click', closeModal);
@@ -71,7 +105,52 @@
     const googleBtn = modal.querySelector('#googleSignIn');
     const appleBtn = modal.querySelector('#appleSignIn');
     const forgotBtn = modal.querySelector('#authForgot');
+    const passwordInput = modal.querySelector('#authPassword');
+    const policyBox = modal.querySelector('#passwordPolicy');
+    const rulesItems = modal.querySelectorAll('#passwordRules li');
+    const strengthBar = modal.querySelector('#passwordStrengthBar');
+  const strengthLabel = modal.querySelector('#passwordStrengthLabel');
     let mode = 'signin'; // 'signin' | 'signup'
+
+    function validatePassword(pw) {
+      return {
+        length: pw.length >= 10,
+        upper: /[A-Z]/.test(pw),
+        lower: /[a-z]/.test(pw),
+        number: /[0-9]/.test(pw),
+        special: /[!@#$%^&*\-_?]/.test(pw)
+      };
+    }
+
+    function updatePasswordPolicy() {
+      const pw = passwordInput.value;
+      const flags = validatePassword(pw);
+      rulesItems.forEach(li => {
+        const key = li.getAttribute('data-rule');
+        if (flags[key]) li.classList.add('ok'); else li.classList.remove('ok');
+      });
+      const passed = Object.values(flags).filter(Boolean).length;
+      const ratio = passed / 5;
+      strengthBar.style.width = (ratio * 100) + '%';
+      strengthBar.style.background = ratio < 0.4 ? '#e74c3c' : ratio < 0.8 ? '#f1c40f' : '#2ecc71';
+      if (strengthLabel) {
+        strengthLabel.classList.remove('weak','fair','strong','excellent');
+        let labelText = 'Weak';
+        let cls = 'weak';
+        if (ratio >= 0.8) { labelText = 'Excellent'; cls = 'excellent'; }
+        else if (ratio >= 0.6) { labelText = 'Strong'; cls = 'strong'; }
+        else if (ratio >= 0.4) { labelText = 'Fair'; cls = 'fair'; }
+        strengthLabel.textContent = 'Strength: ' + labelText;
+        strengthLabel.classList.add(cls);
+      }
+      if (mode === 'signup') {
+        submit.disabled = passed < 5; // require all rules
+      } else {
+        submit.disabled = false;
+      }
+    }
+
+    passwordInput.addEventListener('input', updatePasswordPolicy);
 
     switchBtn.addEventListener('click', () => {
       mode = mode === 'signin' ? 'signup' : 'signin';
@@ -81,12 +160,18 @@
         switchText.textContent = "Don't have an account?";
         switchBtn.textContent = 'Create one';
         if (forgotBtn) forgotBtn.style.display = '';
+        if (policyBox) policyBox.style.display = 'none';
+        submit.disabled = false;
       } else {
         title.textContent = 'Create account';
         submit.textContent = 'Sign up';
         switchText.textContent = 'Already have an account?';
         switchBtn.textContent = 'Sign in';
         if (forgotBtn) forgotBtn.style.display = 'none';
+        if (policyBox) {
+          policyBox.style.display = 'block';
+          updatePasswordPolicy();
+        }
       }
     });
 
@@ -131,6 +216,15 @@
       e.preventDefault();
       const email = modal.querySelector('#authEmail').value.trim();
       const password = modal.querySelector('#authPassword').value;
+      if (mode === 'signup') {
+        // Final validation guard before attempting signup
+        const flags = validatePassword(password);
+        const allGood = Object.values(flags).every(Boolean);
+        if (!allGood) {
+          alert('Please choose a stronger password that meets all requirements.');
+          return;
+        }
+      }
       try {
         if (mode === 'signin') await signIn(email, password);
         else await signUp(email, password);

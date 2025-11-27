@@ -203,6 +203,8 @@ body {
     flex: 1;
     justify-content: center;
 }
+.nav-center li { list-style:none; }
+.nav-center li::marker { content:''; }
 
 .nav-center a {
     text-decoration: none;
@@ -286,6 +288,12 @@ body {
     align-items: center;
     height: 3.6rem;
     flex: 0 0 auto;
+}
+.search-box:not(.active) {
+  pointer-events: none; /* ignore clicks when collapsed */
+}
+.search-box:not(.active) .search-clear {
+  display: none; /* prevent tiny white dot from the &times; glyph showing */
 }
 
 .search-box.active {
@@ -1967,6 +1975,23 @@ body {
   align-items: center;
 }
 
+/* Force-hide hamburger on desktop to eliminate lingering white dot artifact */
+@media (min-width: 769px) {
+  .hamburger { 
+    display: none !important; 
+    visibility: hidden !important; 
+    opacity: 0 !important; 
+    width: 0 !important; 
+    height: 0 !important; 
+    padding: 0 !important; 
+    border: 0 !important; 
+    pointer-events: none !important; 
+    position: absolute !important; 
+    left: -9999px !important; 
+  }
+  .hamburger span { display:none !important; }
+}
+
 .confirmation-card {
   background: white;
   width: 90%;
@@ -2358,22 +2383,28 @@ body {
   }
   
   /* ===== HAMBURGER MENU BUTTON (LEFT) - RED & BIGGER ===== */
-  .hamburger {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    width: 6rem !important;
-    height: 6rem !important;
-    background: rgba(192, 57, 43, 0.1) !important;
-    border: 2px solid #c0392b !important;
-    border-radius: 12px !important;
-    cursor: pointer !important;
-    padding: 0 !important;
-    gap: 6px !important;
-    transition: all 0.2s ease !important;
-    z-index: 1100 !important;
-    order: 1 !important;
+  /* Hide hamburger between 640px and 768px to remove stray dot on mid-size screens */
+  @media (max-width: 639px) {
+    .hamburger {
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      align-items: center !important;
+      width: 6rem !important;
+      height: 6rem !important;
+      background: rgba(192, 57, 43, 0.1) !important;
+      border: 2px solid #c0392b !important;
+      border-radius: 12px !important;
+      cursor: pointer !important;
+      padding: 0 !important;
+      gap: 6px !important;
+      transition: all 0.2s ease !important;
+      z-index: 1100 !important;
+      order: 1 !important;
+    }
+  }
+  @media (min-width:640px) and (max-width:768px) {
+    .hamburger { display:none !important; width:0 !important; height:0 !important; padding:0 !important; border:0 !important; }
   }
   
   .hamburger:hover {
