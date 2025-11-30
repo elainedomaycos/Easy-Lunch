@@ -1258,7 +1258,7 @@
 
             <!-- Dashboard Section -->
             <section id="dashboard" class="section active fade-in">
-                <div class="dashboard-content slide-in">
+                <div class="dashboard-content slide-in" style="padding:2.5rem 2rem;">
                     <div class="stats-grid">
                         <div class="stat-card">
                             <h3>Total Orders</h3>
@@ -1342,7 +1342,7 @@
 
             <!-- Analytics Section -->
             <section id="analytics" class="section">
-                <div class="analytics-content">
+                <div class="analytics-content" style="padding: 2.5rem 2rem;">
                     <!-- Real-time Indicator -->
                     <div class="realtime-indicator" style="margin-bottom: 2rem; display: inline-flex; align-items: center; gap: 0.8rem; padding: 1rem 1.5rem; background: var(--card-bg); border-radius: 2rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
                         <span class="realtime-dot" style="width: 1rem; height: 1rem; background: #4CAF50; border-radius: 50%; animation: pulse 2s infinite;"></span>
@@ -1369,28 +1369,28 @@
                     <div id="analyticsMainContent" style="display: none;">
                         <!-- Stats Cards -->
                         <div class="stats-grid" style="margin-bottom: 3rem;">
-                            <div class="stat-card" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);">
-                                <div style="font-size: 3rem; margin-bottom: 1rem;">💰</div>
-                                <h3 style="font-size: 1.4rem; margin-bottom: 0.5rem; opacity: 0.9;">Total Sales</h3>
-                                <div class="value" id="analyticsTotalSales" style="font-size: 3rem; font-weight: 700;">₱0.00</div>
+                            <div class="stat-card" style="background: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s;">
+                                <div style="width: 5rem; height: 5rem; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2.4rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white;">💰</div>
+                                <h3 style="font-size: 1.3rem; color: #6e6e6e; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Total Sales</h3>
+                                <div class="value" id="analyticsTotalSales" style="font-size: 3.2rem; font-weight: 700; color: #333; margin-bottom: 0.5rem;">₱0.00</div>
                             </div>
 
-                            <div class="stat-card" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);">
-                                <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
-                                <h3 style="font-size: 1.4rem; margin-bottom: 0.5rem; opacity: 0.9;">Total Orders</h3>
-                                <div class="value" id="analyticsTotalOrders" style="font-size: 3rem; font-weight: 700;">0</div>
+                            <div class="stat-card" style="background: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s;">
+                                <div style="width: 5rem; height: 5rem; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2.4rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white;">📦</div>
+                                <h3 style="font-size: 1.3rem; color: #6e6e6e; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Total Orders</h3>
+                                <div class="value" id="analyticsTotalOrders" style="font-size: 3.2rem; font-weight: 700; color: #333; margin-bottom: 0.5rem;">0</div>
                             </div>
 
-                            <div class="stat-card" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);">
-                                <div style="font-size: 3rem; margin-bottom: 1rem;">👥</div>
-                                <h3 style="font-size: 1.4rem; margin-bottom: 0.5rem; opacity: 0.9;">Total Customers</h3>
-                                <div class="value" id="analyticsTotalCustomers" style="font-size: 3rem; font-weight: 700;">0</div>
+                            <div class="stat-card" style="background: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s;">
+                                <div style="width: 5rem; height: 5rem; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2.4rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white;">👥</div>
+                                <h3 style="font-size: 1.3rem; color: #6e6e6e; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Total Customers</h3>
+                                <div class="value" id="analyticsTotalCustomers" style="font-size: 3.2rem; font-weight: 700; color: #333; margin-bottom: 0.5rem;">0</div>
                             </div>
 
-                            <div class="stat-card" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); color: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);">
-                                <div style="font-size: 3rem; margin-bottom: 1rem;">📈</div>
-                                <h3 style="font-size: 1.4rem; margin-bottom: 0.5rem; opacity: 0.9;">Average Order Value</h3>
-                                <div class="value" id="analyticsAvgOrderValue" style="font-size: 3rem; font-weight: 700;">₱0.00</div>
+                            <div class="stat-card" style="background: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); transition: all 0.3s;">
+                                <div style="width: 5rem; height: 5rem; border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 2.4rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); color: white;">📈</div>
+                                <h3 style="font-size: 1.3rem; color: #6e6e6e; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Average Order Value</h3>
+                                <div class="value" id="analyticsAvgOrderValue" style="font-size: 3.2rem; font-weight: 700; color: #333; margin-bottom: 0.5rem;">₱0.00</div>
                             </div>
                         </div>
 
@@ -1440,7 +1440,7 @@
 
             <!-- Orders Section -->
             <section id="orders" class="section">
-                <div class="card">
+                <div class="card" style="padding:2.5rem 2rem;">
                     <div class="card-header">
                         <h3 class="card-title">Order Management</h3>
                         <button class="btn btn-secondary btn-sm" onclick="addTestOrder()">+ Add Test Order</button>
@@ -1457,7 +1457,7 @@
 
             <!-- Products Section -->
             <section id="products" class="section fade-in">
-                <div class="card" style="margin-bottom: 2rem;">
+                <div class="card" style="margin-bottom: 2rem; padding:2.5rem 2rem;">
                     <div class="card-header">
                         <h3 class="card-title">Product Management</h3>
                         <button class="btn btn-primary" id="addProductBtn">+ Add Product</button>
@@ -1476,7 +1476,7 @@
 
             <!-- Chats Section -->
             <section id="chats" class="section">
-                <div class="card">
+                <div class="card" style="padding:2.5rem 2rem;">
                     <div class="card-header">
                         <h3 class="card-title">Live Chat Support</h3>
                     </div>
@@ -2778,7 +2778,8 @@
                 paymentMethodsChart.destroy();
             }
 
-            const methods = Object.keys(paymentMethods);
+            // Filter out methods with 0 orders
+            const methods = Object.keys(paymentMethods).filter(m => paymentMethods[m].count > 0);
             const counts = methods.map(m => paymentMethods[m].count);
             const revenues = methods.map(m => paymentMethods[m].revenue);
 

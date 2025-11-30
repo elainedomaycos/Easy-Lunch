@@ -1,3 +1,40 @@
+@media (max-width: 768px) {
+  .navbar-bar .search-icon svg,
+  .navbar-bar .search-icon svg path,
+  .navbar-bar .search-icon svg circle,
+  .navbar-bar .search-icon svg rect {
+    fill: #c0392b !important;
+    stroke: #c0392b !important;
+  }
+  .navbar-bar .hamburger svg,
+  .navbar-bar .hamburger svg path,
+  .navbar-bar .hamburger svg rect {
+    fill: #c0392b !important;
+    stroke: #c0392b !important;
+  }
+  .navbar-bar .hamburger span {
+    background: #c0392b !important;
+  }
+}
+@media (max-width: 768px) {
+  .navbar-bar .icon-button svg,
+  .navbar-bar .search-icon,
+  .navbar-bar .icon-button svg path,
+  .navbar-bar .icon-button svg circle,
+  .navbar-bar .icon-button svg rect {
+    color: #c0392b !important;
+    fill: #c0392b !important;
+    stroke: #c0392b !important;
+  }
+}
+@media (max-width: 768px) {
+  .navbar-bar .icon-button svg,
+  .navbar-bar .search-icon {
+    color: #c0392b !important;
+    fill: #c0392b !important;
+    stroke: #c0392b !important;
+  }
+}
 :root{
   --hero-gradient: radial-gradient(circle at 65% 40%, #ffcc99 0%, #f9d8b5 40%, #fff4e6 90%);
   --banner-red-start: #b81e1e;
@@ -2363,13 +2400,7 @@ body {
     background: transparent !important;
   }
   
-  .navbar-bar {
-    height: 7rem !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    padding: 0 !important;
-    border: none !important;
-  }
+  /* .navbar-bar mobile override removed to allow page-specific styles */
   
   /* Mobile Flexbox Layout: Hamburger (Left) | Space | Icons (Right) */
   .navbar-content {
@@ -2451,6 +2482,15 @@ body {
   .logo-banner {
     display: none !important;
   }
+
+/* Strong override: force hamburger bars to red in all states (placed at end to win cascade) */
+.navbar-bar .hamburger span,
+.hamburger span,
+.navbar-bar .hamburger.open span,
+.hamburger.open span {
+  background: #c0392b !important;
+}
+
   
   .logo-img {
     display: none !important;
@@ -2970,6 +3010,7 @@ body {
     display: flex !important;
     flex-direction: column;
     justify-content: space-between;
+    margin-top: 5px;
     width: 2.8rem;
     height: 2.2rem;
     background: transparent;

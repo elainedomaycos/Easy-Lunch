@@ -93,7 +93,22 @@
     .section-subtitle {
     /* MOBILE NAVBAR ICONS - PRODUCT PAGE */
     @media (max-width: 768px) {
-      /* Force hamburger icon background and border to white on mobile */
+      /* Force search icon SVG to red */
+      .navbar-bar .search-icon svg,
+      .navbar-bar .search-icon svg path,
+      .navbar-bar .search-icon svg circle,
+      .navbar-bar .search-icon svg rect {
+        fill: #c0392b !important;
+        stroke: #c0392b !important;
+      }
+      /* Force hamburger SVG bars to red */
+      .navbar-bar .hamburger svg,
+      .navbar-bar .hamburger svg path,
+      .navbar-bar .hamburger svg rect {
+        fill: #c0392b !important;
+        stroke: #c0392b !important;
+      }
+      /* Hamburger icon background stays white, bars become red */
       .navbar-bar .navbar-content .hamburger {
         background: #fff !important;
         border: none !important;
@@ -101,19 +116,18 @@
         border-radius: 50% !important;
       }
       .navbar-bar .navbar-content .hamburger span {
-        background: #fff !important;
-        color: #fff !important;
-        fill: #fff !important;
-        stroke: #fff !important;
+        background: #c0392b !important;
+        color: #c0392b !important;
+        fill: #c0392b !important;
+        stroke: #c0392b !important;
       }
-      /* Force hamburger icon to white on mobile */
       .navbar-bar .navbar-content .hamburger span,
       .navbar-bar .navbar-content .hamburger svg {
-        color: #fff !important;
-        fill: #fff !important;
-        stroke: #fff !important;
+        color: #c0392b !important;
+        fill: #c0392b !important;
+        stroke: #c0392b !important;
       }
-      /* Force navbar icons to white on mobile, override all styles */
+      /* Navbar icons to red on mobile, override all styles */
       .navbar-bar .navbar-content .icon-button svg,
       .navbar-bar .navbar-content .search-icon,
       .navbar-bar .nav-right .icon-button svg,
@@ -121,34 +135,42 @@
       .navbar-bar .navbar-content .hamburger span,
       .navbar-bar .nav-center a,
       .navbar-bar .nav-center a.active {
-        color: #fff !important;
-        fill: #fff !important;
-        stroke: #fff !important;
+        color: #c0392b !important;
+        fill: #c0392b !important;
+        stroke: #c0392b !important;
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
         filter: none !important;
+      }
+      /* Specifically target SVG icons inside .icon-button in navbar */
+      .navbar-bar .icon-button svg {
+        color: #c0392b !important;
+        fill: #c0392b !important;
+        stroke: #c0392b !important;
+      }
+      /* Prevent non-navbar icons from being affected */
+      .icon-button svg:not(.navbar-bar .navbar-content .icon-button svg):not(.navbar-bar .nav-right .icon-button svg),
+      .search-icon:not(.navbar-bar .navbar-content .search-icon):not(.navbar-bar .nav-right .search-icon) {
+        color: initial !important;
+        fill: initial !important;
+        stroke: initial !important;
       }
       /* Restore nav-center active background for mobile */
       .navbar-bar .nav-center a.active {
         background: #f5deb3 !important;
         color: #8b0000 !important;
       }
-      .navbar-bar {
-        display: none !important;
-      }
-      .navbar-bar {
-        display: none !important;
-      }
+      /* .navbar-bar display:none removed to fix hamburger menu */
       /* Force navbar icons to be white on mobile, with high specificity */
       .navbar-bar .navbar-content .hamburger span,
       .navbar-bar .navbar-content .icon-button svg,
       .navbar-bar .navbar-content .search-icon,
       .navbar-bar .nav-right .icon-button svg,
       .navbar-bar .nav-right .search-icon {
-        color: #fff !important;
-        fill: #fff !important;
-        stroke: #fff !important;
+        color: #8b0000 !important;
+        fill: #8b0000 !important;
+        stroke: #8b0000 !important;
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
@@ -397,6 +419,13 @@
       justify-content: center;
       padding: 0;
     }
+    /* Mobile override: make bar transparent but keep spacing & content */
+    @media (max-width: 768px) {
+      html body .navbar-bar {
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+    }
     .navbar-content {
       display: flex;
       align-items: center;
@@ -431,18 +460,24 @@
       justify-content: center;
       margin: 0;
     }
-    .nav-center.open {
-      display: flex !important;
-      flex-direction: column;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: white;
-      border-radius: 0 0 1.5rem 1.5rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: 100;
+    @media (max-width: 768px) {
+      .nav-center {
+        display: none !important;
+      }
+      .nav-center.open {
+        display: flex !important;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 0 0 1.5rem 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+      }
     }
+    /* Removed duplicate .nav-center.open outside media query for correct mobile toggle */
 
     .nav-center ul {
       display: flex;
@@ -516,6 +551,17 @@
       height: 2.4rem;
       fill: #FFFFFF;
     }
+    @media (max-width: 768px) {
+      .navbar-bar .search-icon,
+      .navbar-bar .search-icon svg,
+      .navbar-bar .search-icon svg path,
+      .navbar-bar .search-icon svg circle,
+      .navbar-bar .search-icon svg rect {
+        fill: #c0392b !important;
+        stroke: #c0392b !important;
+      }
+    }
+    
     .search-box {
       position: relative;
       width: 0;
@@ -579,17 +625,24 @@
     }
 
     @media (max-width: 768px) {
-      /* Force hamburger bars to white on mobile, override all styles */
+      /* Force hamburger bars to red on mobile */
       .navbar-bar .navbar-content .hamburger span,
       .navbar-bar .hamburger span,
       .hamburger span {
-        background: #fff !important;
-        color: #fff !important;
-        fill: #fff !important;
-        stroke: #fff !important;
+        background: #c0392b !important;
+        color: #c0392b !important;
+        fill: #c0392b !important;
+        stroke: #c0392b !important;
         box-shadow: none !important;
         border: none !important;
         filter: none !important;
+      }
+      /* When menu is opened, make hamburger/back button white */
+      .navbar-bar .hamburger.open span {
+        background: #ffffff !important;
+        color: #ffffff !important;
+        fill: #ffffff !important;
+        stroke: #ffffff !important;
       }
     }
 
@@ -599,7 +652,7 @@
 
     @media (max-width: 768px) {
       .nav-center {
-        display: none;
+        display: none !important;
       }
       .nav-center.open {
         display: flex !important;
@@ -614,7 +667,7 @@
         z-index: 100;
       }
       .hamburger {
-        display: flex;
+        display: flex !important;
       }
     }
   </style>
@@ -630,14 +683,19 @@
     background: #f5deb3 !important;
     color: #8b0000 !important;
   }
+  /* Make navbar icons red on mobile (products page) */
   .navbar-bar .icon-button svg,
-  .navbar-bar .search-icon,
   .navbar-bar .nav-right .icon-button svg,
-  .navbar-bar .nav-right .search-icon {
-    color: #fff !important;
-    fill: #fff !important;
-    stroke: #fff !important;
+  .navbar-bar .search-icon,
+  .navbar-bar .search-icon path,
+  .navbar-bar .nav-right .search-icon,
+  .navbar-bar .nav-right .search-icon path {
+    color: #c0392b !important;
+    fill: #c0392b !important;
+    stroke: #c0392b !important;
   }
+  /* Ensure hamburger spans are red */
+  .navbar-bar .hamburger span { background: #c0392b !important; }
 }
 </style>
 
@@ -649,7 +707,7 @@
     <nav class="navbar-awning">
       <div class="navbar-bar">
         <div class="navbar-content">
-          <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" tabindex="0">
+          <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
             <span></span>
             <span></span>
             <span></span>
@@ -657,7 +715,7 @@
           <div class="logo-banner" onclick="window.location.href='index.html'">
             <img src="El Pollo - Logo - Création de l'identité visuelle du restaurant fast food mexicain.png" alt="Bossing's Wings" class="logo-img">
           </div>
-          <ul class="nav-center" id="navMenu">
+          <ul class="nav-center" id="navCenter">
             <li><a href="index.html#hero" class="nav-link">HOME</a></li>
             <li><a href="product.html" class="nav-link active">PRODUCTS</a></li>
             <li><a href="index.html#about" class="nav-link">ABOUT US</a></li>
@@ -1389,7 +1447,7 @@
 
       // Add hover effect
       document.querySelectorAll('.recommendation-card').forEach(card => {
-        card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-5px)');
+        card.addEventListener('mouseenter', () => card.style.transform)
         card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
       });
 
@@ -1500,42 +1558,33 @@ For inquiries: contact@easylunch.com
       });
     }
 
-    // Hamburger menu toggle for mobile
-    document.addEventListener('DOMContentLoaded', function() {
-      var hamburger = document.getElementById('hamburgerBtn');
-      var navMenu = document.getElementById('navMenu');
-      function isMobile() {
-        return window.innerWidth <= 768;
+    // Hamburger menu toggle for mobile (unified with index.html)
+    (function() {
+      const hamburger = document.getElementById('hamburgerBtn');
+      const navCenter = document.getElementById('navCenter');
+      if (hamburger && navCenter) {
+        hamburger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          hamburger.classList.toggle('open');
+          navCenter.classList.toggle('open');
+        });
+        // Close menu when clicking on a nav link
+        const navLinks = navCenter.querySelectorAll('a');
+        navLinks.forEach(link => {
+          link.addEventListener('click', function() {
+            hamburger.classList.remove('open');
+            navCenter.classList.remove('open');
+          });
+        });
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!navCenter.contains(e.target) && !hamburger.contains(e.target)) {
+            hamburger.classList.remove('open');
+            navCenter.classList.remove('open');
+          }
+        });
       }
-      function closeMenu() {
-        navMenu.classList.remove('open');
-      }
-      function openMenu() {
-        navMenu.classList.add('open');
-      }
-      hamburger.addEventListener('click', function(e) {
-        e.stopPropagation();
-        navMenu.classList.toggle('open');
-      });
-      document.addEventListener('click', function(e) {
-        if (isMobile() && !navMenu.contains(e.target) && !hamburger.contains(e.target)) {
-          closeMenu();
-        }
-      });
-      window.addEventListener('resize', function() {
-        if (!isMobile()) {
-          closeMenu();
-          navMenu.style.display = 'flex';
-        } else {
-          navMenu.style.display = '';
-        }
-      });
-      // Fallback: always show nav on desktop
-      if (!isMobile()) {
-        navMenu.classList.remove('open');
-        navMenu.style.display = 'flex';
-      }
-    });
+    })();
   </script>
 
   <!-- Scroll to Top Button Script -->

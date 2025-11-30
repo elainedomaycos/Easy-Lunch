@@ -54,7 +54,20 @@
     function appendMessage(text, who) {
       const div = document.createElement('div');
       div.className = `msg ${who}`;
-      div.textContent = text;
+      if (who === 'bot') {
+        // Support line breaks, lists, and bold in bot replies
+        let formatted = text
+          .replace(/\n/g, '<br>')
+          .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // bold: **text**
+          .replace(/(^|<br>)\s*[-•]\s+(.*?)(?=<br>|$)/g, '$1<li>$2</li>'); // lists: - item or • item
+        // Wrap <li> in <ul> if any list items found
+        if (formatted.includes('<li>')) {
+          formatted = formatted.replace(/(<li>.*?<\/li>)+/gs, match => `<ul>${match}</ul>`);
+        }
+        div.innerHTML = formatted;
+      } else {
+        div.textContent = text;
+      }
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
       saveMessage(who, text);

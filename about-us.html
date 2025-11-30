@@ -32,58 +32,120 @@
             padding: 0;
             box-sizing: border-box;
         }
-
-                /* MOBILE NAVBAR ICONS - ABOUT US PAGE */
+        /* About Us: white borders for navbar icons */
+        html body .navbar-bar .nav-right .icon-button {
+            border: 2px solid #ffffff !important;
+            background: transparent !important;
+        }
+        html body .navbar-bar .nav-right .icon-button:hover {
+            border-color: #ffffff !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+        /* About Us: make navbar icons white on all viewports */
+        html body .navbar-bar .nav-right .icon-button svg,
+        html body .navbar-bar .nav-right .icon-button svg path,
+        html body .navbar-bar .search-icon,
+        html body .navbar-bar .search-icon path {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+            stroke: #ffffff !important;
+        }
+        html body .navbar-bar .hamburger span {
+            background: #ffffff !important;
+        }
+                /* Mobile transparent navbar bar override (match products page) */
                 @media (max-width: 768px) {
-                    html body .navbar-content .hamburger span,
-                    html body .navbar-content .icon-button svg,
-                    html body .navbar-content .search-icon,
-                    html body .nav-right .icon-button svg,
-                    html body .nav-right .search-icon {
-                        background: #fff !important;
-                        fill: #fff !important;
-                        color: #fff !important;
-                        stroke: #fff !important;
+                    html body .navbar-bar {
+                        background: transparent !important;
                         box-shadow: none !important;
-                        border: none !important;
                     }
-                    .icon-button {
-                        background: #c0392b !important;
+                    /* Make entire hamburger white (background + border + bars) */
+                    .navbar-bar .navbar-content .hamburger {
+                        background: #ffffff !important;
+                        border: 2px solid #ffffff !important;
+                        box-shadow: none !important;
                         border-radius: 50% !important;
-                        width: 3.5rem !important;
-                        height: 3.5rem !important;
-                        display: flex !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                        box-shadow: none !important;
-                        border: none !important;
                     }
-                    .icon-button svg {
-                        fill: #fff !important;
-                        color: #fff !important;
-                        width: 2.2rem !important;
-                        height: 2.2rem !important;
-                    }
-                    .hamburger {
-                        display: flex !important;
-                        flex-direction: column !important;
-                        justify-content: center !important;
-                        align-items: center !important;
-                        width: 3.5rem !important;
-                        height: 3.5rem !important;
+                    /* Hamburger bars red for contrast inside white circle */
+                    .navbar-bar .hamburger.open span {
                         background: #c0392b !important;
-                        border-radius: 12px !important;
-                        border: none !important;
-                        gap: 5px !important;
+                        color: #c0392b !important;
+                        fill: #c0392b !important;
+                        stroke: #c0392b !important;
                     }
-                    .hamburger span {
-                        display: block !important;
-                        width: 2.2rem !important;
-                        height: 4px !important;
-                        background: #fff !important;
-                        border-radius: 4px !important;
+                    /* Keep open state fully white as well */
+                    .navbar-bar .hamburger.open {
+                        background: #ffffff !important;
+                        border-color: #ffffff !important;
+                    }
+                    /* Safety: if hamburger uses an SVG anywhere, force it white */
+                    .navbar-bar .hamburger svg,
+                    .navbar-bar .hamburger svg path,
+                    .navbar-bar .hamburger svg rect,
+                    .navbar-bar .hamburger svg circle {
+                        fill: #ffffff !important;
+                        stroke: #ffffff !important;
+                    }
+                    .navbar-bar .navbar-content .hamburger span {
+                        background: #c0392b !important;
+                        color: #c0392b !important;
+                        fill: #c0392b !important;
+                        stroke: #c0392b !important;
+                    }
+                    .navbar-bar .navbar-content .hamburger span,
+                    .navbar-bar .navbar-content .hamburger svg {
+                        color: #c0392b !important;
+                        fill: #c0392b !important;
+                        stroke: #c0392b !important;
+                    }
+                    .navbar-bar .navbar-content .icon-button svg,
+                    .navbar-bar .navbar-content .search-icon,
+                    .navbar-bar .nav-right .icon-button svg,
+                    .navbar-bar .nav-right .search-icon,
+                    .navbar-bar .navbar-content .hamburger span,
+                    .navbar-bar .nav-center a,
+                    .navbar-bar .nav-center a.active {
+                        color: #fff !important;
+                        fill: #fff !important;
+                        stroke: #fff !important;
+                        background: transparent !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                        filter: none !important;
+                    }
+                    .navbar-bar .nav-center a.active {
+                        background: #f5deb3 !important;
+                        color: #8b0000 !important;
                     }
                 }
+        /* Mobile nav menu open styles */
+        @media (max-width: 768px) {
+            .nav-center {
+                display: none !important;
+            }
+            .nav-center.open {
+                display: flex !important;
+                flex-direction: column !important;
+                position: absolute !important;
+                top: 100% !important;
+                left: 0 !important;
+                right: 0 !important;
+                background: linear-gradient(135deg, #c0392b 0%, #8b0000 100%) !important;
+                border-radius: 0 0 1.5rem 1.5rem !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+                z-index: 1000 !important;
+                padding: 1rem !important;
+                gap: 0.5rem !important;
+            }
+            .nav-center.open a {
+                color: #ffffff !important;
+            }
+            .nav-center.open a.active {
+                background: rgba(255,255,255,0.15) !important;
+                color: #ffffff !important;
+            }
+        }
         html {
             font-size: 62.5%;
             scroll-behavior: smooth;
@@ -485,7 +547,7 @@
             background: #ffd700;
             color: #8b0000;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
         }
 
         /* Footer */
@@ -981,6 +1043,45 @@
             init();
         }
     </script>
+        <script>
+                // Mobile hamburger toggle for About Us
+                (function() {
+                    function setupHamburger() {
+                        const hamburger = document.getElementById('hamburgerBtn');
+                        const navCenter = document.querySelector('.nav-center');
+                        if (!hamburger || !navCenter) return;
+
+                        function closeMenu() {
+                            hamburger.classList.remove('open');
+                            navCenter.classList.remove('open');
+                            hamburger.setAttribute('aria-label', 'Open menu');
+                        }
+
+                        function toggleMenu(e) {
+                            e.stopPropagation();
+                            const isOpen = hamburger.classList.toggle('open');
+                            navCenter.classList.toggle('open', isOpen);
+                            hamburger.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+                        }
+
+                        hamburger.addEventListener('click', toggleMenu);
+                        document.addEventListener('click', (e) => {
+                            if (!navCenter.contains(e.target) && !hamburger.contains(e.target)) {
+                                closeMenu();
+                            }
+                        });
+                        document.addEventListener('keydown', (e) => {
+                            if (e.key === 'Escape') closeMenu();
+                        });
+                    }
+
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', setupHamburger);
+                    } else {
+                        setupHamburger();
+                    }
+                })();
+        </script>
     <script>
         // IntersectionObserver for fade-in/slide-in/card animations
     (function() {
