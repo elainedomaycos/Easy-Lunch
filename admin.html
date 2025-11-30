@@ -11,6 +11,12 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Analytics Engine -->
+    <script src="analytics.js"></script>
+    
     <style>
         :root {
             --primary: #c0392b;
@@ -288,6 +294,11 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .btn {
@@ -1215,6 +1226,10 @@
                     <span class="nav-icon">📊</span>
                     <span>Dashboard</span>
                 </li>
+                <li class="nav-item" data-section="analytics">
+                    <span class="nav-icon">📈</span>
+                    <span>Analytics</span>
+                </li>
                 <li class="nav-item" data-section="orders">
                     <span class="nav-icon">🛒</span>
                     <span>Orders</span>
@@ -1319,6 +1334,104 @@
                                 <div class="empty-state" style="padding: 2rem;">
                                     <p style="font-size: 1.3rem; color: #999;">No orders yet</p>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="section">
+                <div class="analytics-content">
+                    <!-- Real-time Indicator -->
+                    <div class="realtime-indicator" style="margin-bottom: 2rem; display: inline-flex; align-items: center; gap: 0.8rem; padding: 1rem 1.5rem; background: var(--card-bg); border-radius: 2rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+                        <span class="realtime-dot" style="width: 1rem; height: 1rem; background: #4CAF50; border-radius: 50%; animation: pulse 2s infinite;"></span>
+                        <span style="font-weight: 600;">Live Updates Active</span>
+                    </div>
+
+                    <!-- Export Buttons -->
+                    <div style="margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" id="analyticsRefreshBtn">🔄 Refresh Data</button>
+                        <button class="btn btn-secondary" id="analyticsExportJsonBtn">📥 Export JSON</button>
+                        <button class="btn btn-secondary" id="analyticsExportCsvBtn">📊 Export CSV</button>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="analyticsLoading" style="text-align: center; padding: 4rem; font-size: 1.6rem; color: #999;">
+                        Loading analytics data...
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="analyticsError" style="display: none; background: #ffebee; color: var(--danger); padding: 2rem; border-radius: 1rem; margin-bottom: 2rem; border-left: 4px solid var(--danger);">
+                    </div>
+
+                    <!-- Analytics Content -->
+                    <div id="analyticsMainContent" style="display: none;">
+                        <!-- Stats Cards -->
+                        <div class="stats-grid" style="margin-bottom: 3rem;">
+                            <div class="stat-card" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">💰</div>
+                                <h3 style="font-size: 1.4rem; margin-bottom: 0.5rem; opacity: 0.9;">Total Sales</h3>
+                                <div class="value" id="analyticsTotalSales" style="font-size: 3rem; font-weight: 700;">₱0.00</div>
+                            </div>
+
+                            <div class="stat-card" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+                                <h3 style="font-size: 1.4rem; margin-bottom: 0.5rem; opacity: 0.9;">Total Orders</h3>
+                                <div class="value" id="analyticsTotalOrders" style="font-size: 3rem; font-weight: 700;">0</div>
+                            </div>
+
+                            <div class="stat-card" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">👥</div>
+                                <h3 style="font-size: 1.4rem; margin-bottom: 0.5rem; opacity: 0.9;">Total Customers</h3>
+                                <div class="value" id="analyticsTotalCustomers" style="font-size: 3rem; font-weight: 700;">0</div>
+                            </div>
+
+                            <div class="stat-card" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); color: white; padding: 2.5rem; border-radius: 1.5rem; box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">📈</div>
+                                <h3 style="font-size: 1.4rem; margin-bottom: 0.5rem; opacity: 0.9;">Average Order Value</h3>
+                                <div class="value" id="analyticsAvgOrderValue" style="font-size: 3rem; font-weight: 700;">₱0.00</div>
+                            </div>
+                        </div>
+
+                        <!-- Charts -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Sales Trends (Last 7 Days)</h3>
+                                </div>
+                                <div style="padding: 2rem; height: 350px;">
+                                    <canvas id="analyticsSalesTrendsChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Payment Methods</h3>
+                                </div>
+                                <div style="padding: 2rem; height: 350px;">
+                                    <canvas id="analyticsPaymentMethodsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top Products -->
+                        <div class="card" style="margin-bottom: 3rem;">
+                            <div class="card-header">
+                                <h3 class="card-title">🏆 Top Selling Products</h3>
+                            </div>
+                            <div id="analyticsTopProductsList" style="padding: 2rem;">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Inventory Status -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">📦 Inventory Status & Demand Analysis</h3>
+                            </div>
+                            <div id="analyticsInventoryList" style="padding: 2rem;">
+                                <!-- Populated by JS -->
                             </div>
                         </div>
                     </div>
@@ -1563,6 +1676,11 @@
                     
                     document.getElementById('pageTitle').textContent = 
                         section.charAt(0).toUpperCase() + section.slice(1);
+                    
+                    // Load analytics when analytics section is clicked
+                    if (section === 'analytics') {
+                        loadAnalytics();
+                    }
                     
                     console.log('✅ Switched to section:', section);
                 });
@@ -2465,6 +2583,317 @@
                 console.error('Error saving products to Firebase:', e);
             }
         }
+
+        // Analytics functionality
+        let analyticsChartsInitialized = false;
+        let salesTrendsChart = null;
+        let paymentMethodsChart = null;
+
+        async function loadAnalytics() {
+            console.log('📊 Loading analytics...');
+            
+            // Show loading, hide error and content
+            document.getElementById('analyticsLoading').style.display = 'block';
+            document.getElementById('analyticsError').style.display = 'none';
+            document.getElementById('analyticsMainContent').style.display = 'none';
+
+            try {
+                // Check if analytics engine is loaded
+                if (typeof EasyLunchAnalytics === 'undefined') {
+                    throw new Error('Analytics engine not loaded. Please ensure analytics.js is included.');
+                }
+
+                // Fetch analytics data
+                const analytics = await EasyLunchAnalytics.getAnalytics({
+                    trendPeriod: 'daily',
+                    trendCount: 7,
+                    topProductsLimit: 10,
+                    includeCustomerDetails: false
+                });
+
+                console.log('✅ Analytics data loaded:', analytics);
+
+                // Render analytics
+                renderAnalyticsDashboard(analytics);
+
+                // Setup real-time updates (only once)
+                if (!analyticsChartsInitialized) {
+                    EasyLunchAnalytics.setupRealtimeAnalytics((updatedAnalytics) => {
+                        console.log('🔄 Analytics updated in real-time');
+                        renderAnalyticsDashboard(updatedAnalytics);
+                    });
+                    analyticsChartsInitialized = true;
+                }
+
+                // Hide loading, show content
+                document.getElementById('analyticsLoading').style.display = 'none';
+                document.getElementById('analyticsMainContent').style.display = 'block';
+
+            } catch (error) {
+                console.error('❌ Error loading analytics:', error);
+                document.getElementById('analyticsLoading').style.display = 'none';
+                document.getElementById('analyticsError').style.display = 'block';
+                document.getElementById('analyticsError').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        function renderAnalyticsDashboard(analytics) {
+            // Update stat cards
+            document.getElementById('analyticsTotalSales').textContent = 
+                `₱${analytics.overview.totalSales.toFixed(2)}`;
+            document.getElementById('analyticsTotalOrders').textContent = 
+                analytics.overview.totalOrders;
+            document.getElementById('analyticsTotalCustomers').textContent = 
+                analytics.overview.totalCustomers;
+            document.getElementById('analyticsAvgOrderValue').textContent = 
+                `₱${analytics.overview.averageOrderValue.toFixed(2)}`;
+
+            // Render charts
+            renderAnalyticsSalesTrends(analytics.trends);
+            renderAnalyticsPaymentMethods(analytics.paymentMethods);
+
+            // Render top products
+            renderAnalyticsTopProducts(analytics.products.topSelling);
+
+            // Render inventory
+            renderAnalyticsInventory(analytics.inventory);
+        }
+
+        function renderAnalyticsSalesTrends(trends) {
+            const ctx = document.getElementById('analyticsSalesTrendsChart');
+            
+            // Destroy existing chart if it exists
+            if (salesTrendsChart) {
+                salesTrendsChart.destroy();
+            }
+
+            const labels = trends.data.map(d => {
+                const date = new Date(d.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+
+            salesTrendsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Sales (₱)',
+                            data: trends.data.map(d => d.sales),
+                            borderColor: '#c0392b',
+                            backgroundColor: 'rgba(192, 57, 43, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        },
+                        {
+                            label: 'Orders',
+                            data: trends.data.map(d => d.orders),
+                            borderColor: '#2196F3',
+                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        if (context.datasetIndex === 0) {
+                                            label += '₱' + context.parsed.y.toFixed(2);
+                                        } else {
+                                            label += context.parsed.y;
+                                        }
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Sales (₱)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Orders'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderAnalyticsPaymentMethods(paymentMethods) {
+            const ctx = document.getElementById('analyticsPaymentMethodsChart');
+            
+            // Destroy existing chart if it exists
+            if (paymentMethodsChart) {
+                paymentMethodsChart.destroy();
+            }
+
+            const methods = Object.keys(paymentMethods);
+            const counts = methods.map(m => paymentMethods[m].count);
+            const revenues = methods.map(m => paymentMethods[m].revenue);
+
+            const colors = ['#c0392b', '#2196F3', '#4CAF50', '#ff9800', '#9c27b0'];
+
+            paymentMethodsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: methods.map(m => m.toUpperCase()),
+                    datasets: [{
+                        label: 'Orders',
+                        data: counts,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const method = methods[context.dataIndex];
+                                    const count = counts[context.dataIndex];
+                                    const revenue = revenues[context.dataIndex];
+                                    return [
+                                        `${method.toUpperCase()}: ${count} orders`,
+                                        `Revenue: ₱${revenue.toFixed(2)}`
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderAnalyticsTopProducts(products) {
+            const container = document.getElementById('analyticsTopProductsList');
+            
+            if (!products || products.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center;">No product data available</p>';
+                return;
+            }
+
+            container.innerHTML = products.map((product, index) => `
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; background: ${index % 2 === 0 ? '#f9f9f9' : 'white'}; border-radius: 0.8rem; margin-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
+                        <div style="font-size: 2rem; font-weight: 700; color: ${index < 3 ? '#c0392b' : '#999'}; min-width: 3rem;">
+                            #${index + 1}
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; font-size: 1.5rem; margin-bottom: 0.3rem;">${product.name}</div>
+                            <div style="color: #666; font-size: 1.2rem;">
+                                ${product.quantity} sold • ₱${product.revenue.toFixed(2)} revenue
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.8rem; font-weight: 700; color: #4CAF50;">
+                            ₱${product.revenue.toFixed(2)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAnalyticsInventory(inventory) {
+            const container = document.getElementById('analyticsInventoryList');
+            
+            if (!inventory || inventory.length === 0) {
+                container.innerHTML = '<p style="color: #999; text-align: center;">No inventory data available</p>';
+                return;
+            }
+
+            container.innerHTML = inventory.map(item => {
+                const stockColor = item.stockStatus === 'low' ? 'var(--danger)' : 
+                                  item.stockStatus === 'medium' ? 'var(--warning)' : 
+                                  'var(--success)';
+                const stockBg = item.stockStatus === 'low' ? '#ffebee' : 
+                               item.stockStatus === 'medium' ? '#fff3e0' : 
+                               '#e8f5e9';
+                
+                return `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; background: white; border: 1px solid #e0e0e0; border-radius: 0.8rem; margin-bottom: 1rem;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; font-size: 1.5rem; margin-bottom: 0.5rem;">${item.name}</div>
+                            <div style="color: #666; font-size: 1.2rem;">
+                                Sold in last 30 days: ${item.soldLast30Days} • Avg daily: ${item.avgDailyDemand}
+                            </div>
+                        </div>
+                        <div>
+                            <span style="padding: 0.5rem 1.2rem; background: ${stockBg}; color: ${stockColor}; border-radius: 2rem; font-size: 1.2rem; font-weight: 600; text-transform: uppercase;">
+                                ${item.stockStatus}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Export functions
+        document.addEventListener('DOMContentLoaded', () => {
+            // Analytics export buttons
+            document.getElementById('analyticsRefreshBtn')?.addEventListener('click', async () => {
+                EasyLunchAnalytics.clearCache();
+                await loadAnalytics();
+                alert('Analytics data refreshed!');
+            });
+
+            document.getElementById('analyticsExportJsonBtn')?.addEventListener('click', async () => {
+                const analytics = await EasyLunchAnalytics.getAnalytics();
+                EasyLunchAnalytics.exportToJSON(analytics, `easy-lunch-analytics-${new Date().toISOString().split('T')[0]}.json`);
+            });
+
+            document.getElementById('analyticsExportCsvBtn')?.addEventListener('click', async () => {
+                const orders = await EasyLunchAnalytics.fetchAllOrders();
+                EasyLunchAnalytics.exportToCSV(orders, `easy-lunch-orders-${new Date().toISOString().split('T')[0]}.csv`);
+            });
+        });
 
         // IntersectionObserver for fade-in/slide-in animations
         (function() {

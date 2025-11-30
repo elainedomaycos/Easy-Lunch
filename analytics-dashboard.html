@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy Lunch - Analytics Dashboard</title>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu:400,600,700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #c0392b;
+            --primary-dark: #8b0000;
+            --secondary: #f5deb3;
+            --bg: #fff8e7;
+            --card-bg: #ffffff;
+            --text: #333;
+            --text-light: #6e6e6e;
+            --border: #e0e0e0;
+            --success: #4CAF50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --info: #2196F3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 10px;
+        }
+
+        body {
+            font-family: 'Ubuntu', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1.4rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 1.5rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.4rem;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.8rem;
+            font-size: 1.4rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-outline:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-card .icon {
+            width: 5rem;
+            height: 5rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card .icon.sales {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .stat-card .icon.orders {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+        }
+
+        .stat-card .icon.customers {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+        }
+
+        .stat-card .icon.aov {
+            background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+            color: white;
+        }
+
+        .stat-card h3 {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            font-size: 3.2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .change {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .stat-card .change.positive {
+            color: var(--success);
+        }
+
+        .stat-card .change.negative {
+            color: var(--danger);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            color: var(--text);
+        }
+
+        .chart-card .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .products-section {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 3rem;
+        }
+
+        .products-section h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--text);
+        }
+
+        .product-list {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .product-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem;
+            background: var(--bg);
+            border-radius: 1rem;
+            transition: all 0.3s;
+        }
+
+        .product-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex: 1;
+        }
+
+        .product-rank {
+            width: 3rem;
+            height: 3rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        .product-details h4 {
+            font-size: 1.6rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .product-details p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .product-stats {
+            display: flex;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .product-stat {
+            text-align: center;
+        }
+
+        .product-stat .label {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 0.3rem;
+        }
+
+        .product-stat .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .inventory-section {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 3rem;
+        }
+
+        .inventory-section h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--text);
+        }
+
+        .inventory-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem;
+            background: var(--bg);
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .inventory-info {
+            flex: 1;
+        }
+
+        .inventory-info h4 {
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .inventory-info p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .stock-badge {
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .stock-badge.low {
+            background: #ffebee;
+            color: var(--danger);
+        }
+
+        .stock-badge.medium {
+            background: #fff3e0;
+            color: var(--warning);
+        }
+
+        .stock-badge.high {
+            background: #e8f5e9;
+            color: var(--success);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            font-size: 1.6rem;
+            color: var(--text-light);
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .error {
+            background: #ffebee;
+            color: var(--danger);
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--danger);
+        }
+
+        .realtime-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2rem;
+            font-size: 1.2rem;
+        }
+
+        .realtime-indicator .dot {
+            width: 0.8rem;
+            height: 0.8rem;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 2rem 1.5rem;
+            }
+
+            .header h1 {
+                font-size: 2.4rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .product-stats {
+                gap: 1.5rem;
+            }
+
+            .chart-card .chart-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Analytics Dashboard</h1>
+            <p>Real-time insights into your Easy Lunch business performance</p>
+            <div class="realtime-indicator">
+                <span class="dot"></span>
+                <span>Live Updates Active</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" id="refreshBtn">🔄 Refresh Data</button>
+                <button class="btn btn-outline" id="exportJsonBtn">📥 Export JSON</button>
+                <button class="btn btn-outline" id="exportCsvBtn">📊 Export CSV</button>
+                <button class="btn btn-outline" onclick="window.location.href='admin.html'">← Back to Admin</button>
+            </div>
+        </div>
+
+        <div id="loadingSection" class="loading">
+            Loading analytics data
+        </div>
+
+        <div id="errorSection" style="display: none;"></div>
+
+        <div id="analyticsContent" style="display: none;">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="icon sales">💰</div>
+                    <h3>Total Sales</h3>
+                    <div class="value" id="totalSales">₱0.00</div>
+                    <div class="change positive" id="salesChange">
+                        <span>↑</span>
+                        <span>0%</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="icon orders">📦</div>
+                    <h3>Total Orders</h3>
+                    <div class="value" id="totalOrders">0</div>
+                    <div class="change positive" id="ordersChange">
+                        <span>↑</span>
+                        <span>0%</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="icon customers">👥</div>
+                    <h3>Total Customers</h3>
+                    <div class="value" id="totalCustomers">0</div>
+                    <div class="change positive" id="customersChange">
+                        <span>↑</span>
+                        <span>0%</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="icon aov">📈</div>
+                    <h3>Average Order Value</h3>
+                    <div class="value" id="avgOrderValue">₱0.00</div>
+                    <div class="change positive" id="aovChange">
+                        <span>↑</span>
+                        <span>0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h2>Sales Trends (Last 7 Days)</h2>
+                    <div class="chart-container">
+                        <canvas id="salesTrendsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h2>Payment Methods</h2>
+                    <div class="chart-container">
+                        <canvas id="paymentMethodsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="products-section">
+                <h2>🏆 Top Selling Products</h2>
+                <div class="product-list" id="topProductsList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Inventory Status -->
+            <div class="inventory-section">
+                <h2>📦 Inventory Status & Demand Analysis</h2>
+                <div id="inventoryList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Config -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1gn5zMy8sKJUfLc-vqOMkhDfR1s_2gAg",
+            authDomain: "easy-lunch-368cf.firebaseapp.com",
+            projectId: "easy-lunch-368cf",
+            storageBucket: "easy-lunch-368cf.firebasestorage.app",
+            messagingSenderId: "494805181477",
+            appId: "1:494805181477:web:cb96df42879af6ccd08bcc"
+        };
+        
+        if (typeof firebase !== 'undefined' && firebase.apps && !firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+    </script>
+
+    <!-- Analytics Engine -->
+    <script src="analytics.js"></script>
+
+    <!-- Dashboard Logic -->
+    <script>
+        let currentAnalytics = null;
+        let salesTrendsChart = null;
+        let paymentMethodsChart = null;
+
+        // Initialize dashboard
+        async function initDashboard() {
+            try {
+                showLoading(true);
+                
+                // Load initial analytics
+                currentAnalytics = await EasyLunchAnalytics.getAnalytics({
+                    includeCustomerDetails: true,
+                    trendPeriod: 'daily',
+                    trendCount: 7,
+                    topProductsLimit: 10,
+                    lowStockThreshold: 10
+                });
+
+                renderDashboard(currentAnalytics);
+                showLoading(false);
+
+                // Setup real-time updates
+                EasyLunchAnalytics.setupRealtimeAnalytics((updatedAnalytics) => {
+                    console.log('📊 Analytics updated in real-time');
+                    currentAnalytics = updatedAnalytics;
+                    renderDashboard(currentAnalytics);
+                });
+
+            } catch (error) {
+                console.error('Dashboard initialization error:', error);
+                showError('Failed to load analytics data. Please refresh the page.');
+                showLoading(false);
+            }
+        }
+
+        function renderDashboard(analytics) {
+            // Overview stats
+            document.getElementById('totalSales').textContent = `₱${analytics.overview.totalSales.toFixed(2)}`;
+            document.getElementById('totalOrders').textContent = analytics.overview.totalOrders;
+            document.getElementById('totalCustomers').textContent = analytics.overview.totalCustomers;
+            document.getElementById('avgOrderValue').textContent = `₱${analytics.overview.averageOrderValue.toFixed(2)}`;
+
+            // Render charts
+            renderSalesTrendsChart(analytics.trends.data);
+            renderPaymentMethodsChart(analytics.paymentMethods);
+
+            // Render top products
+            renderTopProducts(analytics.products.topSelling);
+
+            // Render inventory
+            renderInventory(analytics.inventory);
+
+            // Show content
+            document.getElementById('analyticsContent').style.display = 'block';
+        }
+
+        function renderSalesTrendsChart(trendsData) {
+            const ctx = document.getElementById('salesTrendsChart');
+            
+            if (salesTrendsChart) {
+                salesTrendsChart.destroy();
+            }
+
+            salesTrendsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: trendsData.map(d => d.period),
+                    datasets: [{
+                        label: 'Sales (₱)',
+                        data: trendsData.map(d => d.sales),
+                        borderColor: '#c0392b',
+                        backgroundColor: 'rgba(192, 57, 43, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Orders',
+                        data: trendsData.map(d => d.orders),
+                        borderColor: '#2196F3',
+                        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderPaymentMethodsChart(paymentMethods) {
+            const ctx = document.getElementById('paymentMethodsChart');
+            
+            if (paymentMethodsChart) {
+                paymentMethodsChart.destroy();
+            }
+
+            const labels = Object.keys(paymentMethods);
+            const data = Object.values(paymentMethods).map(m => m.count);
+            const colors = ['#c0392b', '#2196F3', '#4CAF50', '#ff9800', '#9c27b0'];
+
+            paymentMethodsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels.map(l => l.toUpperCase()),
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTopProducts(products) {
+            const container = document.getElementById('topProductsList');
+            container.innerHTML = '';
+
+            products.forEach((product, index) => {
+                const item = document.createElement('div');
+                item.className = 'product-item';
+                item.innerHTML = `
+                    <div class="product-info">
+                        <div class="product-rank">${index + 1}</div>
+                        <div class="product-details">
+                            <h4>${product.name}</h4>
+                            <p>Top selling product</p>
+                        </div>
+                    </div>
+                    <div class="product-stats">
+                        <div class="product-stat">
+                            <div class="label">Units Sold</div>
+                            <div class="value">${product.quantity}</div>
+                        </div>
+                        <div class="product-stat">
+                            <div class="label">Revenue</div>
+                            <div class="value">₱${product.revenue.toFixed(2)}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function renderInventory(inventory) {
+            const container = document.getElementById('inventoryList');
+            container.innerHTML = '';
+
+            if (inventory.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text-light);padding:2rem;">No inventory data available yet.</p>';
+                return;
+            }
+
+            inventory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'inventory-item';
+                div.innerHTML = `
+                    <div class="inventory-info">
+                        <h4>${item.name}</h4>
+                        <p>Sold last 30 days: <strong>${item.soldLast30Days}</strong> | Avg. daily demand: <strong>${item.avgDailyDemand}</strong></p>
+                    </div>
+                    <span class="stock-badge ${item.stockStatus}">${item.stockStatus}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingSection').style.display = show ? 'block' : 'none';
+            document.getElementById('analyticsContent').style.display = show ? 'none' : 'block';
+        }
+
+        function showError(message) {
+            const errorSection = document.getElementById('errorSection');
+            errorSection.innerHTML = `<div class="error">${message}</div>`;
+            errorSection.style.display = 'block';
+        }
+
+        // Event listeners
+        document.getElementById('refreshBtn').addEventListener('click', async () => {
+            EasyLunchAnalytics.clearCache();
+            await initDashboard();
+        });
+
+        document.getElementById('exportJsonBtn').addEventListener('click', () => {
+            if (currentAnalytics) {
+                EasyLunchAnalytics.exportToJSON(currentAnalytics);
+            }
+        });
+
+        document.getElementById('exportCsvBtn').addEventListener('click', async () => {
+            if (currentAnalytics) {
+                const orders = await EasyLunchAnalytics.fetchAllOrders();
+                EasyLunchAnalytics.exportToCSV(orders, 'easy-lunch-orders.csv');
+            }
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
