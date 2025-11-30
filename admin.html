@@ -2603,12 +2603,13 @@
                     throw new Error('Analytics engine not loaded. Please ensure analytics.js is included.');
                 }
 
-                // Fetch analytics data
+                // Fetch analytics data (same config as standalone dashboard)
                 const analytics = await EasyLunchAnalytics.getAnalytics({
                     trendPeriod: 'daily',
                     trendCount: 7,
                     topProductsLimit: 10,
-                    includeCustomerDetails: false
+                    includeCustomerDetails: true,
+                    lowStockThreshold: 10
                 });
 
                 console.log('✅ Analytics data loaded:', analytics);
@@ -2638,6 +2639,15 @@
         }
 
         function renderAnalyticsDashboard(analytics) {
+            console.log('📊 Rendering Analytics Dashboard:', {
+                totalSales: analytics.overview.totalSales,
+                totalOrders: analytics.overview.totalOrders,
+                totalCustomers: analytics.overview.totalCustomers,
+                avgOrderValue: analytics.overview.averageOrderValue,
+                topProducts: analytics.products.topSelling.length,
+                timestamp: new Date().toISOString()
+            });
+
             // Update stat cards
             document.getElementById('analyticsTotalSales').textContent = 
                 `₱${analytics.overview.totalSales.toFixed(2)}`;
