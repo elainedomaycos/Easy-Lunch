@@ -2782,18 +2782,16 @@
             const counts = methods.map(m => paymentMethods[m].count);
             const revenues = methods.map(m => paymentMethods[m].revenue);
 
-            const colors = ['#c0392b', '#2196F3', '#4CAF50', '#ff9800', '#9c27b0'];
+            const colors = ['#c0392b', '#2196F3', '#4CAF50', '#ff9800', '#9c27b0', '#e91e63', '#00bcd4', '#795548'];
 
             paymentMethodsChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: methods.map(m => m.toUpperCase()),
                     datasets: [{
-                        label: 'Orders',
                         data: counts,
-                        backgroundColor: colors,
-                        borderWidth: 2,
-                        borderColor: '#fff'
+                        backgroundColor: colors.slice(0, methods.length),
+                        borderWidth: 0
                     }]
                 },
                 options: {
@@ -2801,6 +2799,7 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
+                            display: true,
                             position: 'bottom'
                         },
                         tooltip: {
@@ -2829,60 +2828,99 @@
                 return;
             }
 
-            container.innerHTML = products.map((product, index) => `
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; background: ${index % 2 === 0 ? '#f9f9f9' : 'white'}; border-radius: 0.8rem; margin-bottom: 1rem;">
+            container.innerHTML = '';
+
+            products.forEach((product, index) => {
+                const item = document.createElement('div');
+                item.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 1.5rem;
+                    background: var(--bg);
+                    border-radius: 1rem;
+                    margin-bottom: 1rem;
+                    transition: all 0.3s;
+                `;
+                item.innerHTML = `
                     <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
-                        <div style="font-size: 2rem; font-weight: 700; color: ${index < 3 ? '#c0392b' : '#999'}; min-width: 3rem;">
-                            #${index + 1}
+                        <div style="width: 3rem; height: 3rem; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.4rem;">
+                            ${index + 1}
                         </div>
                         <div style="flex: 1;">
-                            <div style="font-weight: 600; font-size: 1.5rem; margin-bottom: 0.3rem;">${product.name}</div>
-                            <div style="color: #666; font-size: 1.2rem;">
-                                ${product.quantity} sold • ₱${product.revenue.toFixed(2)} revenue
-                            </div>
+                            <h4 style="font-size: 1.6rem; margin-bottom: 0.3rem;">${product.name}</h4>
+                            <p style="font-size: 1.2rem; color: var(--text-light);">Top selling product</p>
                         </div>
                     </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 1.8rem; font-weight: 700; color: #4CAF50;">
-                            ₱${product.revenue.toFixed(2)}
+                    <div style="display: flex; gap: 3rem; align-items: center;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.1rem; color: var(--text-light); margin-bottom: 0.3rem;">Units Sold</div>
+                            <div style="font-size: 1.8rem; font-weight: 700; color: var(--primary);">${product.quantity}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.1rem; color: var(--text-light); margin-bottom: 0.3rem;">Revenue</div>
+                            <div style="font-size: 1.8rem; font-weight: 700; color: var(--primary);">₱${product.revenue.toFixed(2)}</div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+                
+                // Add hover effect
+                item.addEventListener('mouseenter', () => {
+                    item.style.transform = 'translateX(5px)';
+                    item.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.08)';
+                });
+                item.addEventListener('mouseleave', () => {
+                    item.style.transform = 'translateX(0)';
+                    item.style.boxShadow = 'none';
+                });
+                
+                container.appendChild(item);
+            });
         }
 
         function renderAnalyticsInventory(inventory) {
             const container = document.getElementById('analyticsInventoryList');
             
             if (!inventory || inventory.length === 0) {
-                container.innerHTML = '<p style="color: #999; text-align: center;">No inventory data available</p>';
+                container.innerHTML = '<p style="text-align:center;color:var(--text-light);padding:2rem;">No inventory data available yet.</p>';
                 return;
             }
 
-            container.innerHTML = inventory.map(item => {
-                const stockColor = item.stockStatus === 'low' ? 'var(--danger)' : 
-                                  item.stockStatus === 'medium' ? 'var(--warning)' : 
-                                  'var(--success)';
-                const stockBg = item.stockStatus === 'low' ? '#ffebee' : 
-                               item.stockStatus === 'medium' ? '#fff3e0' : 
-                               '#e8f5e9';
-                
-                return `
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; background: white; border: 1px solid #e0e0e0; border-radius: 0.8rem; margin-bottom: 1rem;">
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; font-size: 1.5rem; margin-bottom: 0.5rem;">${item.name}</div>
-                            <div style="color: #666; font-size: 1.2rem;">
-                                Sold in last 30 days: ${item.soldLast30Days} • Avg daily: ${item.avgDailyDemand}
-                            </div>
-                        </div>
-                        <div>
-                            <span style="padding: 0.5rem 1.2rem; background: ${stockBg}; color: ${stockColor}; border-radius: 2rem; font-size: 1.2rem; font-weight: 600; text-transform: uppercase;">
-                                ${item.stockStatus}
-                            </span>
-                        </div>
-                    </div>
+            container.innerHTML = '';
+
+            inventory.forEach(item => {
+                const div = document.createElement('div');
+                div.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 1.5rem;
+                    background: var(--bg);
+                    border-radius: 1rem;
+                    margin-bottom: 1rem;
                 `;
-            }).join('');
+                
+                const stockBadgeClass = item.stockStatus === 'low' ? 'low' : 
+                                       item.stockStatus === 'medium' ? 'medium' : 'high';
+                const stockBg = item.stockStatus === 'low' ? '#ffebee' : 
+                               item.stockStatus === 'medium' ? '#fff3e0' : '#e8f5e9';
+                const stockColor = item.stockStatus === 'low' ? 'var(--danger)' : 
+                                  item.stockStatus === 'medium' ? 'var(--warning)' : 'var(--success)';
+                
+                div.innerHTML = `
+                    <div style="flex: 1;">
+                        <h4 style="font-size: 1.6rem; margin-bottom: 0.5rem;">${item.name}</h4>
+                        <p style="font-size: 1.2rem; color: var(--text-light);">
+                            Sold last 30 days: <strong>${item.soldLast30Days}</strong> | Avg. daily demand: <strong>${item.avgDailyDemand}</strong>
+                        </p>
+                    </div>
+                    <span style="padding: 0.5rem 1.5rem; background: ${stockBg}; color: ${stockColor}; border-radius: 2rem; font-size: 1.2rem; font-weight: 600; text-transform: uppercase;">
+                        ${item.stockStatus}
+                    </span>
+                `;
+                
+                container.appendChild(div);
+            });
         }
 
         // Export functions
