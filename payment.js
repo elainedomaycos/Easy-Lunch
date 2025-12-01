@@ -353,10 +353,19 @@
         itemCount: orderData.items?.length
       });
       
-      // Use reverse timestamp as document ID so newest orders appear first in Firebase Console
-      // Max timestamp (9999999999999) minus current timestamp = reverse chronological order
-      const reverseTimestamp = 9999999999999 - Date.now();
-      const documentId = `order_${reverseTimestamp}_${orderData.orderId}`;
+      // Create document ID that sorts newest first in Firebase Console
+      // Use reverse date format (YYYYMMDD becomes subtracted from 99999999) for descending order
+      // Then add reverse timestamp within the day
+      // Format: [REVERSE_DATE]_[REVERSE_TIME]_[ORDER_ID]
+      // This ensures newest orders appear first, even with old random-ID orders present
+      const now = new Date();
+      const dateNum = parseInt(now.getFullYear().toString() + 
+                              (now.getMonth() + 1).toString().padStart(2, '0') + 
+                              now.getDate().toString().padStart(2, '0'));
+      const reverseDate = (99999999 - dateNum).toString();
+      const timestamp = Date.now();
+      const reverseTime = (9999999999999 - timestamp).toString().padStart(13, '0');
+      const documentId = `${reverseDate}_${reverseTime}_${orderData.orderId}`;
       
       await db.collection('orders').doc(documentId).set(orderData);
       console.log('✅ Order saved to Firestore successfully!');

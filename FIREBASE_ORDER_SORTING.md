@@ -11,14 +11,15 @@ Firestore Console displays documents sorted by **Document ID** (alphabetically) 
 
 These random IDs don't reflect the creation order, so newest orders can appear anywhere in the list.
 
-## Solution: Reverse Timestamp Document IDs
+## Solution: Negative Timestamp Document IDs
 
-Instead of letting Firestore auto-generate IDs, we now create **custom Document IDs** using a **reverse timestamp** formula:
+Instead of letting Firestore auto-generate IDs, we now create **custom Document IDs** using a **negative timestamp** with zero-padding:
 
 ```javascript
-// Reverse timestamp: Subtract current time from max timestamp
-const reverseTimestamp = 9999999999999 - Date.now();
-const documentId = `order_${reverseTimestamp}_${orderData.orderId}`;
+// Create negative timestamp that sorts newest first
+const timestamp = Date.now();
+const negativeTimestamp = (9999999999999 - timestamp).toString().padStart(13, '0');
+const documentId = `${negativeTimestamp}_${orderData.orderId}`;
 ```
 
 ### How It Works
@@ -26,24 +27,29 @@ const documentId = `order_${reverseTimestamp}_${orderData.orderId}`;
 **Example Timeline:**
 ```
 Order 1 placed at: 1733012345678
-  → Reverse: 9999999999999 - 1733012345678 = 8266987654321
-  → Doc ID: order_8266987654321_EL1733012345678
+  → Negative: 9999999999999 - 1733012345678 = 8266987654321
+  → Padded: 8266987654321 (13 digits)
+  → Doc ID: 8266987654321_EL1733012345678
 
 Order 2 placed at: 1733012346000 (later)
-  → Reverse: 9999999999999 - 1733012346000 = 8266987653999
-  → Doc ID: order_8266987653999_EL1733012346000
+  → Negative: 9999999999999 - 1733012346000 = 8266987653999
+  → Padded: 8266987653999 (13 digits)
+  → Doc ID: 8266987653999_EL1733012346000
 
 Order 3 placed at: 1733012347000 (even later)
-  → Reverse: 9999999999999 - 1733012347000 = 8266987652999
-  → Doc ID: order_8266987652999_EL1733012347000
+  → Negative: 9999999999999 - 1733012347000 = 8266987652999
+  → Padded: 8266987652999 (13 digits)
+  → Doc ID: 8266987652999_EL1733012347000
 ```
 
 **Alphabetical Sort in Firebase Console:**
 ```
-order_8266987652999_EL1733012347000  ← Order 3 (newest) ✅ AT TOP
-order_8266987653999_EL1733012346000  ← Order 2
-order_8266987654321_EL1733012345678  ← Order 1 (oldest)
+8266987652999_EL1733012347000  ← Order 3 (newest) ✅ AT TOP
+8266987653999_EL1733012346000  ← Order 2
+8266987654321_EL1733012345678  ← Order 1 (oldest)
 ```
+
+**Why it works:** Smaller numbers come first alphabetically, and newer orders have smaller negative timestamps!
 
 **Result:** Newest orders have **smaller reverse timestamps**, so they appear **first alphabetically**! 🎯
 

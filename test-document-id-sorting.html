@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document ID Sorting Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        h1 {
+            color: #00ff00;
+            text-align: center;
+            border-bottom: 2px solid #00ff00;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+        }
+        h2 {
+            color: #ffff00;
+            margin-top: 0;
+        }
+        .order-list {
+            background: #000;
+            padding: 15px;
+            border-left: 3px solid #00ff00;
+            margin: 10px 0;
+        }
+        .order-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #1a1a1a;
+            border-left: 3px solid #0088ff;
+        }
+        .newest {
+            border-left-color: #00ff00;
+            background: #1a3a1a;
+        }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            margin: 10px 5px;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #00cc00;
+        }
+        .timestamp {
+            color: #888;
+            font-size: 12px;
+        }
+        .label {
+            color: #ffff00;
+            font-weight: bold;
+        }
+        pre {
+            background: #000;
+            padding: 10px;
+            border-left: 3px solid #ff8800;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Firebase Document ID Sorting Test</h1>
+
+    <div class="test-section">
+        <h2>Current Implementation Test</h2>
+        <p>This shows how document IDs will sort in Firebase Console (alphabetically).</p>
+        <button onclick="generateSampleOrders()">Generate Sample Orders</button>
+        <button onclick="sortOrders()">Sort Alphabetically (Like Firebase)</button>
+        <div id="orderList"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Document ID Format Explanation</h2>
+        <pre id="explanation"></pre>
+    </div>
+
+    <script>
+        let orders = [];
+
+        function generateSampleOrders() {
+            orders = [];
+            const now = Date.now();
+            
+            // Generate 5 orders over time
+            for (let i = 0; i < 5; i++) {
+                const timestamp = now + (i * 10000); // 10 seconds apart
+                const negativeTimestamp = (9999999999999 - timestamp).toString().padStart(13, '0');
+                const orderId = `EL${timestamp}`;
+                const documentId = `${negativeTimestamp}_${orderId}`;
+                
+                orders.push({
+                    documentId,
+                    orderId,
+                    timestamp,
+                    time: new Date(timestamp).toLocaleTimeString(),
+                    isNewest: i === 4
+                });
+            }
+            
+            displayOrders();
+            updateExplanation();
+        }
+
+        function sortOrders() {
+            // Sort alphabetically (like Firebase Console does)
+            orders.sort((a, b) => a.documentId.localeCompare(b.documentId));
+            displayOrders();
+        }
+
+        function displayOrders() {
+            const container = document.getElementById('orderList');
+            
+            if (orders.length === 0) {
+                container.innerHTML = '<p style="color: #888;">Click "Generate Sample Orders" to create test data</p>';
+                return;
+            }
+            
+            let html = '<div class="order-list">';
+            html += '<div style="color: #ffff00; margin-bottom: 10px;">📋 Orders (as they appear in Firebase Console):</div>';
+            
+            orders.forEach((order, index) => {
+                const className = order.isNewest ? 'order-item newest' : 'order-item';
+                html += `
+                    <div class="${className}">
+                        <div><span class="label">${index + 1}.</span> Document ID: <code>${order.documentId}</code></div>
+                        <div class="timestamp">   Order ID: ${order.orderId} | Time: ${order.time} ${order.isNewest ? '← NEWEST ORDER ✅' : ''}</div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function updateExplanation() {
+            if (orders.length === 0) return;
+            
+            const oldest = orders[0];
+            const newest = orders[orders.length - 1];
+            
+            const oldestNegative = (9999999999999 - oldest.timestamp);
+            const newestNegative = (9999999999999 - newest.timestamp);
+            
+            const explanation = `
+Document ID Format: [NEGATIVE_TIMESTAMP]_[ORDER_ID]
+
+How Reverse Timestamp Works:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Example with your generated orders:
+
+Oldest Order (Order 1):
+  Timestamp:          ${oldest.timestamp}
+  Max - Timestamp:    9999999999999 - ${oldest.timestamp}
+  Negative:         = ${oldestNegative}
+  Padded:           = ${oldestNegative.toString().padStart(13, '0')}
+  Document ID:        ${oldest.documentId}
+
+Newest Order (Order 5):
+  Timestamp:          ${newest.timestamp}
+  Max - Timestamp:    9999999999999 - ${newest.timestamp}
+  Negative:         = ${newestNegative}
+  Padded:           = ${newestNegative.toString().padStart(13, '0')}
+  Document ID:        ${newest.documentId}
+
+Alphabetical Comparison:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ${newestNegative.toString().padStart(13, '0')} (newest)
+< ${oldestNegative.toString().padStart(13, '0')} (oldest)
+
+✅ Smaller number = Newer order
+✅ Comes FIRST alphabetically!
+
+Result in Firebase Console:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+When sorted alphabetically (default Firebase behavior):
+1. ${newest.documentId} ← NEWEST (smallest number)
+2. ...
+3. ...
+4. ...
+5. ${oldest.documentId} ← OLDEST (largest number)
+            `.trim();
+            
+            document.getElementById('explanation').textContent = explanation;
+        }
+
+        // Auto-generate on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                generateSampleOrders();
+                sortOrders();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
