@@ -353,12 +353,17 @@
         itemCount: orderData.items?.length
       });
       
-      const docRef = await db.collection('orders').add(orderData);
-      console.log('✅ Order saved to Firestore successfully!');
-      console.log('📄 Document ID:', docRef.id);
-      console.log('🔗 View in Firebase Console: https://console.firebase.google.com/project/easy-lunch-368cf/firestore/data/orders/' + docRef.id);
+      // Use reverse timestamp as document ID so newest orders appear first in Firebase Console
+      // Max timestamp (9999999999999) minus current timestamp = reverse chronological order
+      const reverseTimestamp = 9999999999999 - Date.now();
+      const documentId = `order_${reverseTimestamp}_${orderData.orderId}`;
       
-      return { success: true, id: docRef.id };
+      await db.collection('orders').doc(documentId).set(orderData);
+      console.log('✅ Order saved to Firestore successfully!');
+      console.log('📄 Document ID:', documentId);
+      console.log('🔗 View in Firebase Console: https://console.firebase.google.com/project/easy-lunch-368cf/firestore/data/orders/' + documentId);
+      
+      return { success: true, id: documentId };
     } catch(e) {
       console.error('❌ Firebase save error:', e);
       console.error('Error code:', e.code);
