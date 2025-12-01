@@ -2482,15 +2482,6 @@ body {
   .logo-banner {
     display: none !important;
   }
-
-/* Strong override: force hamburger bars to red in all states (placed at end to win cascade) */
-.navbar-bar .hamburger span,
-.hamburger span,
-.navbar-bar .hamburger.open span,
-.hamburger.open span {
-  background: #c0392b !important;
-}
-
   
   .logo-img {
     display: none !important;

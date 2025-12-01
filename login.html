@@ -253,15 +253,22 @@
                 
                 messageDiv.innerHTML = '<div class="message success">✅ Login successful! Redirecting...</div>';
                 
-                // Redirect based on user type
+                // Check for redirect parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirectUrl = urlParams.get('redirect');
+                
+                // Redirect based on user type or redirect parameter
                 setTimeout(() => {
                     if (user.email === ADMIN_EMAIL) {
                         window.location.href = 'admin.html';
                     } else if (user.email === STAFF_EMAIL) {
                         window.location.href = 'staff.html';
+                    } else if (redirectUrl) {
+                        // Regular user with redirect parameter
+                        window.location.href = redirectUrl;
                     } else {
-                        messageDiv.innerHTML = '<div class="message error">❌ You do not have admin or staff privileges.</div>';
-                        auth.signOut();
+                        // Regular user without redirect - go to products
+                        window.location.href = 'product.html';
                     }
                 }, 1000);
                 
@@ -289,11 +296,21 @@
                 const messageDiv = document.getElementById('message');
                 messageDiv.innerHTML = '<div class="message success">✅ Already logged in. Redirecting...</div>';
                 
+                // Check for redirect parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirectUrl = urlParams.get('redirect');
+                
                 setTimeout(() => {
                     if (user.email === ADMIN_EMAIL) {
                         window.location.href = 'admin.html';
                     } else if (user.email === STAFF_EMAIL) {
                         window.location.href = 'staff.html';
+                    } else if (redirectUrl) {
+                        // Regular user with redirect parameter
+                        window.location.href = redirectUrl;
+                    } else {
+                        // Regular user without redirect - go to products
+                        window.location.href = 'product.html';
                     }
                 }, 1000);
             }

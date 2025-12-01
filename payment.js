@@ -2,6 +2,12 @@
 // Combines localStorage cart management with multi-payment support and Firebase real-time sync
 
 (function() {
+  // Check Firebase availability on load
+  console.log('💳 Payment.js loading...');
+  console.log('🔥 Firebase available:', typeof firebase !== 'undefined');
+  console.log('📦 Firestore available:', typeof firebase !== 'undefined' && typeof firebase.firestore !== 'undefined');
+  console.log('🔐 Auth available:', typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined');
+  
   const CART_KEY = 'easy_lunch_cart_v1';
   const ORDERS_KEY = 'easy_lunch_orders_v1';
   // Optional: If a PayMongo Checkout Link is provided, we'll use it for GCash
@@ -277,9 +283,21 @@
       userUid = firebase.auth().currentUser.uid;
       userEmail = firebase.auth().currentUser.email;
     }
+    // Create timestamp - prefer Firestore Timestamp for proper ordering
+    let timestamp;
+    try {
+      timestamp = typeof firebase !== 'undefined' && firebase.firestore ? 
+        firebase.firestore.Timestamp.now() : 
+        new Date().toISOString();
+    } catch(e) {
+      console.warn('⚠️ Firestore not available, using ISO string timestamp');
+      timestamp = new Date().toISOString();
+    }
+    
     const orderData = {
       orderId: 'EL' + Date.now(),
-      timestamp: new Date().toISOString(),
+      timestamp: timestamp, // Firestore Timestamp for proper sorting (or ISO string fallback)
+      created_at: new Date().toISOString(), // Keep ISO string for display/compatibility
       customer: {
         fullName: inputs[0]?.value?.trim() || '',
         address: inputs[1]?.value?.trim() || '',
@@ -307,16 +325,54 @@
 
   async function saveOrderToFirebase(orderData) {
     try {
-      if(typeof firebase !== 'undefined' && firebase.firestore) {
-        const db = firebase.firestore();
-        const docRef = await db.collection('orders').add(orderData);
-        console.log('Order saved to Firestore:', docRef.id);
-        return { success: true, id: docRef.id };
+      // Check if Firebase is loaded
+      if(typeof firebase === 'undefined') {
+        console.error('❌ Firebase not loaded!');
+        return { success: false, error: 'Firebase not loaded' };
       }
+      
+      if(!firebase.firestore) {
+        console.error('❌ Firestore not initialized!');
+        return { success: false, error: 'Firestore not initialized' };
+      }
+      
+      // Check if user is authenticated
+      const user = firebase.auth().currentUser;
+      if(!user) {
+        console.error('❌ User not authenticated! Cannot save order to Firestore.');
+        return { success: false, error: 'User not authenticated' };
+      }
+      
+      const db = firebase.firestore();
+      console.log('🔄 Saving order to Firestore...');
+      console.log('📦 Order data:', {
+        orderId: orderData.orderId,
+        userEmail: orderData.userEmail,
+        userUid: orderData.userUid,
+        total: orderData.totals?.total,
+        itemCount: orderData.items?.length
+      });
+      
+      const docRef = await db.collection('orders').add(orderData);
+      console.log('✅ Order saved to Firestore successfully!');
+      console.log('📄 Document ID:', docRef.id);
+      console.log('🔗 View in Firebase Console: https://console.firebase.google.com/project/easy-lunch-368cf/firestore/data/orders/' + docRef.id);
+      
+      return { success: true, id: docRef.id };
     } catch(e) {
-      console.error('Firebase save error:', e);
+      console.error('❌ Firebase save error:', e);
+      console.error('Error code:', e.code);
+      console.error('Error message:', e.message);
+      
+      // Show user-friendly error
+      if(e.code === 'permission-denied') {
+        alert(`⚠️ Permission denied: Please make sure you're logged in.\nOrder saved locally for now.`);
+      } else {
+        alert(`⚠️ Order saved locally but couldn't sync to database: ${e.message}\nYour order is still recorded!`);
+      }
+      
+      return { success: false, error: e.message };
     }
-    return { success: false };
   }
 
   // Send COD order notification to backend
@@ -792,6 +848,31 @@
     const checkoutBtn = document.getElementById('checkoutBtn');
     if(checkoutBtn) {
       checkoutBtn.addEventListener('click', function() {
+        // Check if user is logged in
+        if(typeof firebase !== 'undefined' && firebase.auth) {
+          const user = firebase.auth().currentUser;
+          if(!user) {
+            // User not logged in - open auth modal
+            alert('🔒 Please log in to place an order');
+            
+            // Close cart modal first
+            const cartModal = document.getElementById('cartModal');
+            if(cartModal) {
+              cartModal.style.display = 'none';
+              document.body.style.overflow = 'auto';
+            }
+            
+            // Open auth modal (from auth.js)
+            if(window.EasyLunchAuth && window.EasyLunchAuth.openSignIn) {
+              window.EasyLunchAuth.openSignIn();
+            } else {
+              console.error('Auth modal not available');
+              // Fallback: show message
+              alert('Please log in using the user icon in the navigation bar');
+            }
+            return;
+          }
+        }
         paypalRendered = false;
       });
     }

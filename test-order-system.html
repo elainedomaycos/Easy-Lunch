@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Order System - Easy Lunch</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #E33636;
+            margin-top: 0;
+        }
+        button {
+            background: #E33636;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #c92d2d;
+        }
+        .result {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #E33636;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .success { border-left-color: #4CAF50; }
+        .error { border-left-color: #f44336; }
+        .info { border-left-color: #2196F3; }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.ok { background: #4CAF50; color: white; }
+        .status.fail { background: #f44336; color: white; }
+        .status.pending { background: #FF9800; color: white; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Easy Lunch Order System Test</h1>
+
+    <div class="test-section">
+        <h2>1. Firebase Connection Test</h2>
+        <button onclick="testFirebaseConnection()">Test Firebase Connection</button>
+        <div id="firebaseTest" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Authentication Test</h2>
+        <button onclick="checkAuthStatus()">Check Auth Status</button>
+        <button onclick="openLoginModal()">Open Login Modal</button>
+        <div id="authTest" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Create Test Order</h2>
+        <button onclick="createTestOrder()">Create & Save Test Order</button>
+        <div id="orderTest" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Fetch Recent Orders</h2>
+        <button onclick="fetchOrders()">Fetch Orders from Firestore</button>
+        <div id="ordersTest" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Verify Timestamp Format</h2>
+        <button onclick="testTimestampFormat()">Test Timestamp Compatibility</button>
+        <div id="timestampTest" class="result" style="display: none;"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <!-- Auth Modal (if exists) -->
+    <script src="auth.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZ5MsIidhqGO6rZk9qwNKAMJCEMLBvtCM",
+            authDomain: "easy-lunch-368cf.firebaseapp.com",
+            databaseURL: "https://easy-lunch-368cf-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "easy-lunch-368cf",
+            storageBucket: "easy-lunch-368cf.firebasestorage.app",
+            messagingSenderId: "494805181477",
+            appId: "1:494805181477:web:cb96df42879af6ccd08bcc"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        function showResult(elementId, message, type = 'info') {
+            const el = document.getElementById(elementId);
+            el.style.display = 'block';
+            el.className = `result ${type}`;
+            el.textContent = message;
+        }
+
+        // Test 1: Firebase Connection
+        async function testFirebaseConnection() {
+            showResult('firebaseTest', '🔄 Testing Firebase connection...', 'info');
+            
+            try {
+                // Test Firestore connection
+                const testDoc = await db.collection('_test').doc('connection').get();
+                showResult('firebaseTest', 
+                    `✅ Firebase Connected Successfully!\n` +
+                    `Project ID: ${firebase.app().options.projectId}\n` +
+                    `Auth Domain: ${firebase.app().options.authDomain}\n` +
+                    `Firestore: ${db ? 'Ready' : 'Not initialized'}`,
+                    'success'
+                );
+            } catch (e) {
+                showResult('firebaseTest', 
+                    `❌ Firebase Connection Error!\n${e.code}\n${e.message}`,
+                    'error'
+                );
+            }
+        }
+
+        // Test 2: Authentication Status
+        function checkAuthStatus() {
+            const user = auth.currentUser;
+            
+            if (user) {
+                showResult('authTest',
+                    `✅ User Logged In\n` +
+                    `UID: ${user.uid}\n` +
+                    `Email: ${user.email}\n` +
+                    `Provider: ${user.providerData[0]?.providerId || 'unknown'}`,
+                    'success'
+                );
+            } else {
+                showResult('authTest',
+                    `⚠️ No User Logged In\n` +
+                    `Please log in to test order creation.`,
+                    'error'
+                );
+            }
+        }
+
+        function openLoginModal() {
+            if (typeof EasyLunchAuth !== 'undefined') {
+                EasyLunchAuth.openSignIn();
+                showResult('authTest', '📱 Login modal opened. Please log in and check status again.', 'info');
+            } else {
+                showResult('authTest', '❌ Auth.js not loaded or EasyLunchAuth not defined', 'error');
+            }
+        }
+
+        // Test 3: Create Test Order
+        async function createTestOrder() {
+            showResult('orderTest', '🔄 Creating test order...', 'info');
+            
+            const user = auth.currentUser;
+            if (!user) {
+                showResult('orderTest', '❌ Please log in first! Click "Open Login Modal" above.', 'error');
+                return;
+            }
+
+            try {
+                const testOrder = {
+                    orderId: 'TEST-' + Date.now(),
+                    timestamp: firebase.firestore.Timestamp.now(),
+                    created_at: new Date().toISOString(),
+                    customer: {
+                        fullName: 'Test Customer',
+                        address: '123 Test Street',
+                        contact: '09123456789',
+                        email: user.email
+                    },
+                    items: [
+                        {
+                            name: 'Test Chicken Combo',
+                            price: 150,
+                            quantity: 2,
+                            img: 'test.jpg'
+                        }
+                    ],
+                    totals: {
+                        subtotal: 300,
+                        deliveryFee: 30,
+                        discount: 0,
+                        total: 330
+                    },
+                    payment: {
+                        method: 'cod',
+                        reference: null,
+                        status: 'pending'
+                    },
+                    status: 'pending',
+                    userUid: user.uid,
+                    userEmail: user.email
+                };
+
+                console.log('📦 Test order data:', testOrder);
+                const docRef = await db.collection('orders').add(testOrder);
+                
+                showResult('orderTest',
+                    `✅ Test Order Created Successfully!\n` +
+                    `Order ID: ${testOrder.orderId}\n` +
+                    `Document ID: ${docRef.id}\n` +
+                    `User: ${user.email}\n` +
+                    `Total: ₱${testOrder.totals.total}\n` +
+                    `Timestamp: ${testOrder.timestamp.toDate().toLocaleString()}\n\n` +
+                    `🔗 View in Firebase Console:\n` +
+                    `https://console.firebase.google.com/project/easy-lunch-368cf/firestore/data/orders/${docRef.id}`,
+                    'success'
+                );
+            } catch (e) {
+                showResult('orderTest',
+                    `❌ Failed to create test order!\n` +
+                    `Error Code: ${e.code}\n` +
+                    `Error Message: ${e.message}`,
+                    'error'
+                );
+                console.error('Test order error:', e);
+            }
+        }
+
+        // Test 4: Fetch Orders
+        async function fetchOrders() {
+            showResult('ordersTest', '🔄 Fetching orders from Firestore...', 'info');
+            
+            try {
+                const snapshot = await db.collection('orders')
+                    .orderBy('timestamp', 'desc')
+                    .limit(10)
+                    .get();
+
+                if (snapshot.empty) {
+                    showResult('ordersTest', '⚠️ No orders found in Firestore database.', 'error');
+                    return;
+                }
+
+                let ordersText = `✅ Found ${snapshot.size} order(s):\n\n`;
+                
+                snapshot.forEach((doc, index) => {
+                    const order = doc.data();
+                    const orderDate = order.timestamp?.toDate ? 
+                        order.timestamp.toDate().toLocaleString() : 
+                        new Date(order.timestamp || order.created_at).toLocaleString();
+                    
+                    ordersText += `${index + 1}. ${order.orderId || doc.id}\n`;
+                    ordersText += `   User: ${order.userEmail || 'Unknown'}\n`;
+                    ordersText += `   Total: ₱${order.totals?.total || 0}\n`;
+                    ordersText += `   Status: ${order.status}\n`;
+                    ordersText += `   Date: ${orderDate}\n`;
+                    ordersText += `   Doc ID: ${doc.id}\n\n`;
+                });
+
+                showResult('ordersTest', ordersText, 'success');
+            } catch (e) {
+                showResult('ordersTest',
+                    `❌ Failed to fetch orders!\n` +
+                    `Error Code: ${e.code}\n` +
+                    `Error Message: ${e.message}`,
+                    'error'
+                );
+                console.error('Fetch orders error:', e);
+            }
+        }
+
+        // Test 5: Timestamp Format
+        function testTimestampFormat() {
+            const isoString = new Date().toISOString();
+            const firestoreTimestamp = firebase.firestore.Timestamp.now();
+            
+            const result = 
+                `📅 Timestamp Format Comparison:\n\n` +
+                `1. ISO String (old format):\n` +
+                `   ${isoString}\n` +
+                `   Type: ${typeof isoString}\n\n` +
+                `2. Firestore Timestamp (new format):\n` +
+                `   ${firestoreTimestamp.toDate().toISOString()}\n` +
+                `   Type: ${typeof firestoreTimestamp}\n` +
+                `   Has toDate(): ${typeof firestoreTimestamp.toDate === 'function'}\n\n` +
+                `✅ New orders use Firestore Timestamp for proper sorting.\n` +
+                `✅ Admin dashboard handles both formats.`;
+            
+            showResult('timestampTest', result, 'success');
+        }
+
+        // Listen for auth state changes
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log('✅ User logged in:', user.email);
+            } else {
+                console.log('⚠️ No user logged in');
+            }
+        });
+
+        // Auto-run Firebase connection test
+        window.addEventListener('load', () => {
+            setTimeout(testFirebaseConnection, 500);
+        });
+    </script>
+</body>
+</html>

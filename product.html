@@ -17,6 +17,7 @@
     const firebaseConfig = {
       apiKey: "AIzaSyC1gn5zMy8sKJUfLc-vqOMkhDfR1s_2gAg",
       authDomain: "easy-lunch-368cf.firebaseapp.com",
+      databaseURL: "https://easy-lunch-368cf-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "easy-lunch-368cf",
       storageBucket: "easy-lunch-368cf.firebasestorage.app",
       messagingSenderId: "494805181477",
@@ -24,6 +25,9 @@
     };
     if (typeof firebase !== 'undefined' && firebase.apps && !firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
+      console.log('✅ Firebase initialized in product.html');
+      console.log('🔥 Firestore available:', typeof firebase.firestore !== 'undefined');
+      console.log('🔐 Auth available:', typeof firebase.auth !== 'undefined');
     }
     // ====== EMAILJS INTEGRATION FOR INVOICE ======
     // Load EmailJS SDK
@@ -718,7 +722,7 @@
           <ul class="nav-center" id="navCenter">
             <li><a href="index.html#hero" class="nav-link">HOME</a></li>
             <li><a href="product.html" class="nav-link active">PRODUCTS</a></li>
-            <li><a href="index.html#about" class="nav-link">ABOUT US</a></li>
+            <li><a href="about-us.html" class="nav-link">ABOUT US</a></li>
             <li><a href="index.html#testimony" class="nav-link">RATINGS</a></li>
             <li><a href="index.html#contact" class="nav-link">CONTACT US</a></li>
           </ul>

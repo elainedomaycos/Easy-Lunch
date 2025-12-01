@@ -32,15 +32,24 @@
             padding: 0;
             box-sizing: border-box;
         }
-        /* About Us: white borders for navbar icons */
-        html body .navbar-bar .nav-right .icon-button {
-            border: 2px solid #ffffff !important;
-            background: transparent !important;
+        /* About Us: white borders for navbar icons on mobile only */
+        @media (max-width: 768px) {
+            html body .navbar-bar .nav-right .icon-button {
+                border: 2px solid #ffffff !important;
+                background: transparent !important;
+            }
+            html body .navbar-bar .nav-right .icon-button:hover {
+                border-color: #ffffff !important;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
         }
-        html body .navbar-bar .nav-right .icon-button:hover {
-            border-color: #ffffff !important;
-            background: transparent !important;
-            box-shadow: none !important;
+        /* Desktop: remove borders from icons */
+        @media (min-width: 769px) {
+            html body .navbar-bar .nav-right .icon-button {
+                border: none !important;
+                background: transparent !important;
+            }
         }
         /* About Us: make navbar icons white on all viewports */
         html body .navbar-bar .nav-right .icon-button svg,

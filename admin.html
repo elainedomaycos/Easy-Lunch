@@ -1718,25 +1718,55 @@
         }
 
         // Listen to localStorage orders
+        // Global orders cache to merge localStorage and Firebase
+        let cachedFirebaseOrders = [];
+        let cachedLocalStorageOrders = [];
+
+        function mergeAndRenderOrders() {
+            // Combine both sources, remove duplicates by orderId
+            const allOrders = [...cachedFirebaseOrders, ...cachedLocalStorageOrders];
+            const uniqueOrders = [];
+            const seenOrderIds = new Set();
+
+            allOrders.forEach(order => {
+                const orderId = order.orderId || order.id;
+                if (!seenOrderIds.has(orderId)) {
+                    seenOrderIds.add(orderId);
+                    uniqueOrders.push(order);
+                }
+            });
+
+            // Sort by timestamp (newest first)
+            uniqueOrders.sort((a, b) => {
+                const getTime = (order) => {
+                    if (order.timestamp?.toDate) return order.timestamp.toDate().getTime();
+                    if (order.timestamp) return new Date(order.timestamp).getTime();
+                    if (order.created_at) return new Date(order.created_at).getTime();
+                    return 0;
+                };
+                return getTime(b) - getTime(a); // Descending (newest first)
+            });
+
+            console.log('🔄 Merged orders:', uniqueOrders.length, '(Firebase:', cachedFirebaseOrders.length, '+ localStorage:', cachedLocalStorageOrders.length, ')');
+            
+            renderOrders(uniqueOrders);
+            updateStats(uniqueOrders);
+        }
+
         function listenToLocalStorageOrders() {
             function updateOrdersFromLocalStorage() {
                 try {
                     const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
                     console.log('📦 Orders from localStorage:', orders.length, 'orders');
-                    if (orders.length > 0) {
-                        console.log('First order sample:', orders[0]);
-                    } else {
-                        console.log('ℹ️ No orders found. Place an order from the products page or click "Add Test Order"');
-                    }
-                    renderOrders(orders);
-                    updateStats(orders);
+                    cachedLocalStorageOrders = orders;
+                    mergeAndRenderOrders();
                 } catch (e) {
                     console.error('❌ Error reading orders:', e);
                 }
             }
 
             // Initial load
-            console.log('🔄 Initializing order listener...');
+            console.log('🔄 Initializing localStorage order listener...');
             updateOrdersFromLocalStorage();
 
             // Listen to storage events (from other tabs)
@@ -1759,6 +1789,7 @@
 
         // Listen to Firebase orders
         function listenToFirebaseOrders() {
+            console.log('🔄 Setting up Firebase orders listener...');
             ordersListener = db.collection('orders')
                 .orderBy('timestamp', 'desc')
                 .limit(50)
@@ -1767,10 +1798,16 @@
                     snapshot.forEach((doc) => {
                         orders.push({ id: doc.id, ...doc.data() });
                     });
-                    console.log('Firebase orders updated:', orders.length);
-                    // You can merge with localStorage orders if needed
+                    console.log('📦 Firebase orders received:', orders.length);
+                    console.log('📋 Order IDs:', orders.map(o => o.orderId || o.id).join(', '));
+                    
+                    // Cache Firebase orders and merge with localStorage
+                    cachedFirebaseOrders = orders;
+                    mergeAndRenderOrders();
                 }, (error) => {
-                    console.error('Error listening to orders:', error);
+                    console.error('❌ Error listening to Firebase orders:', error);
+                    console.error('Error code:', error.code);
+                    console.error('Error message:', error.message);
                 });
         }
 
@@ -1806,6 +1843,18 @@
                     </div>
                 `).join('');
 
+                // Handle Firestore Timestamp or ISO string
+                let orderDate;
+                if (order.timestamp && order.timestamp.toDate) {
+                    orderDate = order.timestamp.toDate(); // Firestore Timestamp
+                } else if (order.timestamp) {
+                    orderDate = new Date(order.timestamp); // ISO string
+                } else if (order.created_at) {
+                    orderDate = new Date(order.created_at); // Fallback
+                } else {
+                    orderDate = new Date(); // Default to now
+                }
+                
                 return `
                     <div class="order-item">
                         <div class="order-header">
@@ -1815,7 +1864,7 @@
                                     ${order.customer?.fullName || 'Guest'} • ${order.customer?.contact || ''}
                                 </div>
                                 <div style="font-size: 1.2rem; color: #999;">
-                                    ${new Date(order.timestamp || order.created_at).toLocaleString()}
+                                    ${orderDate.toLocaleString()}
                                 </div>
                             </div>
                             <div>
@@ -2023,24 +2072,47 @@
             container.innerHTML = html;
         }
 
-        window.updateOrderStatus = function(orderId, newStatus) {
+        window.updateOrderStatus = async function(orderId, newStatus) {
             try {
+                console.log(`🔄 Updating order ${orderId} to ${newStatus}`);
+                
+                // Update in Firebase first
+                let firebaseUpdated = false;
+                try {
+                    const snapshot = await db.collection('orders')
+                        .where('orderId', '==', orderId)
+                        .get();
+                    
+                    if (!snapshot.empty) {
+                        const updatePromises = [];
+                        snapshot.forEach(doc => {
+                            updatePromises.push(doc.ref.update({ status: newStatus }));
+                        });
+                        await Promise.all(updatePromises);
+                        console.log('✅ Order updated in Firebase');
+                        firebaseUpdated = true;
+                    }
+                } catch (fbError) {
+                    console.warn('⚠️ Could not update in Firebase:', fbError.message);
+                }
+                
+                // Update in localStorage as backup
                 const orders = JSON.parse(localStorage.getItem(ORDERS_KEY)) || [];
                 const orderIndex = orders.findIndex(o => (o.orderId || o.id) === orderId);
                 
                 if (orderIndex !== -1) {
                     orders[orderIndex].status = newStatus;
                     localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
-                    renderOrders(orders);
-                    updateStats(orders);
-                    
-                    // Trigger event for other listeners
-                    window.dispatchEvent(new Event('orders-updated'));
-                    
-                    alert(`Order ${orderId} updated to ${newStatus}`);
+                    console.log('✅ Order updated in localStorage');
                 }
+                
+                // Trigger event for other listeners
+                window.dispatchEvent(new Event('orders-updated'));
+                
+                alert(`✅ Order ${orderId} updated to ${newStatus}${firebaseUpdated ? '' : ' (localStorage only)'}`);
             } catch (e) {
-                console.error('Error updating order:', e);
+                console.error('❌ Error updating order:', e);
+                alert(`❌ Error updating order: ${e.message}`);
             }
         };
 
