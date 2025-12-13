@@ -1394,11 +1394,11 @@
                             </div>
                         </div>
 
-                        <!-- Charts -->
+                        <!-- Charts Row 1 -->
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
                             <div class="card">
                                 <div class="card-header">
-                                    <h3 class="card-title">Sales Trends (Last 7 Days)</h3>
+                                    <h3 class="card-title">📈 Sales Trends (Last 7 Days)</h3>
                                 </div>
                                 <div style="padding: 2rem; height: 350px;">
                                     <canvas id="analyticsSalesTrendsChart"></canvas>
@@ -1407,7 +1407,7 @@
 
                             <div class="card">
                                 <div class="card-header">
-                                    <h3 class="card-title">Payment Methods</h3>
+                                    <h3 class="card-title">💳 Payment Methods Distribution</h3>
                                 </div>
                                 <div style="padding: 2rem; height: 350px;">
                                     <canvas id="analyticsPaymentMethodsChart"></canvas>
@@ -1415,10 +1415,33 @@
                             </div>
                         </div>
 
-                        <!-- Top Products -->
+                        <!-- Charts Row 2: Top Products -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">🏆 Top Selling Products</h3>
+                                </div>
+                                <div style="padding: 2rem; height: 350px;">
+                                    <canvas id="analyticsTopProductsBarChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">📊 Product Revenue Distribution</h3>
+                                </div>
+                                <div style="padding: 2rem; height: 350px;">
+                                    <canvas id="analyticsProductRevenueChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <!-- Top Products List -->
                         <div class="card" style="margin-bottom: 3rem;">
                             <div class="card-header">
-                                <h3 class="card-title">🏆 Top Selling Products</h3>
+                                <h3 class="card-title">🏆 Top Selling Products Details</h3>
                             </div>
                             <div id="analyticsTopProductsList" style="padding: 2rem;">
                                 <!-- Populated by JS -->
@@ -1696,6 +1719,21 @@
             // Listen to Firebase orders (if you decide to save them there too)
             listenToFirebaseOrders();
             
+            // Listen for order updates to refresh analytics
+            window.addEventListener('orders-updated', () => {
+                // Debounce analytics refresh to avoid too many updates
+                if (window.analyticsRefreshTimeout) {
+                    clearTimeout(window.analyticsRefreshTimeout);
+                }
+                window.analyticsRefreshTimeout = setTimeout(() => {
+                    const analyticsSection = document.getElementById('analytics');
+                    if (analyticsSection && analyticsSection.classList.contains('active')) {
+                        console.log('🔄 Auto-refreshing analytics after order update');
+                        refreshAnalyticsCharts();
+                    }
+                }, 1000); // Wait 1 second after last update
+            });
+            
             // Listen to chat sessions
             listenToChats();
 
@@ -1722,19 +1760,28 @@
         let cachedFirebaseOrders = [];
         let cachedLocalStorageOrders = [];
 
-        function mergeAndRenderOrders() {
-            // Combine both sources, remove duplicates by orderId
-            const allOrders = [...cachedFirebaseOrders, ...cachedLocalStorageOrders];
-            const uniqueOrders = [];
-            const seenOrderIds = new Set();
-
-            allOrders.forEach(order => {
-                const orderId = order.orderId || order.id;
-                if (!seenOrderIds.has(orderId)) {
-                    seenOrderIds.add(orderId);
-                    uniqueOrders.push(order);
+        // Helper: merge orders from Firebase and localStorage without duplicates
+        // Prefers Firebase version when the same order exists in both
+        function mergeOrders(firebaseOrders, localOrders) {
+            const byId = new Map();
+            const put = (order, sourcePriority) => {
+                const id = order.orderId || order.id;
+                if (!id) return; // skip if no identifier
+                const existing = byId.get(id);
+                if (!existing || sourcePriority === 'firebase') {
+                    byId.set(id, order);
                 }
-            });
+            };
+
+            (localOrders || []).forEach(o => put(o, 'local'));
+            (firebaseOrders || []).forEach(o => put(o, 'firebase'));
+
+            return Array.from(byId.values());
+        }
+
+        function mergeAndRenderOrders() {
+            // Merge sources using helper to avoid duplicates, prefer Firebase
+            const uniqueOrders = mergeOrders(cachedFirebaseOrders, cachedLocalStorageOrders);
 
             // Sort by timestamp (newest first)
             uniqueOrders.sort((a, b) => {
@@ -1751,6 +1798,12 @@
             
             renderOrders(uniqueOrders);
             updateStats(uniqueOrders);
+            
+            // Update analytics charts if analytics section is active
+            const analyticsSection = document.getElementById('analytics');
+            if (analyticsSection && analyticsSection.classList.contains('active')) {
+                refreshAnalyticsCharts();
+            }
         }
 
         function listenToLocalStorageOrders() {
@@ -2660,6 +2713,10 @@
         let analyticsChartsInitialized = false;
         let salesTrendsChart = null;
         let paymentMethodsChart = null;
+        let topProductsBarChart = null;
+        let productRevenueChart = null;
+        let orderStatusChart = null;
+        let hourlySalesChart = null;
 
         async function loadAnalytics() {
             console.log('📊 Loading analytics...');
@@ -2710,6 +2767,47 @@
             }
         }
 
+        async function refreshAnalyticsCharts() {
+            try {
+                // Check if analytics engine is loaded
+                if (typeof EasyLunchAnalytics === 'undefined') {
+                    console.warn('⚠️ Analytics engine not loaded');
+                    return;
+                }
+
+                console.log('🔄 Refreshing analytics charts...');
+                
+                // Fetch fresh analytics data
+                const analytics = await EasyLunchAnalytics.getAnalytics({
+                    trendPeriod: 'daily',
+                    trendCount: 7,
+                    topProductsLimit: 10,
+                    includeCustomerDetails: true,
+                    lowStockThreshold: 10
+                });
+
+                // Re-render only the charts (not the whole dashboard to avoid flickering)
+                renderAnalyticsSalesTrends(analytics.trends);
+                renderAnalyticsPaymentMethods(analytics.paymentMethods);
+                renderAnalyticsTopProductsBarChart(analytics.products.topSelling);
+                renderAnalyticsProductRevenueChart(analytics.products.topSelling);
+                
+                // Update stat cards too
+                document.getElementById('analyticsTotalSales').textContent = 
+                    `₱${analytics.overview.totalSales.toFixed(2)}`;
+                document.getElementById('analyticsTotalOrders').textContent = 
+                    analytics.overview.totalOrders;
+                document.getElementById('analyticsTotalCustomers').textContent = 
+                    analytics.overview.totalCustomers;
+                document.getElementById('analyticsAvgOrderValue').textContent = 
+                    `₱${analytics.overview.averageOrderValue.toFixed(2)}`;
+
+                console.log('✅ Analytics charts refreshed');
+            } catch (error) {
+                console.error('❌ Error refreshing analytics charts:', error);
+            }
+        }
+
         function renderAnalyticsDashboard(analytics) {
             console.log('📊 Rendering Analytics Dashboard:', {
                 totalSales: analytics.overview.totalSales,
@@ -2730,11 +2828,13 @@
             document.getElementById('analyticsAvgOrderValue').textContent = 
                 `₱${analytics.overview.averageOrderValue.toFixed(2)}`;
 
-            // Render charts
+            // Render all charts
             renderAnalyticsSalesTrends(analytics.trends);
             renderAnalyticsPaymentMethods(analytics.paymentMethods);
+            renderAnalyticsTopProductsBarChart(analytics.products.topSelling);
+            renderAnalyticsProductRevenueChart(analytics.products.topSelling);
 
-            // Render top products
+            // Render top products list
             renderAnalyticsTopProducts(analytics.products.topSelling);
 
             // Render inventory
@@ -2886,6 +2986,320 @@
                                         `Revenue: ₱${revenue.toFixed(2)}`
                                     ];
                                 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderAnalyticsTopProductsBarChart(products) {
+            const ctx = document.getElementById('analyticsTopProductsBarChart');
+            
+            if (topProductsBarChart) {
+                topProductsBarChart.destroy();
+            }
+
+            if (!products || products.length === 0) {
+                return;
+            }
+
+            // Take top 10 products
+            const topProducts = products.slice(0, 10);
+            const labels = topProducts.map(p => p.name.length > 20 ? p.name.substring(0, 20) + '...' : p.name);
+            const quantities = topProducts.map(p => p.quantity);
+            
+            topProductsBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Units Sold',
+                        data: quantities,
+                        backgroundColor: 'rgba(192, 57, 43, 0.8)',
+                        borderColor: '#c0392b',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const product = topProducts[context.dataIndex];
+                                    return [
+                                        `Units Sold: ${product.quantity}`,
+                                        `Revenue: ₱${product.revenue.toFixed(2)}`,
+                                        `Avg Price: ₱${(product.revenue / product.quantity).toFixed(2)}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            },
+                            grid: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderAnalyticsProductRevenueChart(products) {
+            const ctx = document.getElementById('analyticsProductRevenueChart');
+            
+            if (productRevenueChart) {
+                productRevenueChart.destroy();
+            }
+
+            if (!products || products.length === 0) {
+                return;
+            }
+
+            // Take top 8 products for pie chart
+            const topProducts = products.slice(0, 8);
+            const labels = topProducts.map(p => p.name.length > 15 ? p.name.substring(0, 15) + '...' : p.name);
+            const revenues = topProducts.map(p => p.revenue);
+            
+            const colors = [
+                '#c0392b', '#e74c3c', '#3498db', '#2ecc71', 
+                '#f39c12', '#9b59b6', '#1abc9c', '#34495e'
+            ];
+            
+            productRevenueChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: revenues,
+                        backgroundColor: colors,
+                        borderWidth: 3,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const product = topProducts[context.dataIndex];
+                                    const total = revenues.reduce((a, b) => a + b, 0);
+                                    const percentage = ((product.revenue / total) * 100).toFixed(1);
+                                    return [
+                                        `Revenue: ₱${product.revenue.toFixed(2)}`,
+                                        `Share: ${percentage}%`,
+                                        `Units: ${product.quantity}`
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderAnalyticsOrderStatusChart(analytics) {
+            const ctx = document.getElementById('analyticsOrderStatusChart');
+            
+            if (orderStatusChart) {
+                orderStatusChart.destroy();
+            }
+
+            // Get order status data from analytics
+            const statusCounts = {};
+            
+            // Get merged orders to avoid duplicates
+            const allOrders = mergeOrders(
+                window.cachedFirebaseOrders || [], 
+                window.cachedLocalStorageOrders || []
+            );
+            
+            // Process merged orders
+            allOrders.forEach(order => {
+                const status = order.status || 'pending';
+                statusCounts[status] = (statusCounts[status] || 0) + 1;
+            });
+
+            const labels = Object.keys(statusCounts);
+            const data = Object.values(statusCounts);
+            
+            if (labels.length === 0) {
+                labels.push('No Orders');
+                data.push(0);
+            }
+
+            const statusColors = {
+                'pending': '#ff9800',
+                'ready': '#2196F3',
+                'completed': '#4CAF50',
+                'cancelled': '#f44336',
+                'processing': '#9c27b0'
+            };
+
+            const backgroundColors = labels.map(label => statusColors[label] || '#757575');
+            
+            orderStatusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderWidth: 3,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return [
+                                        `${context.label}: ${context.parsed} orders`,
+                                        `Percentage: ${percentage}%`
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderAnalyticsHourlySalesChart(analytics) {
+            const ctx = document.getElementById('analyticsHourlySalesChart');
+            
+            if (hourlySalesChart) {
+                hourlySalesChart.destroy();
+            }
+
+            // Calculate hourly sales from orders
+            const hourlySales = Array(24).fill(0);
+            const hourlyOrders = Array(24).fill(0);
+            
+            // Get merged orders to avoid duplicates
+            const allOrders = mergeOrders(
+                window.cachedFirebaseOrders || [], 
+                window.cachedLocalStorageOrders || []
+            );
+
+            allOrders.forEach(order => {
+                let date;
+                if (order.timestamp?.toDate) {
+                    date = order.timestamp.toDate();
+                } else if (order.timestamp) {
+                    date = new Date(order.timestamp);
+                } else if (order.created_at) {
+                    date = new Date(order.created_at);
+                } else {
+                    return;
+                }
+
+                const hour = date.getHours();
+                hourlySales[hour] += order.totals?.total || 0;
+                hourlyOrders[hour] += 1;
+            });
+
+            const labels = Array.from({length: 24}, (_, i) => {
+                const hour = i % 12 || 12;
+                const period = i < 12 ? 'AM' : 'PM';
+                return `${hour}${period}`;
+            });
+            
+            hourlySalesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sales (₱)',
+                        data: hourlySales,
+                        borderColor: '#c0392b',
+                        backgroundColor: 'rgba(192, 57, 43, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const hour = context.dataIndex;
+                                    return [
+                                        `Sales: ₱${context.parsed.y.toFixed(2)}`,
+                                        `Orders: ${hourlyOrders[hour]}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₱' + value.toFixed(0);
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
                             }
                         }
                     }

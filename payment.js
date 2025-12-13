@@ -229,6 +229,29 @@
     if(checked) showMethod(checked.value);
   }
 
+  // ========== GCASH QR REFERENCE HANDLING ==========
+  function validateGCashReference(ref) {
+    if (!ref) return false;
+    const cleaned = String(ref).trim();
+    // Common formats: numeric 12-18 digits or alphanumeric with dashes
+    const numericOk = /^[0-9]{12,18}$/.test(cleaned);
+    const alphaNumOk = /^[A-Za-z0-9\-]{10,24}$/.test(cleaned);
+    return numericOk || alphaNumOk;
+  }
+
+  function getGCashReference() {
+    const input = document.getElementById('gcashRefInput');
+    let ref = input ? input.value : '';
+    if (!validateGCashReference(ref)) {
+      ref = window.prompt('Enter your GCash reference number:');
+    }
+    if (!validateGCashReference(ref)) {
+      alert('Invalid GCash reference number. Please check and try again.');
+      return null;
+    }
+    return String(ref).trim();
+  }
+
   // ========== PAYPAL INTEGRATION ==========
   let paypalRendered = false;
   
@@ -436,11 +459,20 @@
   }
 
   function completeOrder(paymentMethod, reference = null, details = null) {
+    // Ensure GCash QR payments include a valid reference number
+    if (paymentMethod === 'gcash' && !reference) {
+      reference = getGCashReference();
+      if (!reference) return; // abort if invalid
+    }
     const orderData = getOrderData(paymentMethod, reference);
     
     // Send email notification for COD orders
     if (paymentMethod === 'cod') {
       sendCODOrderEmail(orderData);
+    }
+    // For GCash, keep status as awaiting_verification for admin confirmation
+    if (paymentMethod === 'gcash') {
+      orderData.payment.status = 'awaiting_verification';
     }
     
     // Save to both Firebase and localStorage
@@ -603,7 +635,7 @@
         } finally {
           setTimeout(() => {
             paymongoBtn.disabled = false;
-            paymongoBtn.textContent = 'Pay with GCash (Checkout Link)';
+            paymongoBtn.textContent = 'Pay with GCash (Secure)';
           }, 1200);
         }
         return;

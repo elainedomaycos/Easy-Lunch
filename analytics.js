@@ -65,13 +65,36 @@
       if (typeof firebase !== 'undefined' && firebase.firestore) {
         const db = firebase.firestore();
         const snapshot = await db.collection(ANALYTICS_CONFIG.firestore.ordersCollection).get();
-        const orders = snapshot.docs.map(doc => ({
+        const firestoreOrders = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         }));
-        console.log(`✅ Fetched ${orders.length} orders from Firestore`);
-        cache.set('allOrders', orders);
-        return orders;
+        console.log(`✅ Fetched ${firestoreOrders.length} orders from Firestore`);
+
+        // Also fetch localStorage and merge to ensure UI reflects recent local orders
+        let localOrders = [];
+        try {
+          const ordersJson = localStorage.getItem(ANALYTICS_CONFIG.localStorage.ordersKey);
+          localOrders = ordersJson ? JSON.parse(ordersJson) : [];
+          console.log(`📦 Fetched ${localOrders.length} orders from localStorage`);
+        } catch (error) {
+          console.warn('⚠️ Failed to read localStorage orders during merge:', error);
+        }
+
+        // Merge by orderId/id, prefer Firestore entries
+        const byId = new Map();
+        localOrders.forEach(o => {
+          const id = o.orderId || o.id;
+          if (id) byId.set(id, o);
+        });
+        firestoreOrders.forEach(o => {
+          const id = o.orderId || o.id;
+          if (id) byId.set(id, o);
+        });
+
+        const merged = Array.from(byId.values());
+        cache.set('allOrders', merged);
+        return merged;
       }
     } catch (error) {
       console.warn('⚠️ Firestore fetch failed, falling back to localStorage:', error);
@@ -105,6 +128,25 @@
   }
 
   // ========== ANALYTICS COMPUTATIONS ==========
+
+  // Normalize order timestamp to a JavaScript Date
+  function getOrderDate(order) {
+    const ts = order?.timestamp;
+    try {
+      if (ts && typeof ts.toDate === 'function') {
+        return ts.toDate(); // Firestore Timestamp
+      }
+      if (typeof ts === 'string' || typeof ts === 'number') {
+        const d = new Date(ts);
+        if (!isNaN(d.getTime())) return d;
+      }
+    } catch {}
+    if (order?.created_at) {
+      const d = new Date(order.created_at);
+      if (!isNaN(d.getTime())) return d;
+    }
+    return new Date();
+  }
 
   /**
    * Calculate total sales revenue
@@ -225,7 +267,7 @@
       }
 
       const periodOrders = orders.filter(order => {
-        const orderDate = new Date(order.timestamp);
+        const orderDate = getOrderDate(order);
         return orderDate >= periodStart && orderDate <= periodEnd;
       });
 
@@ -273,7 +315,7 @@
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const recentOrders = orders.filter(order => {
-      return new Date(order.timestamp) >= thirtyDaysAgo;
+      return getOrderDate(order) >= thirtyDaysAgo;
     });
 
     const productDemand = {};
@@ -323,7 +365,13 @@
     const methods = {};
     
     orders.forEach(order => {
-      const method = order.payment?.method || 'unknown';
+      let method = order.payment?.method;
+      // Skip orders without a valid payment method to avoid 'unknown'
+      if (!method || typeof method !== 'string' || method.trim() === '') return;
+      method = method.toLowerCase();
+      // Normalize common aliases
+      if (method === 'cash_on_delivery') method = 'cod';
+      if (method === 'g-cash' || method === 'g_cash') method = 'gcash';
       if (!methods[method]) {
         methods[method] = {
           count: 0,
@@ -346,7 +394,10 @@
     const statuses = {};
     
     orders.forEach(order => {
-      const status = order.status || 'unknown';
+      // Default missing/empty status to 'pending' instead of 'unknown'
+      let status = order.status;
+      if (!status || typeof status !== 'string' || status.trim() === '') status = 'pending';
+      status = status.toLowerCase();
       if (!statuses[status]) {
         statuses[status] = 0;
       }
@@ -382,12 +433,12 @@
       customers[email].totalSpent += order.totals?.total || 0;
       customers[email].orderCount++;
       
-      const orderDate = new Date(order.timestamp);
+      const orderDate = getOrderDate(order);
       if (orderDate < new Date(customers[email].firstOrder)) {
-        customers[email].firstOrder = order.timestamp;
+        customers[email].firstOrder = orderDate.toISOString();
       }
       if (orderDate > new Date(customers[email].lastOrder)) {
-        customers[email].lastOrder = order.timestamp;
+        customers[email].lastOrder = orderDate.toISOString();
       }
     });
 
